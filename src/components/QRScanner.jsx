@@ -4,6 +4,7 @@ import { Html5Qrcode } from "html5-qrcode";
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const qrCodeScanner = new Html5Qrcode("reader");
@@ -11,10 +12,7 @@ const QRScanner = () => {
     qrCodeScanner
       .start(
         { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           setScannedId(decodedText);
           fetchParticipant(decodedText);
@@ -32,6 +30,7 @@ const QRScanner = () => {
 
   const fetchParticipant = async (uniqueId) => {
     try {
+      setMessage("");
       const res = await fetch(`https://symposium-52l2.onrender.com/participant/${uniqueId}`);
       const data = await res.json();
       setParticipant(data);
@@ -41,10 +40,32 @@ const QRScanner = () => {
     }
   };
 
+  const markAttendance = async () => {
+    try {
+      if (!participant) return;
+      const res = await fetch(`https://symposium-52l2.onrender.com/participant/mark/${scannedId}`, {
+        method: "PUT",
+      });
+      const result = await res.text();
+      setMessage(result);
+      // Update local state
+      setParticipant({ ...participant, attendance: true });
+    } catch (err) {
+      console.error("Error marking attendance:", err);
+      setMessage("Failed to mark attendance");
+    }
+  };
+
+  const resetScanner = () => {
+    setScannedId("");
+    setParticipant(null);
+    setMessage("");
+  };
+
   return (
-    <div>
+    <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>
-      <div id="reader" style={{ width: "300px", margin: "auto" }}></div>
+      {!scannedId && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
 
       {scannedId && <p>Scanned ID: {scannedId}</p>}
 
@@ -59,10 +80,20 @@ const QRScanner = () => {
           <p>Year: {participant.year}</p>
           <p>Department: {participant.department}</p>
           <p>Event: {participant.event}</p>
+
+          {participant.attendance ? (
+            <p style={{ color: "green" }}>Already marked present</p>
+          ) : (
+            <button onClick={markAttendance}>Mark as Present</button>
+          )}
         </div>
       ) : scannedId ? (
         <p>No participant found for this ID</p>
       ) : null}
+
+      {message && <p>{message}</p>}
+
+      {scannedId && <button onClick={resetScanner}>Scan Again</button>}
     </div>
   );
 };
