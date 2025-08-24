@@ -42,7 +42,8 @@ const symposiumSchema = new Schema({
     year: { type: Number, required: true },
     department: { type: String, required: true },
     event: { type: String, required: true },
-    date: { type: Date, default: Date.now }
+    date: { type: Date, default: Date.now },
+    attendance: { type: Boolean, default: false }
 });
 
 // Pre-save hook to auto-increment serialNumber
@@ -94,6 +95,25 @@ app.get('/participant/:uniqueId', async (req, res) => {
   }
 });
 
+// Mark attendance
+app.put('/participant/mark/:uniqueId', async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+    const participant = await User.findOne({ uniqueId });
+
+    if (!participant) return res.status(404).send('Participant not found');
+
+    if (participant.attendance) return res.send('Attendance already marked ✅');
+
+    participant.attendance = true;
+    await participant.save();
+
+    res.send('Attendance marked successfully ✅');
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 app.listen(PORT, () => {
