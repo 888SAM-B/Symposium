@@ -32,7 +32,7 @@ const QRScanner = () => {
 
   const fetchParticipant = async (uniqueId) => {
     try {
-      const res = await fetch(`http://localhost:8001/participant/${uniqueId}`);
+      const res = await fetch(`https://symposium-52l2.onrender.com/participant/${uniqueId}`);
       const data = await res.json();
       setParticipant(data);
     } catch (err) {

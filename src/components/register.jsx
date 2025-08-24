@@ -11,7 +11,7 @@ const Register = () => {
     const data = Object.fromEntries(formData.entries());
     console.log("Form data:", data);
 
-    fetch("http://localhost:8001/register", {
+    fetch("https://symposium-52l2.onrender.com/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
