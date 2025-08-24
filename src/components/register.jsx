@@ -112,8 +112,23 @@ const Register = () => {
           <p>Serial Number: {responseData.serialNumber}</p>
           <p>Unique ID: {responseData.uniqueId}</p>
           <QRCodeCanvas value={responseData.uniqueId} size={128} />
-
+           <button
+          onClick={() => {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+              const url = canvas.toDataURL("image/png");
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `qr_${responseData.uniqueId}.png`;
+              link.click();
+            }
+          }}
+          style={{ marginTop: "10px" }}
+        >
+          Download QR Code
+        </button>
         </div>
+       
       )}
     </div>
   );
