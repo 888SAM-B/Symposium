@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import QrScanner from "react-qr-scanner";
+import { QrReader } from "@blackbox-vision/react-qr-reader";
 
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
@@ -7,9 +7,8 @@ const QRScanner = () => {
 
   const handleScan = (data) => {
     if (data) {
-      const scannedValue = data.text || data; // library sometimes gives object
-      setScannedId(scannedValue);
-      fetchParticipant(scannedValue);
+      setScannedId(data);
+      fetchParticipant(data);
     }
   };
 
@@ -28,20 +27,16 @@ const QRScanner = () => {
     }
   };
 
-  const previewStyle = {
-    height: 240,
-    width: 320,
-  };
-
   return (
     <div>
       <h2>Scan QR Code</h2>
-      <QrScanner
-        delay={300}
-        style={previewStyle}
-        onError={handleError}
-        onScan={handleScan}
-        facingMode="environment"
+      <QrReader
+        constraints={{ facingMode: "environment" }}
+        onResult={(result, error) => {
+          if (!!result) handleScan(result?.text);
+          if (!!error) handleError(error);
+        }}
+        containerStyle={{ width: "300px" }}
       />
 
       {scannedId && <p>Scanned ID: {scannedId}</p>}
