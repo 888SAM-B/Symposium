@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import QrScanner from "react-qr-scanner";
 
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
@@ -7,13 +7,14 @@ const QRScanner = () => {
 
   const handleScan = (data) => {
     if (data) {
-      setScannedId(data);
-      fetchParticipant(data);
+      const scannedValue = data.text || data; // library sometimes gives object
+      setScannedId(scannedValue);
+      fetchParticipant(scannedValue);
     }
   };
 
   const handleError = (err) => {
-    console.error(err);
+    console.error("QR Scan Error:", err);
   };
 
   const fetchParticipant = async (uniqueId) => {
@@ -27,18 +28,22 @@ const QRScanner = () => {
     }
   };
 
+  const previewStyle = {
+    height: 240,
+    width: 320,
+  };
+
   return (
     <div>
       <h2>Scan QR Code</h2>
-      <QrReader
-        constraints={{ facingMode: "environment" }}
-        onResult={(result, error) => {
-          if (!!result) handleScan(result?.text);
-          if (!!error) handleError(error);
-        }}
-        style={{ width: "300px" }}
+      <QrScanner
+        delay={300}
+        style={previewStyle}
+        onError={handleError}
+        onScan={handleScan}
+        facingMode="environment"
       />
-      
+
       {scannedId && <p>Scanned ID: {scannedId}</p>}
 
       {participant ? (
