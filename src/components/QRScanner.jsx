@@ -1,21 +1,34 @@
-import React, { useState } from "react";
-import QrScanner from "react-qr-barcode-scanner";
+import React, { useEffect, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
 
-  const handleScan = (data) => {
-    if (data) {
-      const scannedValue = data.text || data; // supports both object or string
-      setScannedId(scannedValue);
-      fetchParticipant(scannedValue);
-    }
-  };
+  useEffect(() => {
+    const qrCodeScanner = new Html5Qrcode("reader");
 
-  const handleError = (err) => {
-    console.error("QR Scan Error:", err);
-  };
+    qrCodeScanner
+      .start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          setScannedId(decodedText);
+          fetchParticipant(decodedText);
+        },
+        (errorMessage) => {
+          console.warn("QR error:", errorMessage);
+        }
+      )
+      .catch((err) => console.error("Unable to start scanner:", err));
+
+    return () => {
+      qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
+    };
+  }, []);
 
   const fetchParticipant = async (uniqueId) => {
     try {
@@ -31,13 +44,7 @@ const QRScanner = () => {
   return (
     <div>
       <h2>Scan QR Code</h2>
-      <QrScanner
-        onUpdate={(error, result) => {
-          if (result) handleScan(result);
-          if (error) handleError(error);
-        }}
-        style={{ width: "300px" }}
-      />
+      <div id="reader" style={{ width: "300px", margin: "auto" }}></div>
 
       {scannedId && <p>Scanned ID: {scannedId}</p>}
 
