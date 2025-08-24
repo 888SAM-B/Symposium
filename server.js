@@ -77,6 +77,25 @@ app.post('/register', async (req, res) => {
     }
 });
 
+// Get participant by uniqueId
+app.get('/participant/:uniqueId', async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+    const participant = await User.findOne({ uniqueId });
+
+    if (!participant) {
+      return res.status(404).json({ message: 'Participant not found' });
+    }
+
+    res.json(participant);
+  } catch (error) {
+    console.error('Error fetching participant:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
