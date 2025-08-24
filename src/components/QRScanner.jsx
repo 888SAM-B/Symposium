@@ -39,7 +39,6 @@ const QRScanner = () => {
       setParticipant(null);
     }
   };
-
   const markAttendance = async () => {
     try {
       if (!participant) return;
@@ -55,20 +54,16 @@ const QRScanner = () => {
       setMessage("Failed to mark attendance");
     }
   };
-
   const resetScanner = () => {
     setScannedId("");
     setParticipant(null);
     setMessage("");
   };
-
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>
       {!scannedId && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
-
       {scannedId && <p>Scanned ID: {scannedId}</p>}
-
       {participant ? (
         <div>
           <h3>Participant Details:</h3>
@@ -80,7 +75,6 @@ const QRScanner = () => {
           <p>Year: {participant.year}</p>
           <p>Department: {participant.department}</p>
           <p>Event: {participant.event}</p>
-
           {participant.attendance ? (
             <p style={{ color: "green" }}>Already marked present</p>
           ) : (
@@ -90,13 +84,9 @@ const QRScanner = () => {
       ) : scannedId ? (
         <p>No participant found for this ID</p>
       ) : null}
-
       {message && <p>{message}</p>}
-
       {scannedId && <button onClick={resetScanner}>Scan Again</button>}
       <button onClick={() => window.location.reload()}>Reload Page</button>
-
-
     </div>
   );
 };
