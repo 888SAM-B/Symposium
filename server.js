@@ -69,6 +69,7 @@ app.post('/register', async (req, res) => {
         await newUser.save();
         res.status(201).send({
             message: 'Registration successful',
+            name: newUser.name,
             serialNumber: newUser.serialNumber,
             uniqueId: newUser.uniqueId
         });
@@ -115,6 +116,15 @@ app.put('/participant/mark/:uniqueId', async (req, res) => {
   }
 });
 
+app.get('/participants', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
