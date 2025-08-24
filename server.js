@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config();
+const mongoUrl = process.env.MONGODB_URL;
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -12,7 +14,7 @@ app.get('/', (req, res) => {
     res.send('Hello from Express server!');
 });
 
-mongoose.connect('mongodb+srv://symposiummca:SyMpOsIuMMcA@cluster0.llerbz9.mongodb.net/symposium', {
+mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
