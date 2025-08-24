@@ -11,7 +11,7 @@ const Register = () => {
     const data = Object.fromEntries(formData.entries());
     console.log("Form data:", data);
 
-    fetch("https://symposium-52l2.onrender.com/register", {
+    fetch(`${import.meta.env.VITE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -112,23 +112,41 @@ const Register = () => {
           <p>Serial Number: {responseData.serialNumber}</p>
           <p>Unique ID: {responseData.uniqueId}</p>
           <QRCodeCanvas value={responseData.uniqueId} size={128} />
-           <button
-          onClick={() => {
-            const canvas = document.querySelector("canvas");
-            if (canvas) {
+          <button
+            onClick={() => {
+              const canvas = document.createElement("canvas");
+              const size = 300; // final image size
+              canvas.width = size;
+              canvas.height = size + 60; // extra space for text
+              const ctx = canvas.getContext("2d");
+
+              // Draw QR Code on temp canvas
+              const qrCanvas = document.querySelector("canvas");
+              if (qrCanvas) {
+                ctx.drawImage(qrCanvas, 0, 0, size, size);
+              }
+
+              // Add text below QR
+              ctx.fillStyle = "black";
+              ctx.font = "16px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText(`Name: ${responseData.name}`, size / 2, size + 20);
+              ctx.fillText(`Serial: ${responseData.serialNumber}`, size / 2, size + 40);
+
+              // Download image
               const url = canvas.toDataURL("image/png");
               const link = document.createElement("a");
               link.href = url;
               link.download = `qr_${responseData.uniqueId}.png`;
               link.click();
-            }
-          }}
-          style={{ marginTop: "10px" }}
-        >
-          Download QR Code
-        </button>
+            }}
+            style={{ marginTop: "10px" }}
+          >
+            Download QR Code
+          </button>
+
         </div>
-       
+
       )}
     </div>
   );

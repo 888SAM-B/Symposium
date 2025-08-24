@@ -31,7 +31,7 @@ const QRScanner = () => {
   const fetchParticipant = async (uniqueId) => {
     try {
       setMessage("");
-      const res = await fetch(`https://symposium-52l2.onrender.com/participant/${uniqueId}`);
+      const res = await fetch(`${import.meta.env.VITE_URL}/participant/${uniqueId}`);
       const data = await res.json();
       setParticipant(data);
     } catch (err) {
@@ -42,7 +42,7 @@ const QRScanner = () => {
   const markAttendance = async () => {
     try {
       if (!participant) return;
-      const res = await fetch(`https://symposium-52l2.onrender.com/participant/mark/${scannedId}`, {
+      const res = await fetch(`${import.meta.env.VITE_URL}/participant/mark/${scannedId}`, {
         method: "PUT",
       });
       const result = await res.text();
