@@ -94,6 +94,8 @@ const QRScanner = () => {
       {message && <p>{message}</p>}
 
       {scannedId && <button onClick={resetScanner}>Scan Again</button>}
+      <button onClick={window.location.reload}>Reload Page</button>
+
     </div>
   );
 };
