@@ -116,7 +116,7 @@ app.put('/participant/mark/:uniqueId', async (req, res) => {
   }
 });
 
-app.get('/participants', async (req, res) => {
+app.get('/admin-data', async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
