@@ -111,27 +111,49 @@ const Register = () => {
           <h3>Registration Successful!</h3>
           <p>Serial Number: {responseData.serialNumber}</p>
           <p>Unique ID: {responseData.uniqueId}</p>
-          <QRCodeCanvas value={responseData.uniqueId} size={128} />
+          <QRCodeCanvas
+            value={responseData.uniqueId}
+            size={128}
+            bgColor="#ffffff"
+            style={{ padding: "16px", background: "#fff" }}
+          />
           <button
             onClick={() => {
+              const qrSize = 200; // QR code size
+              const padding = 24; // padding around QR
+              const textHeight = 80; // space for 3 lines of text
+              const canvasSize = qrSize + padding * 2;
+              const totalHeight = canvasSize + textHeight;
+
               const canvas = document.createElement("canvas");
-              const size = 300; // final image size
-              canvas.width = size;
-              canvas.height = size + 60; // extra space for text
+              canvas.width = canvasSize;
+              canvas.height = totalHeight;
               const ctx = canvas.getContext("2d");
 
-              // Draw QR Code on temp canvas
+              // Fill background with white
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+              // Get QR code canvas
               const qrCanvas = document.querySelector("canvas");
               if (qrCanvas) {
-                ctx.drawImage(qrCanvas, 0, 0, size, size);
+                ctx.drawImage(
+                  qrCanvas,
+                  padding,
+                  padding,
+                  qrSize,
+                  qrSize
+                );
               }
 
               // Add text below QR
               ctx.fillStyle = "black";
               ctx.font = "16px Arial";
               ctx.textAlign = "center";
-              ctx.fillText(`Name: ${responseData.name}`, size / 2, size + 20);
-              ctx.fillText(`Serial: ${responseData.serialNumber}`, size / 2, size + 40);
+              const textYStart = canvasSize + 28;
+              ctx.fillText(`Name: ${responseData.name}`, canvasSize / 2, textYStart);
+              ctx.fillText(`Serial: ${responseData.serialNumber}`, canvasSize / 2, textYStart + 22);
+              ctx.fillText(`Event: ${responseData.event}`, canvasSize / 2, textYStart + 44);
 
               // Download image
               const url = canvas.toDataURL("image/png");
@@ -144,9 +166,7 @@ const Register = () => {
           >
             Download QR Code
           </button>
-
         </div>
-
       )}
     </div>
   );
