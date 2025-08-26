@@ -32,7 +32,7 @@ const Counter = mongoose.model('Counter', counterSchema);
 
 // Symposium schema with serialNumber & uniqueId
 const symposiumSchema = new Schema({
-  serialNumber: { type: Number, unique: true },
+  serialNumber: { type: String, unique: true },
   uniqueId: { type: String, default: uuidv4 },
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -55,15 +55,15 @@ const symposiumSchema = new Schema({
 
 // Pre-save hook to auto-increment serialNumber
 symposiumSchema.pre('save', async function(next) {
-    if (this.isNew) {
-        const counter = await Counter.findByIdAndUpdate(
-            { _id: 'symposiumSerial' },
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true }
-        );
-        this.serialNumber = counter.seq;
-    }
-    next();
+  if (this.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: 'symposiumSerial' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.serialNumber = "VIBE_0" + counter.seq;
+  }
+  next();
 });
 
 const User = mongoose.model('User', symposiumSchema);
@@ -77,7 +77,7 @@ app.post('/register', async (req, res) => {
         res.status(201).send({
             message: 'Registration successful',
             name: newUser.name,
-            serialNumber: newUser.serialNumber,
+            serialNumber:newUser.serialNumber,
             uniqueId: newUser.uniqueId,
             event: newUser.event,
         });
