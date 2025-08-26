@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import "./register.css";
 
 const Register = () => {
   const [responseData, setResponseData] = useState(null);
@@ -33,96 +34,81 @@ const Register = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <h2>Student Registration for Symposium</h2>
-        {/* ...form fields... */}
-        <div>
-          <label>
-            Name:
-            <input type="text" name="name" required />
-          </label>
+    <div className="register-container" id="register-container">
+      <form onSubmit={handleSubmit} className="register-form" id="register-form">
+        <h2 className="register-title" id="register-title">Student Registration for Symposium</h2>
+        <div className="form-group" id="form-group-name">
+          <label htmlFor="name" className="form-label">Name:</label>
+          <input type="text" name="name" id="name" className="form-input" required />
         </div>
-        <div>
-          <label>
-            Email:
-            <input type="email" name="email" required />
-          </label>
+        <div className="form-group" id="form-group-email">
+          <label htmlFor="email" className="form-label">Email:</label>
+          <input type="email" name="email" id="email" className="form-input" required />
         </div>
-        <div>
-          <label>
-            Mobile Number:
-            <input type="tel" name="mobile" required />
-          </label>
+        <div className="form-group" id="form-group-mobile">
+          <label htmlFor="mobile" className="form-label">Mobile Number:</label>
+          <input type="tel" name="mobile" id="mobile" className="form-input" required />
         </div>
-        <div>
-          <label>
-            Graduation Level:
-            <select name="level" required>
-              <option value="">Select Level</option>
-              <option value="1">Under Graduate</option>
-              <option value="2">Post Graduate</option>
-            </select>
-          </label>
+        <div className="form-group" id="form-group-level">
+          <label htmlFor="level" className="form-label">Graduation Level:</label>
+          <select name="level" id="level" className="form-select" required>
+            <option value="">Select Level</option>
+            <option value="1">Under Graduate</option>
+            <option value="2">Post Graduate</option>
+          </select>
         </div>
-        <div>
-          <label>
-            College:
-            <input type="text" name="college" required />
-          </label>
+        <div className="form-group" id="form-group-college">
+          <label htmlFor="college" className="form-label">College:</label>
+          <input type="text" name="college" id="college" className="form-input" required />
         </div>
-        <div>
-          <label>
-            Year of Study:
-            <select name="year" required>
-              <option value="">Select Year</option>
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
-            </select>
-          </label>
+        <div className="form-group" id="form-group-year">
+          <label htmlFor="year" className="form-label">Year of Study:</label>
+          <select name="year" id="year" className="form-select" required>
+            <option value="">Select Year</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
         </div>
-        <div>
-          <label>
-            Department:
-            <input type="text" name="department" required />
-          </label>
+        <div className="form-group" id="form-group-department">
+          <label htmlFor="department" className="form-label">Department:</label>
+          <input type="text" name="department" id="department" className="form-input" required />
         </div>
-        <div>
-          <label>
-            Event Name:
-            <select name="event" required>
-              <option value="">Select Event</option>
-              <option value="Event1">Event 1</option>
-              <option value="Event2">Event 2</option>
-              <option value="Event3">Event 3</option>
-              <option value="Event4">Event 4</option>
-              <option value="Event5">Event 5</option>
-            </select>
-          </label>
+        <div className="form-group" id="form-group-event">
+          <label htmlFor="event" className="form-label">Event Name:</label>
+          <select name="event" id="event" className="form-select" required>
+            <option value="">Select Event</option>
+            <option value="Event1">Event 1</option>
+            <option value="Event2">Event 2</option>
+            <option value="Event3">Event 3</option>
+            <option value="Event4">Event 4</option>
+            <option value="Event5">Event 5</option>
+          </select>
         </div>
-        <button type="submit" disabled={loading}>Register</button>
+        <button type="submit" disabled={loading} className="register-btn" id="register-btn">Register</button>
       </form>
 
       {/* Loader */}
       {loading && (
-        <div style={{ marginTop: "20px", textAlign: "center" }}>
+        <div className="loader" id="loader" style={{ marginTop: "20px", textAlign: "center" }}>
           <span>Loading...</span>
         </div>
       )}
 
       {/* Display Serial Number, Unique ID, and QR Code */}
       {responseData && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Registration Successful!</h3>
-          <p>Serial Number: {responseData.serialNumber}</p>
-          <p>Unique ID: {responseData.uniqueId}</p>
+        <div className="registration-success" id="registration-success" style={{ marginTop: "20px" }}>
+          <h3 className="success-title" id="success-title">Registration Successful!</h3>
+          <p className="success-serial" id="success-serial">Serial Number: {responseData.serialNumber}</p>
+          <p className="success-uniqueid" id="success-uniqueid">Unique ID: {responseData.uniqueId}</p>
           <QRCodeCanvas
             value={responseData.uniqueId}
             size={128}
             bgColor="#ffffff"
             style={{ padding: "16px", background: "#fff" }}
+            className="qr-code-canvas"
+            id="qr-code-canvas"
           />
           <button
             onClick={() => {
@@ -289,9 +275,7 @@ const Register = () => {
             style={{ marginTop: "10px" }}
           >
             Download QR Code
-          </button>
- 
-        </div>
+          </button>        </div>
       )}
     </div>
   );

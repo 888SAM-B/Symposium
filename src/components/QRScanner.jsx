@@ -85,8 +85,8 @@ const QRScanner = () => {
         <p>No participant found for this ID</p>
       ) : null}
       {message && <p>{message}</p>}
-      {scannedId && <button onClick={resetScanner}>Scan Again</button>}
-      <button onClick={() => window.location.reload()}>Reload Page</button>
+      {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
+      <button onClick={() => window.location.reload()}>Scan new QR </button>
     </div>
   );
 };
