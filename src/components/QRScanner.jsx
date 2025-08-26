@@ -6,8 +6,6 @@ const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [qrCodeScanner, setQrCodeScanner] = useState(null);
   const navigate = useNavigate();
 
   // ✅ Auth check
@@ -29,16 +27,14 @@ const QRScanner = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const scanner = new Html5Qrcode("reader");
-    setQrCodeScanner(scanner);
+    const qrCodeScanner = new Html5Qrcode("reader");
 
-    scanner
+    qrCodeScanner
       .start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           setScannedId(decodedText);
-          setLoading(true);
           fetchParticipant(decodedText);
         },
         (errorMessage) => {
@@ -48,7 +44,7 @@ const QRScanner = () => {
       .catch((err) => console.error("Unable to start scanner:", err));
 
     return () => {
-      scanner.stop().catch((err) => console.error("Stop failed:", err));
+      qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
     };
   }, []);
 
@@ -61,12 +57,6 @@ const QRScanner = () => {
     } catch (err) {
       console.error("Error fetching participant:", err);
       setParticipant(null);
-    } finally {
-      setLoading(false);
-      // Stop scanning after data is fetched
-      if (qrCodeScanner) {
-        qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
-      }
     }
   };
 
@@ -78,6 +68,7 @@ const QRScanner = () => {
       });
       const result = await res.text();
       setMessage(result);
+      // Update local state
       setParticipant({ ...participant, attendance: true });
     } catch (err) {
       console.error("Error marking attendance:", err);
@@ -89,32 +80,13 @@ const QRScanner = () => {
     setScannedId("");
     setParticipant(null);
     setMessage("");
-    setLoading(false);
-    // Restart scanner
-    if (qrCodeScanner) {
-      qrCodeScanner
-        .start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText) => {
-            setScannedId(decodedText);
-            setLoading(true);
-            fetchParticipant(decodedText);
-          },
-          (errorMessage) => {
-            console.warn("QR error:", errorMessage);
-          }
-        )
-        .catch((err) => console.error("Unable to start scanner:", err));
-    }
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>
-      {!scannedId && !loading && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
-      {loading && <p>Loading...</p>}
-      {scannedId && !loading && <p>Scanned ID: {scannedId}</p>}
+      {!scannedId && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
+      {scannedId && <p>Scanned ID: {scannedId}</p>}
       {participant ? (
         <div>
           <h3>Participant Details:</h3>
@@ -132,11 +104,11 @@ const QRScanner = () => {
             <button onClick={markAttendance}>Mark as Present</button>
           )}
         </div>
-      ) : scannedId && !loading ? (
-        <p>No participant found for this ID</p>
+      ) : scannedId ? (
+        <p>Loading...</p>
       ) : null}
       {message && <p>{message}</p>}
-      {scannedId && !loading && <button onClick={resetScanner}>Fetch Again</button>}
+      {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
       <button onClick={() => window.location.reload()}>Scan new QR </button>
     </div>
   );
