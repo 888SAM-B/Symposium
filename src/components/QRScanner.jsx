@@ -117,3 +117,4 @@ const QRScanner = () => {
     </div>
   );
 };
+export default QRScanner;
