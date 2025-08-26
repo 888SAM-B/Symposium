@@ -23,8 +23,11 @@ const Register = () => {
         try {
           const result = JSON.parse(text);
           setResponseData(result);
-        } catch (e) {
+          alert('Registration successful! Please save your VIBE Number and Unique ID.');
 
+        } catch (e) {
+          alert(`Registration failed: ${text}`);
+          setResponseData(null);
         }
       })
       .catch((error) => {
@@ -100,8 +103,8 @@ const Register = () => {
       {responseData && (
         <div className="registration-success" id="registration-success" style={{ marginTop: "20px" }}>
           <h3 className="success-title" id="success-title">Registration Successful!</h3>
-          <p className="success-serial" id="success-serial">Serial Number: {responseData.serialNumber}</p>
-          <p className="success-uniqueid" id="success-uniqueid">Unique ID: {responseData.uniqueId}</p>
+          <p className="success-serial" id="success-serial">VIBE Number: {responseData.serialNumber}</p>
+          
           <QRCodeCanvas
             value={responseData.uniqueId}
             size={128}
@@ -207,7 +210,7 @@ const Register = () => {
               ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrPaddingInside);
               ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside);
               ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside + markLen);
-              ctx.stroke();
+                ctx.stroke();
 
               // Bottom-left
               ctx.beginPath();
@@ -269,7 +272,7 @@ const Register = () => {
               const url = canvas.toDataURL("image/png");
               const link = document.createElement("a");
               link.href = url;
-              link.download = `qr_${(responseData && responseData.uniqueId) || Date.now()}.png`;
+              link.download = `qr_${(responseData && responseData.serialNumber) || Date.now()}.png`;
               link.click();
             }}
             style={{ marginTop: "10px" }}
