@@ -46,9 +46,53 @@ const Admin = () => {
         setFilteredData(data);
     }, [attendanceFilter, eventFilter, responseData, searchName, dateFilter]);
 
+    const markAsPresent = async (serialNumber,uid) => {
+        const participant = responseData.find(p => p.serialNumber === serialNumber);
+        const res=confirm(`Are you sure you want to mark ${participant.name} as present?`);
+        if (!res) return;
+        
+        if (!participant) return;
+
+        try {
+            
+            await fetch(`${import.meta.env.VITE_URL}/mark-present`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    serialNumber: serialNumber,
+                    uniqueId: uid 
+                })
+            });
+           window.location.reload();
+        } catch (err) {
+            console.error('Failed to mark as present:', err);
+        }
+    };
+    const markAsAbsent = async (serialNumber,uid) => {
+        const participant = responseData.find(p => p.serialNumber === serialNumber);
+        const res=confirm(`Are you sure you want to mark ${participant.name} as present?`);
+        if (!res) return;
+
+        if (!participant) return;
+
+        try {
+            
+            await fetch(`${import.meta.env.VITE_URL}/mark-absent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    serialNumber: serialNumber,
+                    uniqueId: uid 
+                })
+            });
+           window.location.reload();
+        } catch (err) {
+            console.error('Failed to mark as present:', err);
+        }
+    };
     return (
         <div>
-            Admin
+      
             <h2>Registered Participants</h2>
             <div style={{ marginBottom: '1em' }}>
                 <label>
@@ -108,6 +152,7 @@ const Admin = () => {
                             <th>Event</th>
                             <th>Date</th>
                             <th>Attendance</th>
+                            <th>Mark as present</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -124,8 +169,13 @@ const Admin = () => {
                                 <td>{participant.event}</td>
                                 <td>{new Date(participant.date).toLocaleDateString()}</td>
                                 <td>{participant.attendance ? '✅' : '❌'}</td>
+                                <td>
+                                    <button  style={{display: participant.attendance ? 'none' : 'inline',backgroundColor: 'green', color: 'white'}}  onClick={() => markAsPresent(participant.serialNumber,participant.uniqueId)}>Mark as Present</button>
+                                    <button  style={{display: !participant.attendance ? 'none' : 'inline', backgroundColor: 'red', color: 'white'}} onClick={() => markAsAbsent(participant.serialNumber,participant.uniqueId)}>Mark as Absent</button>
+                                </td>
                             </tr>
                         ))}
+                        
                     </tbody>
                 </table>
             )}
