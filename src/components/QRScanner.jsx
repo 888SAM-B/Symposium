@@ -1,11 +1,16 @@
+import React, { useEffect, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
+import { useNavigate } from "react-router-dom";
+
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ new state
+  const [loading, setLoading] = useState(false);
+  const [qrCodeScanner, setQrCodeScanner] = useState(null);
   const navigate = useNavigate();
 
-  // Auth check
+  // ✅ Auth check
   useEffect(() => {
     const authData = sessionStorage.getItem("scanner-auth");
     if (!authData) {
@@ -13,6 +18,7 @@ const QRScanner = () => {
       navigate("/");
       return;
     }
+
     const parsed = JSON.parse(authData);
     if (parsed.expiry < new Date().getTime()) {
       sessionStorage.removeItem("scanner-auth");
@@ -23,14 +29,16 @@ const QRScanner = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const qrCodeScanner = new Html5Qrcode("reader");
+    const scanner = new Html5Qrcode("reader");
+    setQrCodeScanner(scanner);
 
-    qrCodeScanner
+    scanner
       .start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           setScannedId(decodedText);
+          setLoading(true);
           fetchParticipant(decodedText);
         },
         (errorMessage) => {
@@ -40,29 +48,31 @@ const QRScanner = () => {
       .catch((err) => console.error("Unable to start scanner:", err));
 
     return () => {
-      qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
+      scanner.stop().catch((err) => console.error("Stop failed:", err));
     };
   }, []);
 
   const fetchParticipant = async (uniqueId) => {
     try {
-      setLoading(true); // start loader
       setMessage("");
-      setParticipant(null); // reset previous
       const res = await fetch(`${import.meta.env.VITE_URL}/participant/${uniqueId}`);
       const data = await res.json();
-      setParticipant(data || null);
-      setLoading(false); // stop loader
+      setParticipant(data);
     } catch (err) {
       console.error("Error fetching participant:", err);
       setParticipant(null);
-      setLoading(false); // stop loader
+    } finally {
+      setLoading(false);
+      // Stop scanning after data is fetched
+      if (qrCodeScanner) {
+        qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
+      }
     }
   };
 
   const markAttendance = async () => {
-    if (!participant) return;
     try {
+      if (!participant) return;
       const res = await fetch(`${import.meta.env.VITE_URL}/participant/mark/${scannedId}`, {
         method: "PUT",
       });
@@ -80,17 +90,32 @@ const QRScanner = () => {
     setParticipant(null);
     setMessage("");
     setLoading(false);
+    // Restart scanner
+    if (qrCodeScanner) {
+      qrCodeScanner
+        .start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            setScannedId(decodedText);
+            setLoading(true);
+            fetchParticipant(decodedText);
+          },
+          (errorMessage) => {
+            console.warn("QR error:", errorMessage);
+          }
+        )
+        .catch((err) => console.error("Unable to start scanner:", err));
+    }
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>
-      {!scannedId && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
-      {scannedId && <p>Scanned ID: {scannedId}</p>}
-
-      {loading && <p>Loading participant details...</p>} {/* ✅ loader */}
-
-      {!loading && participant ? (
+      {!scannedId && !loading && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
+      {loading && <p>Loading...</p>}
+      {scannedId && !loading && <p>Scanned ID: {scannedId}</p>}
+      {participant ? (
         <div>
           <h3>Participant Details:</h3>
           <p>Serial Number: {participant.serialNumber}</p>
@@ -107,14 +132,14 @@ const QRScanner = () => {
             <button onClick={markAttendance}>Mark as Present</button>
           )}
         </div>
-      ) : !loading && scannedId && !participant ? (
-        <p>No record found for this ID</p> // ✅ updated message
+      ) : scannedId && !loading ? (
+        <p>No participant found for this ID</p>
       ) : null}
-
       {message && <p>{message}</p>}
-      {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
+      {scannedId && !loading && <button onClick={resetScanner}>Fetch Again</button>}
       <button onClick={() => window.location.reload()}>Scan new QR </button>
     </div>
   );
 };
+
 export default QRScanner;
