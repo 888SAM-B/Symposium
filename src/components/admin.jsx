@@ -168,7 +168,7 @@ const Admin = () => {
                                 <td>{participant.department}</td>
                                 <td>{participant.event}</td>
                                 <td>{new Date(participant.date).toLocaleDateString()}</td>
-                                <td>{participant.attendance ? '✅' : '❌'}</td>
+                                <td style={{color:participant.attendance?'green':'red'}} >{participant.attendance ? 'PRESENT' : 'ABSENT'}</td>
                                 <td>
                                     <button  style={{display: participant.attendance ? 'none' : 'inline',backgroundColor: 'green', color: 'white'}}  onClick={() => markAsPresent(participant.serialNumber,participant.uniqueId)}>Mark as Present</button>
                                     <button  style={{display: !participant.attendance ? 'none' : 'inline', backgroundColor: 'red', color: 'white'}} onClick={() => markAsAbsent(participant.serialNumber,participant.uniqueId)}>Mark as Absent</button>
