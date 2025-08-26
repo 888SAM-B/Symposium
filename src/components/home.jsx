@@ -26,7 +26,7 @@ const Home = () => {
 
   // Check if session expired
   React.useEffect(() => {
-    const authData = sessionStorage.getItem("scanner-auth");
+    const authData = sessionStorage.getItem("scanner- auth");
     if (authData) {
       const parsed = JSON.parse(authData);
       if (parsed.expiry < new Date().getTime()) {
