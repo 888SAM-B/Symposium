@@ -6,6 +6,8 @@ const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   // ✅ Auth check
@@ -38,10 +40,14 @@ const QRScanner = () => {
           fetchParticipant(decodedText);
         },
         (errorMessage) => {
+          setError("QR scanning error: " + errorMessage);
           console.warn("QR error:", errorMessage);
         }
       )
-      .catch((err) => console.error("Unable to start scanner:", err));
+      .catch((err) => {
+        setError("Unable to start scanner: " + err);
+        console.error("Unable to start scanner:", err);
+      });
 
     return () => {
       qrCodeScanner.stop().catch((err) => console.error("Stop failed:", err));
@@ -49,30 +55,46 @@ const QRScanner = () => {
   }, []);
 
   const fetchParticipant = async (uniqueId) => {
+    setLoading(true);
+    setError("");
     try {
       setMessage("");
       const res = await fetch(`${import.meta.env.VITE_URL}/participant/${uniqueId}`);
+      if (!res.ok) {
+        throw new Error("Participant not found");
+      }
       const data = await res.json();
       setParticipant(data);
     } catch (err) {
-      console.error("Error fetching participant:", err);
       setParticipant(null);
+      setError("Error fetching participant: " + err.message);
+      setMessage("No participant found for this ID");
+    } finally {
+      setLoading(false);
     }
   };
 
   const markAttendance = async () => {
+    setLoading(true);
+    setError("");
     try {
       if (!participant) return;
       const res = await fetch(`${import.meta.env.VITE_URL}/participant/mark/${scannedId}`, {
         method: "PUT",
       });
+      if (!res.ok) {
+        throw new Error("Failed to mark attendance");
+      }
       const result = await res.text();
       setMessage(result);
-      // Update local state
       setParticipant({ ...participant, attendance: true });
+      alert("Attendance marked successfully!");
     } catch (err) {
-      console.error("Error marking attendance:", err);
       setMessage("Failed to mark attendance");
+      setError("Error marking attendance: " + err.message);
+      alert("Error marking attendance!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,12 +102,15 @@ const QRScanner = () => {
     setScannedId("");
     setParticipant(null);
     setMessage("");
+    setError("");
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>
-      {!scannedId && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
+      {loading && <div style={{ color: "blue" }}>Loading...</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {!scannedId && !loading && <div id="reader" style={{ width: "300px", margin: "auto" }}></div>}
       {scannedId && <p>Scanned ID: {scannedId}</p>}
       {participant ? (
         <div>
@@ -101,15 +126,15 @@ const QRScanner = () => {
           {participant.attendance ? (
             <p style={{ color: "green" }}>Already marked present</p>
           ) : (
-            <button onClick={markAttendance}>Mark as Present</button>
+            <button onClick={markAttendance} disabled={loading}>Mark as Present</button>
           )}
         </div>
-      ) : scannedId ? (
+      ) : scannedId && !loading ? (
         <p>No participant found for this ID</p>
       ) : null}
       {message && <p>{message}</p>}
-      {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
-      <button onClick={() => window.location.reload()}>Scan new QR </button>
+      {scannedId && <button onClick={resetScanner} disabled={loading}>Fetch Again</button>}
+      <button onClick={() => window.location.reload()} disabled={loading}>Scan new QR </button>
     </div>
   );
 };
