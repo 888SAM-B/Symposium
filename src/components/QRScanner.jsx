@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import { useNavigate } from "react-router-dom";
 
 const QRScanner = () => {
   const [scannedId, setScannedId] = useState("");
   const [participant, setParticipant] = useState(null);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  // ✅ Auth check
+  useEffect(() => {
+    const authData = sessionStorage.getItem("scanner-auth");
+    if (!authData) {
+      alert("Please login to continue");
+      navigate("/");
+      return;
+    }
+
+    const parsed = JSON.parse(authData);
+    if (parsed.expiry < new Date().getTime()) {
+      sessionStorage.removeItem("scanner-auth");
+      alert("Session expired. Please login again");
+      navigate("/");
+      return;
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const qrCodeScanner = new Html5Qrcode("reader");
@@ -39,6 +59,7 @@ const QRScanner = () => {
       setParticipant(null);
     }
   };
+
   const markAttendance = async () => {
     try {
       if (!participant) return;
@@ -54,11 +75,13 @@ const QRScanner = () => {
       setMessage("Failed to mark attendance");
     }
   };
+
   const resetScanner = () => {
     setScannedId("");
     setParticipant(null);
     setMessage("");
   };
+
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Scan QR Code</h2>

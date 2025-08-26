@@ -1,33 +1,65 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    const staticUsername = "puvibescanner";
+    const staticPassword = "@ScAnNeR#";
+
+    if (username === staticUsername && password === staticPassword) {
+      // Set session storage with expiry (1 hour)
+      const expiryTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour
+      sessionStorage.setItem("scanner-auth", JSON.stringify({ loggedIn: true, expiry: expiryTime }));
+
+      navigate("/qr-scanner"); // redirect to dashboard or wherever
+    } else {
+      setError("Invalid username or password");
+    }
+  };
+
+  // Check if session expired
+  React.useEffect(() => {
+    const authData = sessionStorage.getItem("scanner-auth");
+    if (authData) {
+      const parsed = JSON.parse(authData);
+      if (parsed.expiry < new Date().getTime()) {
+        sessionStorage.removeItem("auth");
+      }
+    }
+  }, []);
+
   return (
-    <>
-    <h1>Technical Symposium - Periyar University, Salem</h1>
-    <p>
-        Welcome to the  Technical Symposium conducted by Periyar University, Salem. 
-        Join us for a day filled with insightful talks and exciting competitions 
-        in the fields of Computer Science, Engineering, and Technology.
-    </p>
-    <ul>
-        <li>Keynote Sessions by Industry Experts</li>
-        <li>Paper Presentations</li>
-        <li>Technical Quizzes</li>
-        <li>Project Expo</li>
-        <li>Workshops on Emerging Technologies</li>
-        <li>Networking Opportunities</li>
-    </ul>
-    <p>
-        Date: 25th August 2025<br />
-        Venue: Periyar University Campus, Salem<br />
-        For registration and more details, visit our official website.
-    </p>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "50px" }}>
+      <h1>LOGIN</h1>
+      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", width: "250px" }}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          style={{ marginBottom: "10px", padding: "8px" }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{ marginBottom: "10px", padding: "8px" }}
+        />
+        <button type="submit" style={{ padding: "10px", cursor: "pointer" }}>Login</button>
+      </form>
+      {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+    </div>
+  );
+};
 
-    <button onClick={() => navigate('/register')} >Register Now</button>
-    </>
-  )
-}
-
-export default Home
+export default Home;

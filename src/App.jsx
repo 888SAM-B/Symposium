@@ -4,7 +4,7 @@ import './App.css'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Home from './components/home'
-import Register from './components/register';
+
 import QRScanner from './components/QRScanner';
 function App() {
     useEffect(() => {
@@ -18,7 +18,7 @@ function App() {
      <div>
       <Routes>
         <Route path='/' element={<Home/>} ></Route>
-        <Route path='/register' element={<Register/>} ></Route>
+        
         <Route path='/qr-scanner' element={<QRScanner/>} ></Route>
         <Route path='*' element={<h1>404 Not Found</h1>} ></Route>
 
