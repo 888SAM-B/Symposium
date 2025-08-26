@@ -141,7 +141,7 @@ const Admin = () => {
                 <table border={1} cellPadding={15} cellSpacing={0}>
                     <thead>
                         <tr>
-                            <th>Serial Number</th>
+                            <th>VIBE Number</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Mobile Number</th>
