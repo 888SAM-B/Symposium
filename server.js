@@ -32,18 +32,25 @@ const Counter = mongoose.model('Counter', counterSchema);
 
 // Symposium schema with serialNumber & uniqueId
 const symposiumSchema = new Schema({
-    serialNumber: { type: Number, unique: true },
-    uniqueId: { type: String, default: uuidv4 },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    mobile: { type: String, required: true },
-    level: { type: String, required: true },
-    college: { type: String, required: true },
-    year: { type: Number, required: true },
-    department: { type: String, required: true },
-    event: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    attendance: { type: Boolean, default: false }
+  serialNumber: { type: Number, unique: true },
+  uniqueId: { type: String, default: uuidv4 },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  mobile: { type: String, required: true },
+  level: { type: String, required: true },
+  college: { type: String, required: true },
+  year: { type: Number, required: true },
+  department: { type: String, required: true },
+  event: { type: String, required: true },
+  date: { 
+    type: Date, 
+    default: () => {
+      const now = new Date();
+      // IST is UTC+5:30
+      return new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    }
+  },
+  attendance: { type: Boolean, default: false }
 });
 
 // Pre-save hook to auto-increment serialNumber
@@ -71,7 +78,8 @@ app.post('/register', async (req, res) => {
             message: 'Registration successful',
             name: newUser.name,
             serialNumber: newUser.serialNumber,
-            uniqueId: newUser.uniqueId
+            uniqueId: newUser.uniqueId,
+            event: newUser.event,
         });
     } catch (error) {
         console.error('Error registering:', error);
