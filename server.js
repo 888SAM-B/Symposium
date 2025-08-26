@@ -134,6 +134,54 @@ app.get('/admin-data', async (req, res) => {
     }
 });
 
+app.post('/mark-present', async (req, res) => {
+    const { serialNumber, uniqueId } = req.body;
+
+    try {
+        const participant = await User.findOne({ serialNumber, uniqueId });
+
+        if (!participant) {
+            return res.status(404).send('Participant not found');
+        }
+
+        if (participant.attendance) {
+            return res.send('Attendance already marked ✅');
+        }
+
+        participant.attendance = true;
+        await participant.save();
+
+        res.send('Attendance marked successfully ✅');
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/mark-absent', async (req, res) => {
+    const { serialNumber, uniqueId } = req.body;
+
+    try {
+        const participant = await User.findOne({ serialNumber, uniqueId });
+
+        if (!participant) {
+            return res.status(404).send('Participant not found');
+        }
+
+        if (!participant.attendance) {
+            return res.send('Absent');
+        }
+
+        participant.attendance = false;
+        await participant.save();
+
+        res.send('Attendance marked successfully ✅');
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
