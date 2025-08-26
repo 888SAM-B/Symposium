@@ -70,6 +70,10 @@ const User = mongoose.model('User', symposiumSchema);
 
 app.post('/register', async (req, res) => {
     try {
+        const existingUser = await User.findOne({ email: req.body.email });
+        if (existingUser) {
+            return res.status(400).send('User already exists');
+        }
         const userData = req.body;
         console.log('Received user data:', userData);
         const newUser = new User(userData);
