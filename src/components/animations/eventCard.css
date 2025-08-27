@@ -52,4 +52,6 @@
 
 .event-description {
   font-size: 1rem;
+  /* color: #000;  */
+  z-index: 100000;
 }

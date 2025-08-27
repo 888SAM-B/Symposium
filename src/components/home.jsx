@@ -11,7 +11,12 @@ const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const splashRef = useRef(null);
-
+  const [details, setDetails] = useState([]);
+  const [rules, setRules] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [display, setDisplay] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -52,28 +57,52 @@ const Home = () => {
   };
 
   const images = [
-    { id: 1, img: "/r9.jpg" },
-    { id: 2, img: "/r8.jpg" },
-    { id: 3, img: "/r7.jpg" },
-    { id: 4, img: "/r6.jpg" },
-    { id: 5, img: "/r5.jpg" },
-    { id: 6, img: "/r4.jpg" },
-    { id: 7, img: "/r3.jpg" },
-    { id: 8, img: "/r2.jpg" },
-    { id: 9, img: "/r1.jpg" },
+    { id: 1, img: "/9.png" },
+    { id: 2, img: "/8.png" },
+    { id: 3, img: "/7.png" },
+    { id: 4, img: "/6.png" },
+    { id: 5, img: "/5.png" },
+    { id: 6, img: "/4.png" },
+    { id: 7, img: "/3.png" },
+    { id: 8, img: "/2.png" },
+    { id: 9, img: "/1.png" },
   ];
   const events = [
     {
       title: "Tech Talk",
       description: "A deep dive into React and modern web development.",
-      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
+      ],
+      details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
     },
     {
       title: "Coding Challenge",
       description: "Test your skills in algorithms and problem solving.",
-      image: "https://www.svgrepo.com/show/508700/landscape-placeholder.svg"
-    }
+      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
+      ],
+      details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
+    },
+    {
+      title: "Web Designing",
+      description: "Test your Web Designing skills in HTML, CSS, and JavaScript.",
+      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
+      ],
+      details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
+    },
   ];
+  const handleExploreClick = (event) => {
+    setDisplay(true);
+    setTitle(event.title);
+    setDescription(event.description);
+    setImage(event.image);
+    setRules(event.rules);
+    setDetails(event.details);
+    console.log(title);
+  };
+
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
       {/* Splash Screen */}
@@ -152,7 +181,36 @@ const Home = () => {
         </div>
         <div className="about" id="about" style={{ marginBottom: "2rem" }}>
           <ShinyText text="LIST OF EVENTS" className="shiney" />
-         
+          <div className="event-container">
+            {
+              events.map((event, index) => 
+              (<div className="event-elements">
+                <EventCard key={index} image={event.image} title={event.title} description={event.description} />
+                <h5>{event.title}</h5>
+                <button onClick={() => handleExploreClick(event)} style={{ marginTop: "10px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }}>Explore</button>
+                </div>
+              ))
+            }
+          </div>
+          <div className="pop-up" style={{ display: display ? "block" : "none" }}>
+           <div className="pop-title">
+           <h1>{title}</h1>
+           </div>
+           <div className="popElements">
+            <img src={image} alt=" " width="100px" />
+            <div className="contents">
+              <h2>Details</h2>
+              {details.map((rule, index) => (
+                <p key={index}>{rule}</p>
+              ))}
+              <h2>Rules</h2>
+              {rules.map((rule, index) => (
+                <p key={index}>{rule}</p>
+              ))}
+            </div>
+            <button style={{ marginTop: "10px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }} onClick={() => setDisplay(false)}>close</button>
+           </div>
+          </div>
         </div>
 
         <button

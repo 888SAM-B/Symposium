@@ -52,6 +52,7 @@ body{
 }
 .about-contents p{
     color: #f0f8ff;
+    font-size: 1.1rem;
     text-align: justify;
     vertical-align: middle;
 }  
@@ -80,12 +81,16 @@ body{
 }
 
 .long{
-    width:458px !important;
-    padding: 10px 0px !important;
+    width:350px !important;
+    padding: 0px 0px !important;
+}
+.long img{
+    position: relative;
+    left: 10px;
 }
 
 .mid{
-    width: 280px !important;
+    width: 340px !important;
 }
 .icon{
     width: 30px;
@@ -102,6 +107,37 @@ margin-bottom: 130px;
 position: relative;
 
 }
+.event-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.event-elements {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.3rem;
+    text-align: center;
+}
+.event-elements h5 {
+    margin-top: 10px;
+    color: #f0f8ff;
+}
+.pop-up{
+    position: sticky;
+    width: 99.8%;
+    left: 0%;
+    border: 1px solid red;
+    height: 99vh;
+    top: 0px;
+    
+}
+
+.event-card:hover .pop-up {
+    opacity: 1;
+}
+
 /* RESPONSIVE STYLES    */
 @media screen and (max-width: 768px) {
     .about-contents,.about-cards {
