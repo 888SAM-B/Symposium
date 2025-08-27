@@ -4,6 +4,7 @@ import gsap from "gsap";
 import GradientText from "./animations/gradientText";
 import About from "./About";
 import ShinyText from "./animations/shineyText";
+import Stack from "./animations/Stack";
 const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
@@ -19,6 +20,7 @@ const Home = () => {
         startContentAnimation(); // show main content
       },
     });
+
 
     splashTl
       .fromTo(
@@ -49,6 +51,18 @@ const Home = () => {
       })
 
   };
+
+  const images = [
+  { id: 1, img: "/r9.jpg" },
+  { id: 2, img: "/r8.jpg" },
+  { id: 3, img: "/r7.jpg" },
+  { id: 4, img: "/r6.jpg" },
+  { id: 5, img: "/r5.jpg" },
+  { id: 6, img: "/r4.jpg" },
+  { id: 7, img: "/r3.jpg" },
+  { id: 8, img: "/r2.jpg" },
+  { id: 9, img: "/r1.jpg" },
+];
 
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
@@ -105,7 +119,23 @@ const Home = () => {
           <ShinyText text="ABOUT VIBE 2K25" className="shiney" />
           <About />
         </div>
-       
+
+
+        <div className="about" id="about">
+          <ShinyText text="RULES AND REGULATIONS" className="shiney" />
+          <div className="rule-container">
+            
+            <Stack
+              randomRotation={true}
+              sensitivity={180}
+              sendToBackOnClick={false}
+              cardDimensions={{ width: 350, height: 200 }}
+              cardsData={images}
+            />
+          </div>
+
+        </div>
+
 
         <button
           onClick={() => navigate("/register")}

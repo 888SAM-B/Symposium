@@ -5,6 +5,7 @@
 }
 body{
     background-color: var(--bg-black) !important;
+    overflow-x: hidden;
 
 }
 *{
@@ -58,7 +59,7 @@ body{
 .about-cards{
     display: flex;
     align-items: center;
-    /* justify-content: space-between; */
+    justify-content: space-between;
     gap: 20px;
     padding: 20px;
 }
@@ -73,20 +74,27 @@ body{
     gap: 10px;
 }
 .long{
-    width:450px !important;
+    width:458px !important;
     padding: 0px 10px;
 }
 .mid{
     width: 280px !important;
 }
-
-
-
-
-
-
-
-
+.icon{
+    width: 30px;
+}
+.rule-container{
+scale: 1.5;
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin-top: 80px;
+margin-bottom: 130px;
+position: relative;
+left: -18px;
+}
 /* RESPONSIVE STYLES    */
 @media screen and (max-width: 768px) {
     .about-contents,.about-cards {
@@ -108,5 +116,8 @@ body{
     .long{
         text-align: center;
         line-height: 23px;
+    }
+    .rule-container {
+        scale: 1.05;
     }
 }

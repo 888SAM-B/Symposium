@@ -1,5 +1,9 @@
 import React from 'react'
 import GlareHover from './animations/GlareHover'
+
+
+
+
 const About = () => {
     return (
         <>
@@ -16,13 +20,13 @@ const About = () => {
                 </div>
                 <div className="about-cards">
                 <GlareHover className='glare-hover'>
-                      <i class="fa fa-calendar" aria-hidden="true" />15th September 2025
+                      <img src='/calendar.png'className='icon' />15th September 2025
                 </GlareHover>
                 <GlareHover className='glare-hover'>
-                        <i class="fa fa-clock" aria-hidden="true" />10:00 AM - 5:00 PM
+                        <img src='/clock.png' className='icon'  />10:00 AM - 5:00 PM
                 </GlareHover>
                   <GlareHover className='glare-hover long'>
-                       <i class="fa fa-map-marker" aria-hidden="true" /> Department of Computer Science, Periyar University, Salem
+                       <img src='/location.png'  className='icon' alt="" /> Department of Computer Science, Periyar University, Salem
                 </GlareHover>
                   <GlareHover className='glare-hover mid '>
                         Registraion Ends On  : 5th Sep 2025  
