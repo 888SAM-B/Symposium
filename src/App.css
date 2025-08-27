@@ -169,4 +169,14 @@ position: relative;
         margin-top: 10px;
         margin-bottom: 30px;
     }
+    .event-container{
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-left: 20px;
+        width: 90%;
+    }
+    .event-container img{
+        width: 90%;
+    }
 }
