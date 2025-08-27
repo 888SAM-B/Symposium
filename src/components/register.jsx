@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useNavigate } from "react-router-dom";
 import "./register.css";
 
 const Register = () => {
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
+ 
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
