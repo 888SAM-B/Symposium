@@ -5,6 +5,8 @@ import GradientText from "./animations/gradientText";
 import About from "./About";
 import ShinyText from "./animations/shineyText";
 import Stack from "./animations/Stack";
+import EventCard from "./animations/eventCard";
+
 const Home = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
@@ -20,7 +22,6 @@ const Home = () => {
         startContentAnimation(); // show main content
       },
     });
-
 
     splashTl
       .fromTo(
@@ -43,27 +44,36 @@ const Home = () => {
       y: -40,
       opacity: 0,
     })
-
       .from(containerRef.current.querySelectorAll("p"), {
         x: -30,
         opacity: 0,
         stagger: 0.15,
-      })
-
+      });
   };
 
   const images = [
-  { id: 1, img: "/r9.jpg" },
-  { id: 2, img: "/r8.jpg" },
-  { id: 3, img: "/r7.jpg" },
-  { id: 4, img: "/r6.jpg" },
-  { id: 5, img: "/r5.jpg" },
-  { id: 6, img: "/r4.jpg" },
-  { id: 7, img: "/r3.jpg" },
-  { id: 8, img: "/r2.jpg" },
-  { id: 9, img: "/r1.jpg" },
-];
-
+    { id: 1, img: "/r9.jpg" },
+    { id: 2, img: "/r8.jpg" },
+    { id: 3, img: "/r7.jpg" },
+    { id: 4, img: "/r6.jpg" },
+    { id: 5, img: "/r5.jpg" },
+    { id: 6, img: "/r4.jpg" },
+    { id: 7, img: "/r3.jpg" },
+    { id: 8, img: "/r2.jpg" },
+    { id: 9, img: "/r1.jpg" },
+  ];
+  const events = [
+    {
+      title: "Tech Talk",
+      description: "A deep dive into React and modern web development.",
+      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+    },
+    {
+      title: "Coding Challenge",
+      description: "Test your skills in algorithms and problem solving.",
+      image: "https://www.svgrepo.com/show/508700/landscape-placeholder.svg"
+    }
+  ];
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
       {/* Splash Screen */}
@@ -75,22 +85,25 @@ const Home = () => {
             left: 0,
             width: "100%",
             height: "100%",
-            background: "#0a192f", // deep navy blue
+            background: "#0a192f",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 9999,
+            padding: "0 1rem",
+            textAlign: "center",
           }}
         >
           <h1
             ref={splashRef}
             style={{
-              fontSize: "5rem",
+              fontSize: "clamp(2.5rem, 15vw, 5rem)",
               fontWeight: "900",
               background: "linear-gradient(90deg, #007bff, #00c6ff)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              letterSpacing: "5px",
+              letterSpacing: "0.2em",
+              lineHeight: 1.1,
             }}
           >
             VIBE 2K25
@@ -102,8 +115,14 @@ const Home = () => {
       <div
         ref={containerRef}
         className="main-content"
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "2rem 1rem",
+          textAlign: "center",
+        }}
       >
-        <h1>
+        <h1 style={{ marginBottom: "1.5rem" }}>
           <GradientText
             colors={["#d2e0efff", "#00c6ff", "#40ffaa"]}
             animationSpeed={3}
@@ -114,17 +133,14 @@ const Home = () => {
           </GradientText>
         </h1>
 
-
-        <div className="about" id="about">
+        <div className="about" id="about" style={{ marginBottom: "2rem" }}>
           <ShinyText text="ABOUT VIBE 2K25" className="shiney" />
           <About />
         </div>
 
-
-        <div className="about" id="about">
+        <div className="about" id="rules" style={{ marginBottom: "2rem" }}>
           <ShinyText text="RULES AND REGULATIONS" className="shiney" />
           <div className="rule-container">
-            
             <Stack
               randomRotation={true}
               sensitivity={180}
@@ -133,15 +149,17 @@ const Home = () => {
               cardsData={images}
             />
           </div>
-
         </div>
-
+        <div className="about" id="about" style={{ marginBottom: "2rem" }}>
+          <ShinyText text="LIST OF EVENTS" className="shiney" />
+         
+        </div>
 
         <button
           onClick={() => navigate("/register")}
           style={{
             padding: "12px 28px",
-            fontSize: "18px",
+            fontSize: "clamp(16px, 4vw, 18px)",
             cursor: "pointer",
             background: "linear-gradient(90deg, #007bff, #00c6ff)",
             color: "#fff",

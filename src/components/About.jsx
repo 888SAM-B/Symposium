@@ -26,7 +26,7 @@ const About = () => {
                         <img src='/clock.png' className='icon'  />10:00 AM - 5:00 PM
                 </GlareHover>
                   <GlareHover className='glare-hover long'>
-                       <img src='/location.png'  className='icon' alt="" /> Department of Computer Science, Periyar University, Salem
+                       <img src='/location.png'  className='icon' alt="" /> Department of Computer Science, Periyar University, Salem- 636011
                 </GlareHover>
                   <GlareHover className='glare-hover mid '>
                         Registraion Ends On  : 5th Sep 2025  

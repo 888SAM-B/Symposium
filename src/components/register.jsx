@@ -41,7 +41,7 @@ const Register = () => {
   return (
     <div className="register-container" id="register-container">
       <form onSubmit={handleSubmit} className="register-form" id="register-form">
-        <h2 className="register-title" id="register-title">Student Registration for Symposium</h2>
+        <h2 className="register-title" id="register-title">STEP INTO THE VIBE</h2>
         <div className="form-group" id="form-group-name">
           <label htmlFor="name" className="form-label">Name:</label>
           <input type="text" name="name" id="name" className="form-input" required />
@@ -116,6 +116,7 @@ const Register = () => {
             id="qr-code-canvas"
           />
           <button
+          className="register-btn"
             onClick={() => {
               // Poster size (you can scale this up/down)
               const W = 800;
@@ -278,9 +279,12 @@ const Register = () => {
               link.click();
             }}
             style={{ marginTop: "10px" }}
+            
           >
             Download QR Code
-          </button>        </div>
+            
+          </button> 
+          </div>
       )}
     </div>
   );

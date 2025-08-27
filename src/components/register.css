@@ -1,84 +1,143 @@
-/* register.css */
-
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    
+/* Base Styles */
+body, .register-container {
+    background-color: #212121;
+    color: #fff;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
 }
 
+/* Container */
 .register-container {
-    z-index: 10000;
-    max-width: 400px;
-    margin: 60px auto;
-    
+    max-width: 420px;
+    margin: 40px auto;
+    /* background: #262626; */
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
-    padding: 40px 32px 32px 32px;
+    box-shadow: 0 4px 24px rgba(0, 240, 255, 0.08);
+    padding: 32px 24px;
 }
 
+/* Title */
 .register-title {
-    text-align: center;
-    font-size: 2rem;
+    color: #00f0ff;
+    font-size: clamp(1.8rem, 5vw, 2rem);
     font-weight: 600;
-    color: #2d3e50;
     margin-bottom: 24px;
+    text-align: center;
     letter-spacing: 1px;
 }
 
-.register-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.register-label {
+/* Form Labels */
+.register-form label {
+    display: block;
+    color: #b2ffff;
+    margin-bottom: 8px;
     font-size: 1rem;
-    color: #34495e;
-    margin-bottom: 6px;
-    font-weight: 500;
 }
 
-.register-input {
+/* Form Inputs */
+.register-form input[type="text"],
+.register-form input[type="email"],
+.register-form input[type="tel"],
+.register-form input[type="password"],
+.register-form select {
+    width: 94%;
     padding: 10px 12px;
-    
+    margin-bottom: 18px;
+    border: 1px solid #00f0ff;
     border-radius: 6px;
+    /* background: #23272a; */
+    color: #fff;
     font-size: 1rem;
     transition: border-color 0.2s;
+}
+.register-form select {
+    width: 100%;
+}
+
+.register-form input:focus,
+.register-form select:focus {
+    border-color: #00bcd4;
     outline: none;
+    background-color: #7d777728;
 }
 
-.register-input:focus {
-    border-color: #2980b9;
-}
-
+/* Submit Button */
 .register-btn {
-    background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
-    
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #00f0ff 0%, #00bcd4 100%);
+    color: #212121;
+    font-weight: 700;
+    font-size: 1.1rem;
     border: none;
     border-radius: 6px;
-    padding: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 10px;
+    transition: all 0.3s ease;
+    margin-top: 8px;
 }
 
 .register-btn:hover {
-    background: linear-gradient(90deg, #2471a3 0%, #48c6ef 100%);
+    background: linear-gradient(90deg, #00bcd4 0%, #00f0ff 100%);
+    transform: scale(1.02);
 }
 
-.register-link {
-    display: block;
+/* Loader */
+.loader {
+    color: #00f0ff;
+    font-size: 1rem;
+}
+
+/* Success Section */
+.registration-success {
+    /* background: #2c2c2c; */
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
     text-align: center;
-    margin-top: 18px;
-    color: #2980b9;
-    text-decoration: none;
-    font-size: 0.98rem;
-    transition: color 0.2s;
+    box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
 }
 
-.register-link:hover {
-    color: #2471a3;
+.success-title {
+    font-size: 1.5rem;
+    color: #00f0ff;
+    margin-bottom: 12px;
+}
+
+.success-serial {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: #b2ffff;
+}
+
+/* QR Code */
+.qr-code-canvas {
+    margin: 0 auto 12px auto;
+    display: block;
+    border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .register-container {
+        margin: 20px 12px;
+        padding: 24px 16px;
+    }
+
+    .register-title {
+        font-size: 1.6rem;
+    }
+
+    .register-btn {
+        font-size: 1rem;
+    }
+
+    .success-title {
+        font-size: 1.3rem;
+    }
+
+    .success-serial {
+        font-size: 1rem;
+    }
 }

@@ -6,7 +6,7 @@
 body{
     background-color: var(--bg-black) !important;
     overflow-x: hidden;
-
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 *{
     background-color: var(--bg-black);
@@ -59,9 +59,14 @@ body{
 .about-cards{
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-evenly;
     gap: 20px;
     padding: 20px;
+}
+.about-cards img{
+    
+    width: 30px;
+    /* border-radius: 12px; */
 }
 .glare-hover {
     color:#fff;
@@ -70,13 +75,15 @@ body{
     border: 1px solid  !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: space-evenly !important;
     gap: 10px;
 }
+
 .long{
     width:458px !important;
-    padding: 0px 10px;
+    padding: 10px 0px !important;
 }
+
 .mid{
     width: 280px !important;
 }
@@ -93,7 +100,7 @@ gap: 10px;
 margin-top: 80px;
 margin-bottom: 130px;
 position: relative;
-left: -25px;
+
 }
 /* RESPONSIVE STYLES    */
 @media screen and (max-width: 768px) {
@@ -116,8 +123,14 @@ left: -25px;
     .long{
         text-align: center;
         line-height: 23px;
+        padding: 5px !important;
+        height: auto !important;
     }
+    
     .rule-container {
-        scale: 1;
+        scale: 0.91;
+        left: -31px;
+        margin-top: 10px;
+        margin-bottom: 30px;
     }
 }
