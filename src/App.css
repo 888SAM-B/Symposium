@@ -140,7 +140,7 @@ position: relative;
     position: fixed;
     width: 99.8%;
     left: 0%;
-    border: 1px solid red;
+    /* border: 1px solid red; */
     height: 99vh;
     overflow: scroll;
     top: 0px;
