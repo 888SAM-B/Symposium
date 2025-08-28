@@ -1,6 +1,7 @@
 import React from 'react'
 import GlareHover from './animations/GlareHover'
 
+import TiltedCard from './animations/TiltedCard'
 
 
 
@@ -9,7 +10,22 @@ const About = () => {
         <>
             <div className="about">
                 <div className="about-contents">
-                    <img src="https://www.svgrepo.com/show/508699/landscape-placeholder.svg" alt="" />
+                    <div className="tilted-card">
+                    <TiltedCard
+                        imageSrc="/vibe2.png"
+                        containerHeight="300px"
+                        containerWidth="300px"
+                        imageHeight="300px"
+                        imageWidth="300px"
+                        rotateAmplitude={12}
+                        scaleOnHover={1.2}
+                        showMobileWarning={false}
+                        showTooltip={false}
+                        displayOverlayContent={true}
+                        
+                    />
+                    </div>
+
                     <p>
 
                         This prestigious event serves as a vibrant platform for students from across the nation to showcase their talent, creativity, and technical excellence through a variety of engaging competitions.
@@ -19,20 +35,20 @@ const About = () => {
                     </p>
                 </div>
                 <div className="about-cards">
-                <GlareHover className='glare-hover'>
-                      <img src='/calendar.png'className='icon' />15th September 2025
-                </GlareHover>
-                <GlareHover className='glare-hover'>
-                        <img src='/clock.png' className='icon'  />10:00 AM - 5:00 PM
-                </GlareHover>
-                  <GlareHover className='glare-hover long'>
-                       <img src='/location.png'  className='icon' alt="" /> Periyar University, Salem- 636011
-                </GlareHover>
-                  <GlareHover className='glare-hover mid '>
-                        Registraion Ends On  : 5th September 2025  
-                </GlareHover>
+                    <GlareHover className='glare-hover'>
+                        <img src='/calendar.png' className='icon' />15th September 2025
+                    </GlareHover>
+                    <GlareHover className='glare-hover'>
+                        <img src='/clock.png' className='icon' />10:00 AM - 5:00 PM
+                    </GlareHover>
+                    <GlareHover className='glare-hover long'>
+                        <img src='/location.png' className='icon' alt="" /> Periyar University, Salem- 636011
+                    </GlareHover>
+                    <GlareHover className='glare-hover mid '>
+                        Registraion Ends On  : 5th September 2025
+                    </GlareHover>
                 </div>
-                
+
             </div>
         </>
     )

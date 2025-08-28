@@ -148,6 +148,7 @@ position: relative;
     
 }
 
+
 .event-card:hover .pop-up {
     opacity: 1;
 }
