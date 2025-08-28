@@ -79,7 +79,19 @@ body{
     justify-content: space-evenly !important;
     gap: 10px;
 }
-
+.reg-button {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 10px 20px;
+    
+}
+.reg-button:hover {
+    background: linear-gradient(90deg, #00c6ff, #007bff);
+}
 .long{
     width:350px !important;
     padding: 0px 0px !important;
@@ -125,12 +137,14 @@ position: relative;
     color: #f0f8ff;
 }
 .pop-up{
-    position: sticky;
+    position: fixed;
     width: 99.8%;
     left: 0%;
     border: 1px solid red;
     height: 99vh;
+    overflow: scroll;
     top: 0px;
+    z-index: 100;
     
 }
 
