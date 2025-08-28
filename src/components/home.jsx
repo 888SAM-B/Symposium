@@ -198,7 +198,7 @@ const Home = () => {
            <h1>{title}</h1>
            </div>
            <div className="popElements">
-            <img src={image} alt=" " width="100px" />
+            <img src={image || null} alt=" " width="100px" />
             <div className="contents">
               <h2>Details</h2>
               {details.map((rule, index) => (
