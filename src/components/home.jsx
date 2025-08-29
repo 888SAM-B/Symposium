@@ -127,7 +127,7 @@ const Home = () => {
           <h1
             ref={splashRef}
             style={{
-              fontSize: "clamp(2.5rem, 15vw, 5rem)",
+              fontSize: "clamp(2rem, 15vw, 5rem)",
               fontWeight: "900",
               background: "linear-gradient(90deg, #007bff, #00c6ff)",
               WebkitBackgroundClip: "text",
@@ -136,7 +136,7 @@ const Home = () => {
               lineHeight: 1.1,
             }}
           >
-            VIBE 2K25
+            VIBE  <br />  2K25
           </h1>
         </div>
       )}
