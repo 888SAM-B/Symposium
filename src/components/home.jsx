@@ -184,33 +184,34 @@ const Home = () => {
           <ShinyText text="LIST OF EVENTS" className="shiney" />
           <div className="event-container">
             {
-              events.map((event, index) => 
+              events.map((event, index) =>
               (<div className="event-elements">
                 <EventCard key={index} image={event.image} title={event.title} description={event.description} />
                 <h5>{event.title}</h5>
-                <button onClick={() => handleExploreClick(event)} style={{ marginTop: "10px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }}>Explore</button>
-                </div>
+                <button onClick={() => handleExploreClick(event)} className="explore-btn" style={{ marginTop: "0px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }}>Explore</button>
+              </div>
               ))
             }
           </div>
           <div className="pop-up" style={{ display: display ? "block" : "none" }}>
-           <div className="pop-title">
-           <h1>{title}</h1>
-           </div>
-           <div className="popElements">
-            <img src={image || null} alt=" " width="100px" />
-            <div className="contents">
-              <h2>Details</h2>
-              {details.map((rule, index) => (
-                <p key={index}>{rule}</p>
-              ))}
-              <h2>Rules</h2>
-              {rules.map((rule, index) => (
-                <p key={index}>{rule}</p>
-              ))}
+            <div className="pop-title">
+              <h1>{title}</h1>
             </div>
-            <button style={{ marginTop: "10px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }} onClick={() => setDisplay(false)}>close</button>
-           </div>
+            <div className="popElements">
+              <img src={image || null} alt=" " width="100px" />
+              <div className="contents">
+                <h2>Details</h2>
+                {details.map((rule, index) => (
+                  <p key={index}>{rule}</p>
+                ))}
+                <h2>Rules</h2>
+                {rules.map((rule, index) => (
+                  <p key={index}>{rule}</p>
+                ))}
+              </div>
+              
+            </div>
+            <button style={{ marginTop: "0px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }} onClick={() => setDisplay(false)} className="close-btn" >close</button>
           </div>
         </div>
 
