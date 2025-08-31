@@ -176,7 +176,7 @@ position: relative;
 }
 .close-btn {
    position: relative;
-   bottom: 18px;
+   bottom: 2px;
     font-size: 1rem;
 }
 .event-card:hover .pop-up {
