@@ -5,6 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Home from './components/home'
 import Register from './components/register';
+import Idgen from './components/idgen';
 
 function App() {
     useEffect(() => {
@@ -16,10 +17,10 @@ function App() {
   return (
     <>
      <div>
-      <Routes>
+      <Routes> 
         <Route path='/' element={<Home/>} ></Route>
         <Route path='/register' element={<Register/>} ></Route>
-        
+        <Route path='/get-id' element={<Idgen/>} ></Route>
         <Route path='*' element={<h1>404 Not Found</h1>} ></Route>
 
       </Routes>

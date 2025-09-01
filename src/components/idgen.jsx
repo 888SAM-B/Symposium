@@ -1,132 +1,70 @@
-import React, { useState,useEffect } from "react";
-import { QRCodeCanvas } from "qrcode.react";
-import { useNavigate } from "react-router-dom";
-import "./register.css";
+import React, { useState } from 'react';
+import { QRCodeCanvas } from 'qrcode.react';
 
-const Register = () => {
+const Idgen = () => {
+  const [id, setId] = useState('');
+  const [name, setName] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
   const [responseData, setResponseData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [dis, setDis] = useState(false); 
-  const handleSubmit = (event) => {
-    setDis(true);
-    event.preventDefault();
-    setLoading(true);
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    fetch(`${import.meta.env.VITE_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(async (response) => {
-        const text = await response.text();
-        try {
-          const result = JSON.parse(text);
-          setResponseData(result);
-          alert('Registration successful! Please save your VIBE Number and Unique ID.');
 
-        } catch (e) {
-          alert(`Registration failed: ${text}`);
-          setResponseData(null);
-        }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const email = event.target.email.value;
+    const mobile = event.target.mobile.value;
+
+    fetch('http://localhost:8001/fetchId', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, mobile }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(`Your ID is: ${data.id}`);
+        setId(data.id);
+        setName(data.name);
+        setSerialNumber(data.serialNumber);
+        setResponseData(data);
+        console.log(data);
       })
       .catch((error) => {
-        // handle error
-      })
-      .finally(() => setLoading(false));
+        console.error('Error:', error);
+      });
   };
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDis(false);
-    }, 3000); // 3 seconds
-
-    return () => clearTimeout(timer); // cleanup on unmount
-  }, [dis]);
 
   return (
-    <div className="register-container" id="register-container">
-      <form onSubmit={handleSubmit} className="register-form" id="register-form">
-        <h2 className="register-title" id="register-title">STEP INTO THE VIBE</h2>
-        <div className="form-group" id="form-group-name">
-          <label htmlFor="name" className="form-label">Name:</label>
-          <input  type="text" name="name" id="name" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-email">
-          <label htmlFor="email" className="form-label">Email:</label>
-          <input type="email" name="email" id="email" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-mobile">
-          <label htmlFor="mobile" className="form-label">Mobile Number:</label>
-          <input type="tel" name="mobile" id="mobile" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-level">
-          <label htmlFor="level" className="form-label">Graduation Level:</label>
-          <select name="level" id="level" className="form-select" required>
-            <option value="">Select Level</option>
-            <option value="1">Under Graduate</option>
-            <option value="2">Post Graduate</option>
-          </select>
-        </div>
-        <div className="form-group" id="form-group-college">
-          <label htmlFor="college" className="form-label">College:</label>
-          <input type="text" name="college" id="college" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-year">
-          <label htmlFor="year" className="form-label">Year of Study:</label>
-          <select name="year" id="year" className="form-select" required>
-            <option value="">Select Year</option>
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
-        </div>
-        <div className="form-group" id="form-group-department">
-          <label htmlFor="department" className="form-label">Department:</label>
-          <input type="text" name="department" id="department" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-event">
-          <label htmlFor="event" className="form-label">Event Name:</label>
-          <select name="event" id="event" className="form-select" required>
-            <option value="">Select Event</option>
-            <option value="Event1">Event 1</option>
-            <option value="Event2">Event 2</option>
-            <option value="Event3">Event 3</option>
-            <option value="Event4">Event 4</option>
-            <option value="Event5">Event 5</option>
-          </select>
-        </div>
-        <button type="submit" disabled={loading} className="register-btn" id="register-btn"  >Register</button>
+    <div className="register-container">
+      <h1 className="register-title">LOGIN</h1>
+
+      <form className="register-form" onSubmit={handleSubmit}>
+        <label htmlFor="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label htmlFor="mobile">Mobile:</label>
+        <input type="tel" id="mobile" name="mobile" required />
+
+        <button type="submit" className="register-btn">Get ID</button>
       </form>
 
-      {/* Loader */}
-      {loading && (
-        <div className="loader" id="loader" style={{ marginTop: "20px", textAlign: "center" }}>
-          <span>Loading...</span>
+      {id && (
+        <div className="registration-success">
+          <h2 className="success-title">Registration Successful!</h2>
+          <p className="success-serial">Serial No: {serialNumber}</p>
+         <QRCodeCanvas
+                     value={id}
+                     size={128}
+                     bgColor="#ffffff"
+                     style={{ padding: "16px", background: "#fff" }}
+                     className="qr-code-canvas"
+                     id="qr-code-canvas"
+                   />
         </div>
       )}
 
-      {/* Display Serial Number, Unique ID, and QR Code */}
-      {responseData && (
-        <div className="registration-success" id="registration-success" style={{ marginTop: "20px" }}>
-          <h3 className="success-title" id="success-title">Registration Successful!</h3>
-          <p className="success-serial" id="success-serial">VIBE Number: {responseData.serialNumber}</p>
-          
-          <QRCodeCanvas
-            value={responseData.uniqueId}
-            size={128}
-            bgColor="#ffffff"
-            style={{ padding: "16px", background: "#fff" }}
-            className="qr-code-canvas"
-            id="qr-code-canvas"
-          />
-          <button
-          className="register-btn"
-            onClick={() => {
-              // Poster size (you can scale this up/down)
+      <button
+        style={{ display: id ? 'block' : 'none' ,marginTop:"25px"}}
+        className="register-btn"
+        onClick={() => {
+          // Poster size (you can scale this up/down)
               const W = 800;
               const H = 1200;
 
@@ -286,16 +224,16 @@ const Register = () => {
               link.download = `qr_${(responseData && responseData.serialNumber) || Date.now()}.png`;
               link.click();
             }}
-            style={{ marginTop: "10px" }}
-            
+                       
           >
             Download QR Code
             
-          </button> 
-          </div>
-      )}
+        
+      
+      
+      </button>
     </div>
   );
 };
 
-export default Register;
+export default Idgen;

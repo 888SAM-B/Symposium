@@ -191,9 +191,22 @@ padding: 3px;
 .event-card:hover .pop-up {
     opacity: 1;
 }
-
+.btn-container{
+    
+    display: flex;
+    align-items: center; 
+    justify-content:space-evenly;
+    
+}
+.reg-button{
+    width: 250px;
+}
 /* RESPONSIVE STYLES    */
 @media screen and (max-width: 768px) {
+    .btn-container{
+        flex-direction: column;
+        gap: 20px;
+    }
     .about-contents,.about-cards {
         flex-direction: column;
         justify-content: center;

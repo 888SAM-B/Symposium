@@ -58,25 +58,25 @@ const Home = () => {
   ];
   const events = [
     {
-      title: "Tech Talk",
-      description: "A deep dive into React and modern web development.",
-      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      title: "Quiz",
+      description: "Test your knowledge in various technical domains.",
+      image: "/quiz.png",
       rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
       ],
       details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
     },
     {
-      title: "Coding Challenge",
-      description: "Test your skills in algorithms and problem solving.",
-      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      title: "Paper Presentation",
+      description: "Showcase your research and innovative ideas.",
+      image: "/paper.png",
       rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
       ],
       details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
     },
     {
-      title: "Web Designing",
-      description: "Test your Web Designing skills in HTML, CSS, and JavaScript.",
-      image: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg",
+      title: "Poster Presentation",
+      description: "Visualize your concepts and designs effectively.",
+      image: "/poster.png",
       rules: ["Participants must use the provided dataset and submit their solutions within the time limit.", "Collaboration is encouraged, but each participant must submit their own solution.", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure eum veniam reprehenderit odit assumenda alias optio repellat dolorem sunt fuga eveniet, reiciendis quos harum, omnis suscipit sed in eaque!"
       ],
       details: ["Participate in a timed coding challenge and showcase your skills.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]
@@ -194,7 +194,7 @@ const Home = () => {
                   <p key={index}>{rule}</p>
                 ))}
                 <h2 className="ch" >Rules</h2>
-                {rules.map((rule, index) => (
+                {rules.map((rule, index) => ( 
                   <p key={index}>{rule}</p>
                 ))}
               </div>
@@ -203,7 +203,9 @@ const Home = () => {
             <button style={{ marginTop: "0px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }} onClick={() => setDisplay(false)} className="close-btn" >close</button>
           </div>
         </div>
-
+              
+        <ShinyText text="JOIN THE VIBE" className="shiney" />
+        <div className="btn-container">
         <button
           className="reg-button"
           onClick={() => navigate("/register")}
@@ -219,13 +221,39 @@ const Home = () => {
             fontWeight: "600",
             boxShadow: "0px 4px 10px rgba(0,123,255,0.3)",
             transition: "all 0.3s ease",
-            zIndex: -1
+            zIndex: 1
           }}
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
           Register Now
         </button>
+
+
+          <button
+          className="reg-button"
+          onClick={() => navigate("/get-id")}
+          style={{
+            padding: "12px 28px",
+            fontSize: "clamp(16px, 4vw, 18px)",
+            cursor: "pointer",
+            background: "linear-gradient(90deg, #007bff, #00c6ff)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "10px",
+            marginTop: "20px",
+            fontWeight: "600",
+            boxShadow: "0px 4px 10px rgba(0,123,255,0.3)",
+            transition: "all 0.3s ease",
+            zIndex: 1
+          }}
+          onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+        >
+          Download your ID 
+        </button>
+        </div>
+
       </div>
     </div>
   );
