@@ -10,7 +10,7 @@ const About = () => {
         <>
             <div className="about">
                 <div className="about-contents">
-                    <div className="tilted-card">
+                    <div className="tilted-card lr" >
                     <TiltedCard
                         imageSrc="/vibe2.png"
                         containerHeight="300px"
@@ -26,7 +26,7 @@ const About = () => {
                     />
                     </div>
 
-                    <p>
+                    <p className='lr1'> 
 
                         This prestigious event serves as a vibrant platform for students from across the nation to showcase their talent, creativity, and technical excellence through a variety of engaging competitions.
                         <br /> From challenging quizzes to innovative project presentations and exciting contests, VIBE 2K25 is designed to inspire participation and healthy competition.

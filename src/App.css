@@ -110,22 +110,27 @@ body{
     width: 30px;
 }
 .rule-container{
-scale: 1.5;
+/* scale: 1.5; */
 display: flex;
 flex-wrap: wrap;
 justify-content: center;
 align-items: center;
 gap: 10px;
 margin-top: 80px;
-margin-bottom: 130px;
+margin-bottom: 100px;
 position: relative;
-
+background-color: transparent;
+}
+.rule-container *{
+scale: 1.13;
+padding: 3px;
 }
 .event-container{
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
+    
 }
 .event-elements {
     display: flex;
@@ -143,7 +148,7 @@ position: relative;
     width: 99.8%;
     left: 0%;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     top: 0px;
     z-index: 100;
     text-align: center;
@@ -165,19 +170,23 @@ position: relative;
     width: 67%;
     padding: 0px 10px;
 }
+.contents h2{
+    text-align: left;
+}
 .contents p{
     text-align: justify;
 }
 .explore-btn{
     position: relative;
-    bottom: 10px;
+    bottom: 0px;
     font-size: 0.9rem;
     font-weight: 600;
 }
 .close-btn {
    position: relative;
-   bottom: 2px;
-    font-size: 1rem;
+   bottom: -20px;
+   font-size: 1rem;
+   margin-bottom: 40px;
 }
 .event-card:hover .pop-up {
     opacity: 1;
@@ -213,6 +222,11 @@ position: relative;
         left: -31px;
         margin-top: 10px;
         margin-bottom: 30px;
+        
+    }
+    .rule-container * {
+        scale: 1;
+        padding: 0px;
     }
     .event-container{
         flex-direction: column;
@@ -220,6 +234,7 @@ position: relative;
         justify-content: center;
         margin-left: 20px;
         width: 90%;
+        
     }
     .event-container img{
         width: 90%;
@@ -240,4 +255,8 @@ position: relative;
 }
 body{
     overflow-x: hidden;
+    
+}
+*{
+    /* border: 1px solid #ccc; */
 }

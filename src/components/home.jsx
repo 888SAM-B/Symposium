@@ -43,19 +43,7 @@ const Home = () => {
       });
   }, []);
 
-  const startContentAnimation = () => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
-
-    tl.from(containerRef.current.querySelector("h1"), {
-      y: -40,
-      opacity: 0,
-    })
-      .from(containerRef.current.querySelectorAll("p"), {
-        x: -30,
-        opacity: 0,
-        stagger: 0.15,
-      });
-  };
+  
 
   const images = [
     { id: 1, img: "/9.png" },
@@ -136,7 +124,7 @@ const Home = () => {
               lineHeight: 1.1,
             }}
           >
-            VIBE  <br />  2K25
+          VIBE  <br />  2K25
           </h1>
         </div>
       )}
@@ -172,6 +160,7 @@ const Home = () => {
           <ShinyText text="RULES AND REGULATIONS" className="shiney" />
           <div className="rule-container">
             <Stack
+              className="rule-stack"
               randomRotation={true}
               sensitivity={180}
               sendToBackOnClick={false}
@@ -197,14 +186,14 @@ const Home = () => {
             <div className="pop-title">
               <h1>{title}</h1>
             </div>
-            <div className="popElements">
+            <div className="popElements" >
               <img src={image || null} alt=" " width="100px" />
               <div className="contents">
-                <h2>Details</h2>
+                <h2 className="ch" >Details</h2>
                 {details.map((rule, index) => (
                   <p key={index}>{rule}</p>
                 ))}
-                <h2>Rules</h2>
+                <h2 className="ch" >Rules</h2>
                 {rules.map((rule, index) => (
                   <p key={index}>{rule}</p>
                 ))}
