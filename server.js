@@ -218,6 +218,7 @@ app.post('/mark-absent', async (req, res) => {
     }
 });
 
+
 app.post('/check',async(req,res)=>{
   const college=req.body.college;
   console.log(college)
@@ -290,6 +291,27 @@ app.get("/students", async (req, res) => {
 });
 
 // ---------------------------------------------------
+
+app.post('/fetchId', async (req, res) => {
+  console.log("HELLO  FROM FETCH ID");
+    const { email, mobile } = req.body;
+
+    try {
+        const participant = await User.findOne({ email, mobile }) || "";
+
+        if (!participant) {
+            return res.status(400).send('Participant not found');
+        }
+        res.json({ id: participant.uniqueId, serialNumber: participant.serialNumber,name: participant.name,event: participant.event });
+        if(participant)
+          console.log(participant);
+    } catch (error) {
+        console.error('Error fetching ID:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on the port ${PORT}`);
 });
