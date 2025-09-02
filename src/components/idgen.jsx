@@ -19,7 +19,7 @@ const Idgen = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(`Your ID is: ${data.id}`);
+        alert(`Your VIBE NUMBER is: ${data.serialNumber}`);
         setId(data.id);
         setName(data.name);
         setSerialNumber(data.serialNumber);
