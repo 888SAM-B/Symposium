@@ -1,0 +1,5 @@
+{
+  "name": "Team Event Registrar",
+  "description": "A dynamic and intelligent registration system for multi-event competitions. It captures team and participant details, enforces complex participation rules in real-time, and uses AI to generate a unique team motto upon successful registration.",
+  "requestFramePermissions": []
+}
