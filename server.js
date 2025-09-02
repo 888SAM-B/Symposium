@@ -16,13 +16,14 @@ app.get('/', (req, res) => {
 
 mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true, 
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
 const Schema = mongoose.Schema;
 
+// ---------------- Existing Symposium Schema ----------------
 // Counter schema for serial numbers
 const counterSchema = new Schema({
   _id: { type: String, required: true },
@@ -46,8 +47,7 @@ const symposiumSchema = new Schema({
     type: Date, 
     default: () => {
       const now = new Date();
-      // IST is UTC+5:30
-      return new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+      return new Date(now.getTime() + (5.5 * 60 * 60 * 1000)); // IST
     }
   },
   attendance: { type: Boolean, default: false }
@@ -68,6 +68,38 @@ symposiumSchema.pre('save', async function(next) {
 
 const User = mongoose.model('User', symposiumSchema);
 
+// ---------------- New Schemas for Team Registration ----------------
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  regNo: { type: String, required: true, unique: true },
+  team: { type: String, required: true },
+  status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
+});
+
+const teamSchema = new mongoose.Schema({
+  teamName: { type: String, required: true, unique: true },
+
+  // Store events as an object with eventName -> [students]
+  event: {
+    type: Map,
+    of: [String], // array of student "name (regNo)"
+    required: true,
+  },
+
+  members: [
+    {
+      name: { type: String, required: true },
+      regNo: { type: String, required: true, unique: true },
+      status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
+    },
+  ],
+});
+
+
+const Student = mongoose.model("Student", studentSchema);
+const Team = mongoose.model("Team", teamSchema);
+
+// ---------------- Existing Routes ----------------
 app.post('/register', async (req, res) => {
     try {
         const existingUser = await User.findOne({ email: req.body.email });
@@ -186,6 +218,78 @@ app.post('/mark-absent', async (req, res) => {
     }
 });
 
+app.post('/check',async(req,res)=>{
+  const college=req.body.college;
+  console.log(college)
+  const collegeName = await Team.findOne({
+  teamName: { $regex: `^${college}$`, $options: "i" }
+});
+
+  if(collegeName){
+    res.send({exists:true})
+  }
+  else{
+    res.send({exists:false})
+  }
+
+})
+
+// ---------------- New Routes for Team Registration ----------------
+// Register Team
+app.post("/team-register", async (req, res) => {
+  try {
+    const { teamName, event, members } = req.body;
+
+    // Check duplicate regNos inside the same team
+    const regNos = members.map((m) => m.regNo);
+    const duplicate = regNos.find(
+      (regNo, index) => regNos.indexOf(regNo) !== index
+    );
+    if (duplicate) {
+      return res.status(400).json({ error: `Duplicate RegNo in team: ${duplicate}` });
+    }
+
+    // Check if regNos already exist in Student collection
+    const existing = await Student.find({ regNo: { $in: regNos } });
+    if (existing.length > 0) {
+      return res
+        .status(400)
+        .json({ error: "Some regNos already registered", existing });
+    }
+
+    // Save team
+    const newTeam = new Team({ teamName, event, members });
+    await newTeam.save();
+
+    // Save students individually
+    const studentDocs = members.map((m) => ({
+      name: m.name,
+      regNo: m.regNo,
+      team: teamName,
+      status: m.status || "Absent",
+    }));
+    await Student.insertMany(studentDocs);
+
+    res.json({ message: "Team registered successfully", team: newTeam });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Get all teams
+app.get("/teams", async (req, res) => {
+  const teams = await Team.find();
+  res.json(teams);
+});
+
+// Get all students
+app.get("/students", async (req, res) => {
+  const students = await Student.find();
+  res.json(students);
+});
+
+// ---------------------------------------------------
 app.listen(PORT, () => {
     console.log(`Server is running on the port ${PORT}`);
 });
