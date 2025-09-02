@@ -12,7 +12,7 @@ const Idgen = () => {
     const email = event.target.email.value;
     const mobile = event.target.mobile.value;
 
-    fetch('http://localhost:8001/fetchId', {
+    fetch(`${import.meta.env.VITE_URL}/fetchId`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, mobile }),
