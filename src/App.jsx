@@ -6,6 +6,7 @@ import 'aos/dist/aos.css';
 import Home from './components/home'
 import Register from './components/register';
 import Idgen from './components/idgen';
+import Register1 from './components/SymposiumRegistration';
 
 function App() {
     useEffect(() => {
@@ -21,6 +22,7 @@ function App() {
         <Route path='/' element={<Home/>} ></Route>
         <Route path='/register' element={<Register/>} ></Route>
         <Route path='/get-id' element={<Idgen/>} ></Route>
+        <Route path='/reg' element={<Register1/>} ></Route>
         <Route path='*' element={<h1>404 Not Found</h1>} ></Route>
 
       </Routes>
