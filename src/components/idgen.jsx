@@ -208,7 +208,7 @@ const Idgen = () => {
               } else {
                 ctx.fillText("NAME", W / 2, bottomStartY);
               }
-              ctx.fillText((responseData && responseData.serialNumber) ? String(responseData.serialNumber).toUpperCase() : "SERIAL NUMBER", W / 2, bottomStartY + 54);
+              ctx.fillText((responseData && responseData.serialNumber) ? String(responseData.serialNumber).toUpperCase() : "VIBE NUMBER", W / 2, bottomStartY + 54);
               ctx.fillText((responseData && responseData.event) ? String(responseData.event).toUpperCase() : "EVENT", W / 2, bottomStartY + 108);
               ctx.shadowBlur = 0;
 
