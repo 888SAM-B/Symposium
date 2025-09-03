@@ -1,0 +1,60 @@
+/* Organizers.css */
+
+/* Container */
+.organizers-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Headings */
+.organizers-container h2 {
+  color: #00f0ff;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.organizers-container h3 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Cards wrapper */
+.cards-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Individual card */
+.organizer-card {
+  background-color: #1f1f1f;
+  padding: 1rem;
+  width: 12rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.organizer-card:hover {
+  transform: scale(1.05);
+}
+
+/* Image */
+.organizer-card img {
+  width: 8rem;
+  height: 8rem;
+  object-fit: cover;
+  border-radius: 5%;
+  margin: 0 auto 0.75rem auto;
+}
+
+/* Name */
+.organizer-card p {
+  color: #ffffff;
+  font-weight: 500;
+}
