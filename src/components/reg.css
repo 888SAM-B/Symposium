@@ -22,11 +22,16 @@ body {
 .step-2{
   display: flex;
   flex-direction: column;
+  align-items: center;
   max-width: 600px;
   margin: auto;
 }
-.back{
+.back{  
   margin-right: 50px;
+}
+.register-container button:disabled{
+  background: grey;
+  cursor: not-allowed;
 }
 /* Animations */
 @keyframes fadeIn {
@@ -70,7 +75,7 @@ body {
 .register-container input:focus,
 .register-container select:focus {
   border: 2px solid #00e5ff;
-  background: #111;
+  background: #3e3d3d7c;
 }
 
 /* Member Inputs side by side */
@@ -114,10 +119,7 @@ body {
 }
 
 /* Selected participant highlight */
-.participants select.selected {
-  border: 2px solid #28a745 !important;
-  background: rgba(40, 167, 69, 0.2) !important;
-}
+
 
 /* Buttons */
 .register-container button {
@@ -151,7 +153,10 @@ body {
   justify-content: space-evenly;
   gap: 15px;
 }
-
+.step-2{
+  border: 1px solid rgba(201, 223, 223, 0.353);
+  padding-bottom: 3 0px;
+}
 /* Responsive */
 @media screen and (max-width: 768px) {
   .register-container {
@@ -172,5 +177,29 @@ body {
   }
   .member-input {
     flex-direction: column;
+  }
+  .step-1{
+    border: 1px  solid rgba(201, 223, 223, 0.353) !important;
+  }
+  .step-1 input,button{
+    width: 85% !important;
+  }
+  .step-2{
+    border: none !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .member-input{
+    all:unset
+  }
+  .step-2 input,button{
+    width: 85% !important;
+  }
+  .back{
+    margin: 0px;
+  }
+  .member-input{
+    border: 1px solid rgba(201, 223, 223, 0.353);
+    margin-top: 10px;
   }
 }

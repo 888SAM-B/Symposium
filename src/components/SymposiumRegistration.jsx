@@ -69,6 +69,8 @@ const RegisterSymposium = () => {
       if (res.ok) {
         alert("Team Registered Successfully!");
         console.log("Response:", result);
+      } else if (res.status === 400) {
+        alert(result.error || "Duplicate registration numbers found!");
       } else {
         alert(result.message || "Something went wrong!");
       }
@@ -98,13 +100,16 @@ const RegisterSymposium = () => {
   };
 
   return (
+    <>
     <div className="register-container">
+      <h1>VIBE Registration</h1>
+      <div className="step-1">
       {step === 1 && (
         <div>
-          <h2>Step 1: College Details</h2>
+          <h2>Step 1: Team Details</h2>
           <input
             type="text"
-            placeholder="College Name"
+            placeholder="Team Name"
             value={college}
             onChange={(e) => setCollege(e.target.value)}
           />
@@ -123,6 +128,7 @@ const RegisterSymposium = () => {
           />
           <br />
           <button
+          className="next"
             onClick={verifyTeamName}
             disabled={!college || memberCount < 1}
           >
@@ -130,6 +136,7 @@ const RegisterSymposium = () => {
           </button>
         </div>
       )}
+      </div>
 
       {step === 2 && (
         <div className="step-2">
@@ -158,21 +165,45 @@ const RegisterSymposium = () => {
               Back
             </button>
             <button
-              onClick={() => {
-                const regNos = members.map((m) => m.regNo.trim());
-                const uniqueRegNos = new Set(regNos);
+  onClick={async () => {
+    const regNos = members.map((m) => m.regNo.trim());
 
-                if (uniqueRegNos.size !== regNos.length) {
-                  alert("Duplicate Registration Numbers are not allowed!");
-                  return;
-                }
+    // 1. Check duplicates inside current team
+    const uniqueRegNos = new Set(regNos);
+    if (uniqueRegNos.size !== regNos.length) {
+      alert("Duplicate Registration Numbers are not allowed!");
+      return;
+    }
 
-                setStep(3);
-              }}
-              disabled={members.some((m) => !m.name || !m.regNo)}
-            >
-              Next
-            </button>
+    try {
+      // 2. Call backend to check if regNos already exist in DB
+      const response = await fetch(`${import.meta.env.VITE_URL}/api/check-regnos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regNos }),
+      });
+
+      const data = await response.json();
+
+      if (data.exists && data.exists.length > 0) {
+        alert(
+          `These Registration Numbers already exist: ${data.exists.join(", ")}`
+        );
+        return;
+      }
+
+      // 3. If all good → go next step
+      setStep(3);
+    } catch (error) {
+      console.error("Error checking regNos:", error);
+      alert("Something went wrong while checking registration numbers!");
+    }
+  }}
+  disabled={members.some((m) => !m.name || !m.regNo)}
+>
+  Next
+</button>
+
           </div>
         </div>
       )}
@@ -324,6 +355,7 @@ const RegisterSymposium = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
