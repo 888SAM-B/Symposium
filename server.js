@@ -139,6 +139,27 @@ app.get('/participant/:uniqueId', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+// POST /api/check-regnos
+app.post("/api/check-regnos", async (req, res) => {
+  try {
+    const { regNos } = req.body;
+
+    if (!regNos || !Array.isArray(regNos)) {
+      return res.status(400).json({ error: "regNos array is required" });
+    }
+
+    // 🔎 Use Student model instead of Registration
+    const existing = await Student.find({ regNo: { $in: regNos } });
+
+    // Collect the regNos that are already in DB
+    const exists = existing.map((s) => s.regNo);
+
+    res.json({ exists });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Mark attendance
 app.put('/participant/mark/:uniqueId', async (req, res) => {
