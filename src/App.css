@@ -270,6 +270,159 @@ body{
     overflow-x: hidden;
     
 }
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #212121;
+  color: #e0e0e0;
+  overflow-x: hidden;
+}
+
+/* Navbar */
+header {
+  background: #212121;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  position: sticky;
+  /* border:1px solid red; */
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #00f0ff;
+  letter-spacing: 1px;
+}
+
+/* Desktop nav (hidden on mobile) */
+.desktop-nav {
+  display: none;
+}
+
+.desktop-nav a {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.desktop-nav a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background: #00f0ff;
+  left: 0;
+  bottom: -4px;
+  transition: width 0.3s;
+}
+
+.desktop-nav a:hover {
+  color: #00f0ff;
+}
+
+.desktop-nav a:hover::after {
+  width: 100%;
+}
+
+/* Hamburger */
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #00f0ff;
+  /* border:1px solid ; */
+  text-align: right;
+  float: right;
+}
+
+/* Show nav only in desktop */
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+    gap: 24px;
+  }
+  .hamburger {
+    display: none;
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 260px;
+  background: #181818;
+  color: #e0e0e0;
+  transform: translateX(-100%);
+  z-index: 200;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  background: #1c1c1c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h2 {
+  font-size: 1.1rem;
+  color: #00f0ff;
+}
+
+.sidebar-header button {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 20px;
+}
+
+.sidebar nav a {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+
+.sidebar nav a:hover {
+  color: #00f0ff;
+  transform: translateX(8px);
+}
+
+/* Content */
+.page-content {
+  padding: 24px;
+}
+
+
 /* *{ */
     /* border: 1px solid #ccc; */
 /* } */
