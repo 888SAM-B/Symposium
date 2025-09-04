@@ -25,7 +25,7 @@ const Event = () => {
       ]
     },
     {
-      title: "Poster Presentation",
+      title: "POSTER PRESENTATION",
       description: "Start the vibe",
       image: "/poster-presentation.jpg",
       details: [
@@ -73,7 +73,8 @@ const Event = () => {
       ]
     },
     {
-      title: "SOCIAL ENGINEERING APP",
+      title: "SOCIAL ENGINEERING ",
+      title2:"APP",
       description: "Visualize your concepts and designs effectively.",
       image: "/social-eng.png",
       details: [
@@ -149,9 +150,9 @@ const Event = () => {
           {
             events.map((event, index) =>
             (<div className="event-elements">
-              <EventCard key={index} image={event.image} title={event.title} description={event.description} />
-              <h5>{event.title}</h5>
-              <button onClick={() => handleExploreClick(event)} className="explore-btn" style={{ marginTop: "0px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }}>Explore</button>
+              <EventCard key={index} image={event.image} title={event.title} title2={event.title2} description={event.description} />
+              <h5>{event.title}{event.title2}</h5>
+              <button onClick={() => handleExploreClick(event)} className="explore-btn" >Explore</button>
             </div>
             ))
           }

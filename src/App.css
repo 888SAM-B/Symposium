@@ -423,7 +423,33 @@ header {
   padding: 24px;
 }
 
+.event-elements{
+  border:1px solid;
+  padding-bottom:20px;
+  border-radius: 12px;
+  margin: 10px;
+}
+.explore-btn{
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  color: #fff;
+  cursor: pointer;
+}
 
 /* *{ */
     /* border: 1px solid #ccc; */
 /* } */
+
+@media screen and (max-width:500px) {
+  
+.event-elements{
+  /* border: 1px solid blue; */
+  width: 95%;
+  overflow-x: hidden;
+  position: relative;
+  right: 3px;
+}
+}
