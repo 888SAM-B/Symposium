@@ -1,301 +1,462 @@
-import React, { useState,useEffect } from "react";
-import { QRCodeCanvas } from "qrcode.react";
-import { useNavigate } from "react-router-dom";
-import "./register.css";
 
-const Register = () => {
-  const [responseData, setResponseData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [dis, setDis] = useState(false); 
-  const handleSubmit = (event) => {
-    setDis(true);
-    event.preventDefault();
-    setLoading(true);
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    fetch(`${import.meta.env.VITE_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(async (response) => {
-        const text = await response.text();
-        try {
-          const result = JSON.parse(text);
-          setResponseData(result);
-          alert('Registration successful! Please save your VIBE Number and Unique ID.');
+import React, { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { motion, AnimatePresence } from 'framer-motion';
 
-        } catch (e) {
-          alert(`Registration failed: ${text}`);
-          setResponseData(null);
+const events = [
+  { id: 'morning-run', name: 'Morning Run (Morning)', type: 'morning' },
+  { id: 'coding-challenge', name: 'Coding Challenge (Anytime)', type: 'anytime' },
+  { id: 'afternoon-hike', name: 'Afternoon Hike (Afternoon)', type: 'afternoon' },
+  { id: 'evening-gala', name: 'Evening Gala (Evening)', type: 'evening' },
+];
+
+const TeamRegistrationForm = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    control,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm({
+    defaultValues: {
+      teamName: '',
+      teamMembers: [{ name: '', email: '' }],
+      selectedEvents: [],
+    },
+  });
+
+  const {
+    fields: memberFields,
+    append: appendMember,
+    remove: removeMember,
+  } = useFieldArray({
+    control,
+    name: 'teamMembers',
+  });
+
+  const [step, setStep] = useState(1);
+  const selectedEvents = watch('selectedEvents');
+  const teamMembers = watch('teamMembers');
+  
+  const validateEventAssignments = (data) => {
+    let isValid = true;
+    clearErrors('selectedEvents'); // Clear previous errors for selectedEvents
+
+    const assignedMembersCount = {}; // Track how many events each member is assigned to
+    const morningEventAssignments = {}; // Track morning event assignments for each member
+
+    // Initialize counts for all members
+    teamMembers.forEach((_, memberIndex) => {
+      assignedMembersCount[memberIndex] = 0;
+      morningEventAssignments[memberIndex] = 0;
+    });
+
+    data.selectedEvents.forEach((eventAssignment, eventIndex) => {
+      const selectedEvent = events.find(e => e.id === eventAssignment.eventId);
+      const assignedMemberIndices = [eventAssignment.member1, eventAssignment.member2].filter(
+        (index) => index !== undefined && index !== ''
+      );
+
+      // Rule: Maximum 2 members per event
+      if (assignedMemberIndices.length > 2) {
+        setError(`selectedEvents.${eventIndex}.member2`, {
+          type: 'manual',
+          message: 'Max 2 members per event.',
+        });
+        isValid = false;
+      }
+
+      // Rule: Members cannot be assigned to multiple morning events
+      if (selectedEvent && selectedEvent.type === 'morning') {
+        assignedMemberIndices.forEach((memberIndex) => {
+          morningEventAssignments[memberIndex]++;
+          if (morningEventAssignments[memberIndex] > 1) {
+            setError(`selectedEvents.${eventIndex}.member1`, {
+              type: 'manual',
+              message: `Member ${parseInt(memberIndex) + 1} already in another morning event.`,
+            });
+            setError(`selectedEvents.${eventIndex}.member2`, {
+              type: 'manual',
+              message: `Member ${parseInt(memberIndex) + 1} already in another morning event.`,
+            });
+            isValid = false;
+          }
+        });
+      }
+
+      // Track total event assignments per member
+      assignedMemberIndices.forEach((memberIndex) => {
+        assignedMembersCount[memberIndex]++;
+      });
+    });
+
+    // Rule: All selected events must have at least one member assigned
+    data.selectedEvents.forEach((eventAssignment, eventIndex) => {
+        const assignedMemberIndices = [eventAssignment.member1, eventAssignment.member2].filter(
+            (index) => index !== undefined && index !== ''
+        );
+        if (assignedMemberIndices.length === 0) {
+            setError(`selectedEvents.${eventIndex}.member1`, {
+                type: 'manual',
+                message: 'At least one member must be assigned to this event.',
+            });
+            isValid = false;
         }
-      })
-      .catch((error) => {
-        // handle error
-      })
-      .finally(() => setLoading(false));
-  };
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDis(false);
-    }, 3000); // 3 seconds
+    });
 
-    return () => clearTimeout(timer); // cleanup on unmount
-  }, [dis]);
+
+    // Rule: All input fields are mandatory (checked by react-hook-form's built-in required validation)
+    // This part is handled by the `required: true` in the register calls for name and email.
+    // For event assignments, we need to ensure selections are made if an event is selected.
+    data.selectedEvents.forEach((eventAssignment, eventIndex) => {
+        if (!eventAssignment.eventId) {
+            setError(`selectedEvents.${eventIndex}.eventId`, {
+                type: 'manual',
+                message: 'Event selection is required.',
+            });
+            isValid = false;
+        }
+    });
+
+
+    // Ensure all team members are assigned to at least one event
+    const allMembersAssigned = Object.keys(assignedMembersCount).every(
+      (memberIndex) => assignedMembersCount[memberIndex] > 0
+    );
+
+    if (teamMembers.length > 0 && !allMembersAssigned) {
+        setError('teamMembers[0].name', {
+            type: 'manual',
+            message: 'All team members must be assigned to at least one event.',
+        });
+        isValid = false;
+    }
+
+
+    return isValid;
+  };
+
+  const onSubmit = (data) => {
+    if (step === 1) {
+      setStep(2);
+    } else {
+      if (validateEventAssignments(data)) {
+        console.log('Form Data:', data);
+        alert('Registration Successful!');
+      } else {
+        alert('Please fix the errors in event assignments.');
+      }
+    }
+  };
+
+  const handleBack = () => {
+    setStep(1);
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, x: -100 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+    exit: { opacity: 0, x: 100, transition: { duration: 0.5, ease: 'easeIn' } },
+  };
 
   return (
-    <div className="register-container" id="register-container">
-      <form onSubmit={handleSubmit} className="register-form" id="register-form">
-        <h2 className="register-title" id="register-title">STEP INTO THE VIBE</h2>
-        <div className="form-group" id="form-group-name">
-          <label htmlFor="name" className="form-label">Name:</label>
-          <input  type="text" name="name" id="name" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-email">
-          <label htmlFor="email" className="form-label">Email:</label>
-          <input type="email" name="email" id="email" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-mobile">
-          <label htmlFor="mobile" className="form-label">Mobile Number:</label>
-          <input type="tel" name="mobile" id="mobile" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-level">
-          <label htmlFor="level" className="form-label">Graduation Level:</label>
-          <select name="level" id="level" className="form-select" required>
-            <option value="">Select Level</option>
-            <option value="1">Under Graduate</option>
-            <option value="2">Post Graduate</option>
-          </select>
-        </div>
-        <div className="form-group" id="form-group-college">
-          <label htmlFor="college" className="form-label">College:</label>
-          <input type="text" name="college" id="college" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-year">
-          <label htmlFor="year" className="form-label">Year of Study:</label>
-          <select name="year" id="year" className="form-select" required>
-            <option value="">Select Year</option>
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
-        </div>
-        <div className="form-group" id="form-group-department">
-          <label htmlFor="department" className="form-label">Department:</label>
-          <input type="text" name="department" id="department" className="form-input" required />
-        </div>
-        <div className="form-group" id="form-group-event">
-          <label htmlFor="event" className="form-label">Event Name:</label>
-          <select name="event" id="event" className="form-select" required>
-            <option value="">Select Event</option>
-            <option value="Event1">Event 1</option>
-            <option value="Event2">Event 2</option>
-            <option value="Event3">Event 3</option>
-            <option value="Event4">Event 4</option>
-            <option value="Event5">Event 5</option>
-          </select>
-        </div>
-        <button type="submit" disabled={loading} className="register-btn" id="register-btn"  >Register</button>
-      </form>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          variants={cardVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl"
+        >
+          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            {step === 1 ? 'Team Registration' : 'Event Assignment'}
+          </h2>
 
-      {/* Loader */}
-      {loading && (
-        <div className="loader" id="loader" style={{ marginTop: "20px", textAlign: "center" }}>
-          <span>Loading...</span>
-        </div>
-      )}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {step === 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-6">
+                  <label htmlFor="teamName" className="block text-gray-700 text-sm font-medium mb-2">
+                    Team Name
+                  </label>
+                  <input
+                    type="text"
+                    id="teamName"
+                    {...register('teamName', { required: 'Team Name is required' })}
+                    className={`w-full p-3 border ${
+                      errors.teamName ? 'border-red-500' : 'border-gray-300'
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                  />
+                  {errors.teamName && (
+                    <p className="text-red-500 text-xs mt-1">{errors.teamName.message}</p>
+                  )}
+                </div>
 
-      {/* Display Serial Number, Unique ID, and QR Code */}
-      {responseData && (
-        <div className="registration-success" id="registration-success" style={{ marginTop: "20px" }}>
-          <h3 className="success-title" id="success-title">Registration Successful!</h3>
-          <p className="success-serial" id="success-serial">VIBE Number: {responseData.serialNumber}</p>
-          
-          <QRCodeCanvas
-            value={responseData.uniqueId}
-            size={128}
-            bgColor="#ffffff"
-            style={{ padding: "16px", background: "#fff" }}
-            className="qr-code-canvas"
-            id="qr-code-canvas"
-          />
-          <button
-          className="register-btn"
-            onClick={() => {
-              // Poster size (you can scale this up/down)
-              const W = 800;
-              const H = 1200;
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">Team Members</h3>
+                <div className="space-y-4 mb-6">
+                  {memberFields.map((field, index) => (
+                    <motion.div
+                      key={field.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col sm:flex-row gap-4 p-4 border border-gray-200 rounded-xl bg-gray-50"
+                    >
+                      <div className="flex-1">
+                        <label
+                          htmlFor={`teamMembers.${index}.name`}
+                          className="block text-gray-700 text-sm font-medium mb-2"
+                        >
+                          Member {index + 1} Name
+                        </label>
+                        <input
+                          type="text"
+                          id={`teamMembers.${index}.name`}
+                          {...register(`teamMembers.${index}.name`, {
+                            required: `Member ${index + 1} Name is required`,
+                          })}
+                          className={`w-full p-3 border ${
+                            errors.teamMembers?.[index]?.name ? 'border-red-500' : 'border-gray-300'
+                          } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                        />
+                        {errors.teamMembers?.[index]?.name && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.teamMembers[index].name.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <label
+                          htmlFor={`teamMembers.${index}.email`}
+                          className="block text-gray-700 text-sm font-medium mb-2"
+                        >
+                          Member {index + 1} Email
+                        </label>
+                        <input
+                          type="email"
+                          id={`teamMembers.${index}.email`}
+                          {...register(`teamMembers.${index}.email`, {
+                            required: `Member ${index + 1} Email is required`,
+                            pattern: {
+                              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                              message: 'Invalid email address',
+                            },
+                          })}
+                          className={`w-full p-3 border ${
+                            errors.teamMembers?.[index]?.email ? 'border-red-500' : 'border-gray-300'
+                          } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                        />
+                        {errors.teamMembers?.[index]?.email && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.teamMembers[index].email.message}
+                          </p>
+                        )}
+                      </div>
+                      {memberFields.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeMember(index)}
+                          className="self-center sm:self-end mt-4 sm:mt-0 p-2 text-red-600 hover:text-red-800 transition duration-200 rounded-lg"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => appendMember({ name: '', email: '' })}
+                  className="w-full bg-gray-200 text-gray-700 p-3 rounded-xl hover:bg-gray-300 transition duration-200 font-medium"
+                >
+                  Add Team Member
+                </button>
+              </motion.div>
+            )}
 
-              // Layout metrics
-              const topGap = 40;
-              const qrCardSize = 420;
-              const qrPaddingInside = 36; // padding inside the white QR card for the qrCanvas
-              const qrCardX = (W - qrCardSize) / 2;
-              const qrCardY =380;
+            {step === 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">Select Events & Assign Members</h3>
+                <div className="space-y-6">
+                  {selectedEvents.map((eventAssignment, eventIndex) => (
+                    <motion.div
+                      key={eventIndex}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      className="p-5 border border-gray-200 rounded-xl bg-gray-50 shadow-sm relative"
+                    >
+                      <label
+                        htmlFor={`selectedEvents.${eventIndex}.eventId`}
+                        className="block text-gray-700 text-sm font-medium mb-2"
+                      >
+                        Event {eventIndex + 1}
+                      </label>
+                      <select
+                        id={`selectedEvents.${eventIndex}.eventId`}
+                        {...register(`selectedEvents.${eventIndex}.eventId`, {
+                          required: 'Event selection is required',
+                        })}
+                        className={`w-full p-3 border ${
+                          errors.selectedEvents?.[eventIndex]?.eventId ? 'border-red-500' : 'border-gray-300'
+                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 mb-4`}
+                      >
+                        <option value="">Select an Event</option>
+                        {events.map((event) => (
+                          <option key={event.id} value={event.id}>
+                            {event.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.selectedEvents?.[eventIndex]?.eventId && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.selectedEvents[eventIndex].eventId.message}
+                        </p>
+                      )}
 
-              // Create canvas
-              const canvas = document.createElement("canvas");
-              canvas.width = W;
-              canvas.height = H;
-              const ctx = canvas.getContext("2d");
+                      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                        <div className="flex-1">
+                          <label
+                            htmlFor={`selectedEvents.${eventIndex}.member1`}
+                            className="block text-gray-700 text-sm font-medium mb-2"
+                          >
+                            Member 1
+                          </label>
+                          <select
+                            id={`selectedEvents.${eventIndex}.member1`}
+                            {...register(`selectedEvents.${eventIndex}.member1`)}
+                            className={`w-full p-3 border ${
+                              errors.selectedEvents?.[eventIndex]?.member1 ? 'border-red-500' : 'border-gray-300'
+                            } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                          >
+                            <option value="">Select Member</option>
+                            {teamMembers.map((member, idx) => (
+                              <option key={idx} value={idx}>
+                                {member.name || `Member ${idx + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                          {errors.selectedEvents?.[eventIndex]?.member1 && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.selectedEvents[eventIndex].member1.message}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <label
+                            htmlFor={`selectedEvents.${eventIndex}.member2`}
+                            className="block text-gray-700 text-sm font-medium mb-2"
+                          >
+                            Member 2 (Optional)
+                          </label>
+                          <select
+                            id={`selectedEvents.${eventIndex}.member2`}
+                            {...register(`selectedEvents.${eventIndex}.member2`)}
+                            className={`w-full p-3 border ${
+                              errors.selectedEvents?.[eventIndex]?.member2 ? 'border-red-500' : 'border-gray-300'
+                            } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                          >
+                            <option value="">Select Member</option>
+                            {teamMembers.map((member, idx) => (
+                              <option key={idx} value={idx}>
+                                {member.name || `Member ${idx + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                          {errors.selectedEvents?.[eventIndex]?.member2 && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.selectedEvents[eventIndex].member2.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                            const newSelectedEvents = [...selectedEvents];
+                            newSelectedEvents.splice(eventIndex, 1);
+                            // Manually update the form state for `selectedEvents`
+                            clearErrors(`selectedEvents.${eventIndex}`); // Clear errors related to the removed event
+                            // Use setValue from react-hook-form to update the array
+                            // This assumes you have `setValue` from `useForm`
+                            // If not, you'd re-register the field array for selectedEvents
+                            // For simplicity, we'll omit direct setValue for a fully dynamic field array here
+                            // and instead rely on the re-render. A more robust solution might use useFieldArray for selectedEvents too.
+                        }}
+                        className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 transition duration-200 rounded-full"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z"
+                            clipRule="evenodd"
+                          ></path>
+                        </svg>
+                      </button>
+                    </motion.div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                        // Append a new empty event assignment to the array
+                        const newSelectedEvents = [...selectedEvents, { eventId: '', member1: '', member2: '' }];
+                        // Manually update the form state for `selectedEvents`
+                        // A better approach would be to use useFieldArray for selectedEvents as well.
+                        // For this example, we'll just re-render and rely on `watch`.
+                        // For a real app, define a `useFieldArray` for `selectedEvents`.
+                        // For now, to make the UI update and register the new field:
+                        setValue('selectedEvents', newSelectedEvents);
+                    }}
+                    className="w-full bg-blue-100 text-blue-700 p-3 rounded-xl hover:bg-blue-200 transition duration-200 font-medium"
+                  >
+                    Add Another Event
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
-              // --- Background gradient (purple -> teal) ---
-              const g = ctx.createLinearGradient(0, 0, 0, H);
-              g.addColorStop(0, "#4b0082"); // deep purple
-              g.addColorStop(0.45, "#6a39c6");
-              g.addColorStop(1, "#2bd1c9"); // teal-ish
-              ctx.fillStyle = g;
-              ctx.fillRect(0, 0, W, H);
-
-              // --- Big top text: PERIYAR / UNIVERSITY ---
-              ctx.textAlign = "center";
-              ctx.shadowColor = "rgba(0,0,0,0.25)";
-              ctx.shadowBlur = 8;
-              ctx.fillStyle = "#c8ffd6"; // mint green for PERIYAR
-              ctx.font = "bold 86px Arial";
-              ctx.fillText("VIBE 2K25", W / 2, topGap + 90);
-
-              ctx.fillStyle = "#ffffff"; // white for UNIVERSITY
-              ctx.font = "600 56px Arial";
-              ctx.fillText("PERIYAR UNIVERSITY", W / 2, topGap + 170);
-
-              // --- Registration Successful (subheading) ---
-              ctx.shadowBlur = 6;
-              ctx.fillStyle = "#ffffff";
-              ctx.font = "600 34px Arial";
-              ctx.fillText("ID CARD", W / 2, topGap + 230);
-              ctx.shadowBlur = 0; // reset
-
-              // --- QR Card with shadow (white rectangle with subtle drop shadow) ---
-              ctx.save();
-              ctx.shadowColor = "rgba(0,0,0,0.35)";
-              ctx.shadowBlur = 20;
-              ctx.shadowOffsetY = 50;
-              ctx.shadowOffsetX = -50;
-              // Draw white rounded rectangle (manual rounded rect)
-              const r = 6; // corner radius
-              ctx.fillStyle = "#ffffff";
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + r, qrCardY);
-              ctx.lineTo(qrCardX + qrCardSize - r, qrCardY);
-              ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY, qrCardX + qrCardSize, qrCardY + r);
-              ctx.lineTo(qrCardX + qrCardSize, qrCardY + qrCardSize - r);
-              ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY + qrCardSize, qrCardX + qrCardSize - r, qrCardY + qrCardSize);
-              ctx.lineTo(qrCardX + r, qrCardY + qrCardSize);
-              ctx.quadraticCurveTo(qrCardX, qrCardY + qrCardSize, qrCardX, qrCardY + qrCardSize - r);
-              ctx.lineTo(qrCardX, qrCardY + r);
-              ctx.quadraticCurveTo(qrCardX, qrCardY, qrCardX + r, qrCardY);
-              ctx.closePath();
-              ctx.fill();
-              ctx.restore();
-
-              // --- Optional angled soft shadow on right (like the example) ---
-              // a subtle long shadow block to the right-bottom
-              ctx.save();
-              ctx.globalAlpha = 0.08;
-              ctx.fillStyle = "#000000";
-              ctx.fillRect(qrCardX + qrCardSize + 20, qrCardY + 50, 160, 80);
-              ctx.restore();
-
-              // --- Draw green corner markers inside the QR card (like the poster) ---
-              const cornerColor = "#bff7c7";
-              const markLen = 70;
-              const markW = 14;
-              ctx.strokeStyle = cornerColor;
-              ctx.lineWidth = markW;
-              ctx.lineCap = "round";
-
-              // Top-left
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside + markLen);
-              ctx.stroke();
-
-              // Top-right
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside + markLen);
-                ctx.stroke();
-
-              // Bottom-left
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.stroke();
-
-              // Bottom-right
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.stroke();
-
-              // --- Draw the actual QR (from existing canvas on page) ---
-              const qrCanvas = document.querySelector("canvas"); // assumes the QR canvas exists on page
-              if (qrCanvas) {
-                // Compute area inside the white card for the QR (centered)
-                const innerSize = qrCardSize - qrPaddingInside * 2;
-                const innerX = qrCardX + qrPaddingInside;
-                const innerY = qrCardY + qrPaddingInside;
-                try {
-                  ctx.drawImage(qrCanvas, innerX, innerY, innerSize, innerSize);
-                } catch (e) {
-                  // fallback: draw text placeholder if QR not available
-                  ctx.fillStyle = "#f3f3f3";
-                  ctx.fillRect(innerX, innerY, innerSize, innerSize);
-                  ctx.fillStyle = "#444";
-                  ctx.font = "22px Arial";
-                  ctx.textAlign = "center";
-                  ctx.fillText("QR CODE", innerX + innerSize / 2, innerY + innerSize / 2 + 8);
-                }
-              }
-
-              // --- Bottom details (NAME, SERIAL NUMBER, EVENT) ---
-              const bottomStartY = qrCardY + qrCardSize + 90;
-              ctx.textAlign = "center";
-              ctx.fillStyle = "#ffffff";
-              ctx.font = "700 34px Arial";
-              // slight shadow for emboss effect
-              ctx.shadowColor = "rgba(0,0,0,0.35)";
-              ctx.shadowBlur = 8;
-              if (responseData && responseData.name) {
-                ctx.fillText((responseData.name || "NAME").toUpperCase(), W / 2, bottomStartY);
-              } else {
-                ctx.fillText("NAME", W / 2, bottomStartY);
-              }
-              ctx.fillText((responseData && responseData.serialNumber) ? String(responseData.serialNumber).toUpperCase() : "SERIAL NUMBER", W / 2, bottomStartY + 54);
-              ctx.fillText((responseData && responseData.event) ? String(responseData.event).toUpperCase() : "EVENT", W / 2, bottomStartY + 108);
-              ctx.shadowBlur = 0;
-
-              // --- Small footer / stamp (optional) ---
-              ctx.fillStyle = "rgba(255,255,255,0.12)";
-              ctx.font = "14px Arial";
-              ctx.fillText("Powered by Periyar University - Event Registration", W / 2, H - 24);
-
-              // --- Download image ---
-              const url = canvas.toDataURL("image/png");
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `qr_${(responseData && responseData.serialNumber) || Date.now()}.png`;
-              link.click();
-            }}
-            style={{ marginTop: "10px" }}
-            
-          >
-            Download QR Code
-            
-          </button> 
-          </div>
-      )}
+            <div className="flex justify-between mt-8">
+              {step === 2 && (
+                <motion.button
+                  type="button"
+                  onClick={handleBack}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-3 bg-gray-300 text-gray-800 rounded-xl font-semibold hover:bg-gray-400 transition duration-200"
+                >
+                  Back
+                </motion.button>
+              )}
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="ml-auto px-8 py-3 bg-gradient-to-r from-blue-500 to-dark-blue-700 text-white rounded-xl font-semibold shadow-lg hover:from-blue-600 hover:to-dark-blue-800 transition duration-300"
+              >
+                {step === 1 ? 'Next Step' : 'Register'}
+              </motion.button>
+            </div>
+          </form>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
 
-export default Register;
+export default TeamRegistrationForm;

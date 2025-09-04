@@ -19,9 +19,9 @@
 
 .overlay {
   position: absolute;
-  top: -18px;
-  left: -20px;
-  width: 100%;
+  top: 0px;
+  left: -27px;
+  width: 120%;
   height: 100%;
   background: rgba(10, 25, 47, 0.535); /* dark overlay */
   color: #fff;

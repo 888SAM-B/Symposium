@@ -110,8 +110,24 @@ const Event = () => {
         "Teams or individuals should ensure their applications run smoothly without errors during the demo."
       ]
 
+    },
+    {
+      title: "STORY TELLING",
+      description: "Visualize your concepts and designs effectively.",
+      image: "/story.png",
+      details: [
+        "The Storytelling event is all about using your imagination and creativity to share ideas through stories.",
+        "Participants can create and present stories related to technology, innovation, or everyday life in a way that is engaging and inspiring.",
+        "This event helps you improve your communication skills, confidence, and creativity, while also entertaining and connecting with the audience."
+      ]
+      ,
+      rules: [
+        "Stories must be original and created by the participant.",
+        "Each participant will be given 3–5 minutes to present their story.",
+        "Stories should be related to technology, innovation, or everyday life.",
+        "Participants will be judged on creativity, clarity, expression, and audience engagement."
+      ]
     }
-
 
 
   ];

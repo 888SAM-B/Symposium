@@ -7,7 +7,7 @@ import gsap from "gsap";
 
 // Components
 import Home from "./components/home";
-import Register from "./components/register";
+import TeamRegistrationForm from "./components/register";
 import Idgen from "./components/idgen";
 import Register1 from "./components/SymposiumRegistration";
 import Event from "./components/event";
@@ -88,7 +88,7 @@ function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<TeamRegistrationForm />} />
           <Route path="/get-id" element={<Idgen />} />
           <Route path="/reg" element={<Register1 />} />
           <Route path="/event" element={<Event />} />
