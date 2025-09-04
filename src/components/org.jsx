@@ -3,14 +3,14 @@ import "./org.css";
 
 const Organizers = () => {
   const faculty = [
-    { name: "Faculty One", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" },
-    { name: "Faculty Two", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" },
-    { name: "Faculty Three", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" },
-  ];
+    { name: "Dr. C. Chandrasekar", img: "https://www.periyaruniversity.ac.in/PU_FACULTY/employee/upload/emp_photo/dr.c.c_new.jpg" ,des:"SENIOR PROFESSOR AND HEAD"},
+    { name: "Dr. R. Rathipriya", img: "https://www.periyaruniversity.ac.in/PU_FACULTY/employee/upload/emp_photo/rr.jpg", des:"PROFESSOR"},
+    { name: "Dr. S. Sathish", img: "https://www.periyaruniversity.ac.in/PU_FACULTY/employee/upload/emp_photo/ss.jpg",des:"ASSOCIATE PROFESSOR" },
+  ]; 
 
   const students = [
-    { name: "Student One", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" },
-    { name: "Student Two", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" },
+    { name: "Student Two", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"MCA" },
+    { name: "Student One", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"MCA"},
   ];
 
   return (
@@ -22,8 +22,8 @@ const Organizers = () => {
         {faculty.map((person, idx) => (
           <div key={idx} className="organizer-card">
             <img src={person.img} alt={person.name} />
-            <p>{person.name}</p>
-            <p>Designation</p>
+            <p className="org-name" >{person.name}</p>
+            <p className="org-des" >{person.des}</p>
           </div>
         ))}
       </div>
@@ -33,7 +33,8 @@ const Organizers = () => {
         {students.map((person, idx) => (
           <div key={idx} className="organizer-card">
             <img src={person.img} alt={person.name} />
-            <p>{person.name}</p>
+            <p className="org-name"> {person.name}</p>
+            <p className="org-des"> {person.des}</p>
           </div>
         ))}
       </div>

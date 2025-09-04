@@ -32,6 +32,7 @@
 
 /* Individual card */
 .organizer-card {
+  text-transform: uppercase;
   background-color: #1f1f1f;
   padding: 1rem;
   width: 12rem;
@@ -46,8 +47,8 @@
 
 /* Image */
 .organizer-card img {
-  width: 8rem;
-  height: 8rem;
+  width: 8.5rem;
+  height: 10rem;
   object-fit: cover;
   border-radius: 5%;
   margin: 0 auto 0.75rem auto;
@@ -57,4 +58,10 @@
 .organizer-card p {
   color: #ffffff;
   font-weight: 500;
+}
+.org-name{
+  font-size: 0.8rem;
+}
+.org-des{
+    font-size: 0.75rem;
 }
