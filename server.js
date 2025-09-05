@@ -73,8 +73,12 @@ const User = mongoose.model('User', symposiumSchema);
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   regNo: { type: String, required: true, unique: true }, // email
+  events: { type: [String], default: [] }, // selected events
+  team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
+  teamName: { type: String }, // extra field to save teamName directly
   status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
 });
+
 
 const Student = mongoose.model("Student", studentSchema);
 
@@ -96,6 +100,7 @@ const teamSchema = new mongoose.Schema({
     {
       name: { type: String, required: true },
       regNo: { type: String, required: true },
+      events: { type: [String], default: [] },
       status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
     },
   ],
@@ -272,7 +277,9 @@ app.post("/team-register", async (req, res) => {
     const regNos = members.map((m) => m.regNo);
     const duplicate = regNos.find((regNo, i) => regNos.indexOf(regNo) !== i);
     if (duplicate) {
-      return res.status(400).json({ error: `Duplicate RegNo in team: ${duplicate}` });
+      return res
+        .status(400)
+        .json({ error: `Duplicate RegNo in team: ${duplicate}` });
     }
 
     // 2. Already registered students check
@@ -284,27 +291,43 @@ app.post("/team-register", async (req, res) => {
       });
     }
 
-    // 3. Create Team with members included
+    // 3. Prepare members with their events
+    const membersWithEvents = members.map((m) => {
+      const studentEvents = Object.entries(event)
+        .filter(([eventName, participants]) =>
+          participants.includes(`${m.name} (${m.regNo})`)
+        )
+        .map(([eventName]) => eventName);
+
+      return {
+        ...m,
+        events: studentEvents,
+      };
+    });
+
+    // 4. Create Team with updated members
     const newTeam = new Team({
       teamName,
       event,
       collegeName,
       dept,
-      members, // 👈 fix: directly include members array
+      members: membersWithEvents, // ✅ now members include their events
     });
     await newTeam.save();
 
-    // 4. Save students separately
+    // 5. Save Students with their events
     const studentDocs = await Student.insertMany(
-      members.map((m) => ({
+      membersWithEvents.map((m) => ({
         name: m.name,
-        regNo: m.regNo, // here regNo is email
+        regNo: m.regNo,
         team: newTeam._id,
+        teamName,
+        events: m.events, // ✅ store individual events
         status: m.status || "Absent",
       }))
     );
 
-    // 5. Send email to each regNo (email)
+    // 6. Send Emails
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -317,8 +340,8 @@ app.post("/team-register", async (req, res) => {
 
     for (const student of studentDocs) {
       const mailOptions = {
-        from: `"Event Registration" <${process.env.EMAIL_USER}>`,
-        to: student.regNo,
+        from: `"VIBE Registration" <${process.env.EMAIL_USER}>`,
+        to: student.regNo, // regNo is email
         subject: "VIBE Registration Successful 🎉",
         html: `
           <h2>Hi ${student.name},</h2>
@@ -326,7 +349,10 @@ app.post("/team-register", async (req, res) => {
           <p><b>Team Name:</b> ${teamName}</p>
           <p><b>College:</b> ${collegeName}</p>
           <p><b>Department:</b> ${dept}</p>
-          <p><b>Event:</b> ${JSON.stringify(event)}</p>
+          <p><b>Events:</b></p>
+          <ul>
+            ${student.events.map((e) => `<li>${e}</li>`).join("")}
+          </ul>
           <br/>
           <p>All the best 👍</p>
         `,
@@ -335,15 +361,42 @@ app.post("/team-register", async (req, res) => {
       await transporter.sendMail(mailOptions);
     }
 
+    // 7. Response
     res.json({
       message: "Team registered successfully and confirmation mails sent",
       team: newTeam,
+      students: studentDocs,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error in /team-register:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
+// PUT mark attendance for a student
+app.put("/api/scanner/attendance/:regNo", async (req, res) => {
+  try {
+    const { regNo } = req.params;
+
+    const student = await Student.findOne({ regNo });
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    if (student.status === "Present") {
+      return res.json({ message: "Already marked as present" });
+    }
+
+    student.status = "Present";
+    await student.save();
+
+    res.json({ message: `${student.name} marked as present` });
+  } catch (err) {
+    console.error("Error marking attendance:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 
 
 
