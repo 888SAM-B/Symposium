@@ -31,8 +31,8 @@ const RegisterSymposium = () => {
   const [eventToAddMorning, setEventToAddMorning] = useState("");
   const [eventToAddAfternoon, setEventToAddAfternoon] = useState("");
 
-  const morningEvents = ["Paper Presentation", "Poster Presentation", "Story Telling", "Quiz"];
-  const afternoonEvents = ["Word Hunt", "Social Engineering App", "API Fusion"];
+  const morningEvents = ["Paper Presentation", "Story Telling", "Quiz"];
+  const afternoonEvents = ["Word Hunt", "Social Engineering App", "API Fusion", "Poster Presentation"];
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
 
   const handleMemberInput = (index, field, value) => {
@@ -84,7 +84,7 @@ const RegisterSymposium = () => {
       if (res.ok) {
         console.log("Response:", result);
         setRegisteredTeamData({
-          teamId: result.teamId,
+          teamId: result.team.uniqueId,
           teamName: college,
           collegeName: collegeName,
           dept: dept,
@@ -134,8 +134,8 @@ const RegisterSymposium = () => {
     setCollegeName("");
     setDept("");
     setEvents({
-      "Paper Presentation": [], "Poster Presentation": [], "Story Telling": [], "Quiz": [],
-      "Word Hunt": [], "Social Engineering App": [], "API Fusion": [], 
+      "Paper Presentation": [],  "Story Telling": [], "Quiz": [],
+      "Word Hunt": [], "Social Engineering App": [],"Poster Presentation": [], "API Fusion": [], 
     });
     setSelectedMorningEvents([]);
     setSelectedAfternoonEvents([]);
@@ -569,7 +569,10 @@ const RegisterSymposium = () => {
 
             <div className="qr-code-container">
               <h3>Scan for Team ID:</h3>
-              <QRCodeCanvas value={registeredTeamData.teamId} size={128} level="H" />
+             <div style={{ padding: "16px", background: "white", display: "inline-block", borderRadius: "8px" }}>
+  <QRCodeCanvas value={registeredTeamData.teamId} size={128} level="H" />
+</div>
+
             </div>
 
             <button onClick={closePopupAndReset}>Close & Register New Team</button>
