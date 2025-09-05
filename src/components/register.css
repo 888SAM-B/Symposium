@@ -53,7 +53,7 @@ body, .register-container {
     transition: border-color 0.2s;
 }
 .register-form select {
-    width: 100%;
+    width: 100% !important;
 }
 
 .register-form input:focus,
@@ -116,6 +116,37 @@ body, .register-container {
     margin: 0 auto 12px auto;
     display: block;
     border-radius: 12px;
+}
+.solo .form-label{
+    text-align: left;
+    color: aliceblue;
+    font-weight: 500;
+}
+.solo select{
+    background: #212121;
+    border: 1px solid #00f0ff !important;
+    width: 95%;
+    color: white;
+}
+.solo{
+    /* border: 1px solid red; */
+    width: 80%;
+}
+.solo-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.form-group{
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: column;
+}
+.form-group input{
+    width: 100% !important;
+    padding: 0px;
+    /* border:1px solid yellow !important;  */
 }
 
 /* Responsive */

@@ -129,9 +129,9 @@ const Home = () => {
           </div>
         </div>
 
-                      
-        <ShinyText text="JOIN THE VIBE" className="shiney" />
-        <div className="btn-container">
+
+        <ShinyText text="JOIN THE VIBE"  className="shiney" />
+        <div className="btn-container" id="reg">
         <button
           className="reg-button"
           onClick={() => navigate("/register")}
@@ -152,13 +152,13 @@ const Home = () => {
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
-          Register Now
+          Team Registration
         </button>
 
 
           <button
           className="reg-button"
-          onClick={() => navigate("/get-id")}
+          onClick={() => navigate("/register")}
           style={{
             padding: "12px 28px",
             fontSize: "clamp(16px, 4vw, 18px)",
@@ -176,7 +176,7 @@ const Home = () => {
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
-          Download your ID 
+          Solo Registration 
         </button>
         </div>
 

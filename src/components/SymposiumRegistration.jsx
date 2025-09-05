@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./reg.css";
-// import QRCode from "qrcode.react"; // Import QRCode component
 import { QRCodeCanvas } from "qrcode.react";
 
 const RegisterSymposium = () => {
@@ -11,21 +10,30 @@ const RegisterSymposium = () => {
   const [collegeName, setCollegeName] = useState("");
   const [dept, setDept] = useState("");
   const [events, setEvents] = useState({
-    "Event 1": [],
-    "Event 2": [],
-    "Event 3": [],
-    "Event 4": [],
-    "Event 5": [],
-    "Event 6": [],
-    "Event 7": [],
-    "Event 8": [],
+    "Paper Presentation": [],
+    "Poster Presentation": [],
+    "Story Telling": [],
+    "Quiz": [],
+    "Word Hunt": [],
+    "Social Engineering App": [],
+    "API Fusion": [],
+   
   });
   const [loading, setLoading] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // New state for popup visibility
-  const [registeredTeamData, setRegisteredTeamData] = useState(null); // New state for popup data
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [registeredTeamData, setRegisteredTeamData] = useState(null);
 
-  const morningEvents = ["Event 1", "Event 2", "Event 3", "Event 4"];
-  const afternoonEvents = ["Event 5", "Event 6", "Event 7", "Event 8"];
+  // New states for categorized selected events
+  const [selectedMorningEvents, setSelectedMorningEvents] = useState([]);
+  const [selectedAfternoonEvents, setSelectedAfternoonEvents] = useState([]);
+
+  // New states for categorized event selection dropdowns
+  const [eventToAddMorning, setEventToAddMorning] = useState("");
+  const [eventToAddAfternoon, setEventToAddAfternoon] = useState("");
+
+  const morningEvents = ["Paper Presentation", "Poster Presentation", "Story Telling", "Quiz"];
+  const afternoonEvents = ["Word Hunt", "Social Engineering App", "API Fusion"];
+  // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
 
   const handleMemberInput = (index, field, value) => {
     const newMembers = [...members];
@@ -44,19 +52,21 @@ const RegisterSymposium = () => {
       return;
     }
 
-    // Ensure all members are assigned to at least one event
-    const allAssigned = members.every((member) =>
-      Object.values(events).some((ev) =>
-        ev.includes(`${member.name} (${member.regNo})`)
-      )
-    );
+    // Ensure all members are assigned to at least one event if any events are selected
+    if (selectedMorningEvents.length > 0 || selectedAfternoonEvents.length > 0) {
+      const allAssigned = members.every((member) =>
+        Object.values(events).some((ev) =>
+          ev.includes(`${member.name} (${member.regNo})`)
+        )
+      );
 
-    if (!allAssigned) {
-      alert("Every student must be assigned to at least one event!");
-      return;
+      if (!allAssigned) {
+        alert("Every student must be assigned to at least one event!");
+        return;
+      }
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_URL}/team-register`, {
         method: "POST",
@@ -72,20 +82,16 @@ const RegisterSymposium = () => {
 
       const result = await res.json();
       if (res.ok) {
-        // alert("Team Registered Successfully!"); // We will use the popup instead of alert
         console.log("Response:", result);
-
-        // Assuming your backend returns teamId and other relevant data upon successful registration
         setRegisteredTeamData({
-          teamId: result.teamId, // Make sure your backend sends this
+          teamId: result.teamId,
           teamName: college,
           collegeName: collegeName,
           dept: dept,
           members: members,
           events: events,
-          // Add any other data you want to display
         });
-        setShowSuccessPopup(true); // Show the popup
+        setShowSuccessPopup(true);
       } else if (res.status === 400) {
         alert(result.error || "Duplicate registration numbers found!");
       } else {
@@ -95,7 +101,7 @@ const RegisterSymposium = () => {
       console.error("Error submitting form:", error);
       alert("Server error, please try again later.");
     } finally {
-      setLoading(false); // Stop loading regardless of success or failure
+      setLoading(false);
     }
   };
 
@@ -118,11 +124,9 @@ const RegisterSymposium = () => {
       });
   };
 
-  // Function to close the popup and reset the form
   const closePopupAndReset = () => {
     setShowSuccessPopup(false);
     setRegisteredTeamData(null);
-    // Reset form fields
     setStep(1);
     setCollege("");
     setMemberCount(0);
@@ -130,19 +134,129 @@ const RegisterSymposium = () => {
     setCollegeName("");
     setDept("");
     setEvents({
-      "Event 1": [],
-      "Event 2": [],
-      "Event 3": [],
-      "Event 4": [],
-      "Event 5": [],
-      "Event 6": [],
-      "Event 7": [],
-      "Event 8": [],
+      "Paper Presentation": [], "Poster Presentation": [], "Story Telling": [], "Quiz": [],
+      "Word Hunt": [], "Social Engineering App": [], "API Fusion": [], 
+    });
+    setSelectedMorningEvents([]);
+    setSelectedAfternoonEvents([]);
+    setEventToAddMorning("");
+    setEventToAddAfternoon("");
+  };
+
+  // Function to add an event to the selectedMorningEvents list
+  const handleAddMorningEvent = () => {
+    if (eventToAddMorning && !selectedMorningEvents.includes(eventToAddMorning)) {
+      setSelectedMorningEvents([...selectedMorningEvents, eventToAddMorning]);
+      setEventToAddMorning(""); // Clear selection
+    }
+  };
+
+  // Function to add an event to the selectedAfternoonEvents list
+  const handleAddAfternoonEvent = () => {
+    if (eventToAddAfternoon && !selectedAfternoonEvents.includes(eventToAddAfternoon)) {
+      setSelectedAfternoonEvents([...selectedAfternoonEvents, eventToAddAfternoon]);
+      setEventToAddAfternoon(""); // Clear selection
+    }
+  };
+
+  // Function to remove an event from either morning or afternoon selectedEvents list
+  const handleRemoveEvent = (eventName, isMorning) => {
+    if (isMorning) {
+      const newSelectedEvents = selectedMorningEvents.filter((e) => e !== eventName);
+      setSelectedMorningEvents(newSelectedEvents);
+    } else {
+      const newSelectedEvents = selectedAfternoonEvents.filter((e) => e !== eventName);
+      setSelectedAfternoonEvents(newSelectedEvents);
+    }
+
+    // Also clear participants for the removed event
+    setEvents((prevEvents) => {
+      const updatedEvents = { ...prevEvents };
+      updatedEvents[eventName] = [];
+      return updatedEvents;
     });
   };
 
+  const getAvailableMembers = (eventName, currentSlotMember = null) => {
+    const isMorningEvent = morningEvents.includes(eventName);
+    const sessionEvents = isMorningEvent ? morningEvents : afternoonEvents;
+    const currentSelectedSessionEvents = isMorningEvent ? selectedMorningEvents : selectedAfternoonEvents;
+
+
+    const chosenMembersInSession = new Set();
+    sessionEvents.forEach((ev) => {
+      // Only consider events that are actually selected for display in the current session
+      if (currentSelectedSessionEvents.includes(ev)) {
+        events[ev].forEach((m) => {
+          // Exclude the member currently being edited in the same slot
+          if (m && m !== currentSlotMember) {
+            chosenMembersInSession.add(m);
+          }
+        });
+      }
+    });
+
+    return members.filter(
+      (m) => !chosenMembersInSession.has(`${m.name} (${m.regNo})`)
+    );
+  };
+
+  // Common function to handle event participant changes
+  const handleEventParticipantChange = (eventName, slot, newMemberValue) => {
+    const newEvents = { ...events };
+    const isMorningEvent = morningEvents.includes(eventName);
+    const sessionEvents = isMorningEvent ? morningEvents : afternoonEvents;
+
+    // Get the previously selected member for this slot, if any
+    const prevMember = newEvents[eventName] ? newEvents[eventName][slot] : null;
+
+    // If a member was previously selected for this slot, remove them from all events in the same session
+    if (prevMember) {
+      sessionEvents.forEach(ev => {
+        if (newEvents[ev]) {
+          newEvents[ev] = newEvents[ev].filter(p => p !== prevMember);
+        }
+      });
+    }
+
+    // Now, assign the new member if one is selected
+    if (newMemberValue) {
+      // Remove the new member from any other events in the same session, if they were previously there
+      sessionEvents.forEach(ev => {
+        if (newEvents[ev] && newEvents[ev].includes(newMemberValue)) {
+          newEvents[ev] = newEvents[ev].filter(p => p !== newMemberValue);
+        }
+      });
+
+      // Update the current event's slot
+      if (!newEvents[eventName]) {
+        newEvents[eventName] = [];
+      }
+      const updatedParticipants = [...newEvents[eventName]];
+      updatedParticipants[slot] = newMemberValue;
+      newEvents[eventName] = updatedParticipants;
+    } else {
+      // If the new value is empty, clear the slot
+      if (newEvents[eventName]) {
+        const updatedParticipants = [...newEvents[eventName]];
+        updatedParticipants[slot] = "";
+        newEvents[eventName] = updatedParticipants;
+      }
+    }
+
+    // Filter out any empty strings from the event's participant list
+    Object.keys(newEvents).forEach(key => {
+        if (newEvents[key]) {
+            newEvents[key] = newEvents[key].filter(Boolean);
+        }
+    });
+
+    setEvents(newEvents);
+};
+
+
   return (
-    <div className="register-container">
+    <div className="register-container1">
       <h1>VIBE Registration</h1>
 
       {/* Step 1 */}
@@ -273,177 +387,135 @@ const RegisterSymposium = () => {
         <div className="step-3">
           <h2>Step 3: Event Selection</h2>
 
-          {(() => {
-            const getAvailableMembers = (eventName, slot) => {
-              const isMorning = morningEvents.includes(eventName);
-              const sessionEvents = isMorning ? morningEvents : afternoonEvents;
+          {/* Morning Events Section */}
+          <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Stage Events</h3>
+          <div className="add-event-section">
+            <select
+              className="select-event"
+              value={eventToAddMorning}
+              onChange={(e) => setEventToAddMorning(e.target.value)}
+            >
+              <option value="">Select Event</option>
+              {morningEvents
+                .filter((eventName) => !selectedMorningEvents.includes(eventName))
+                .map((eventName) => (
+                  <option key={eventName} value={eventName}>
+                    {eventName}
+                  </option>
+                ))}
+            </select>
+            <button onClick={handleAddMorningEvent} disabled={!eventToAddMorning}>
+              Add Event
+            </button>
+          </div>
 
-              const chosenMembers = [];
-              sessionEvents.forEach((ev) => {
-                events[ev].forEach((m, idx) => {
-                  if (m && !(ev === eventName && idx === slot)) {
-                    chosenMembers.push(m);
-                  }
-                });
-              });
-
-              return members.filter(
-                (m) => !chosenMembers.includes(`${m.name} (${m.regNo})`)
-              );
-            };
-
-            return (
-              <>
-                {/* Stage Events (Morning) */}
-                <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>
-                  Stage Events
-                </h3>
-                <div className="event-list">
-                  {Object.keys(events)
-                    .slice(0, 4)
-                    .map((eventName) => (
-                      <div key={eventName} className="event-box">
-                        <h4>{eventName}</h4>
-                        <div className="participants">
-                          {[0, 1].map((slot) => (
-                            <select
-                              key={slot}
-                              value={events[eventName][slot] || ""}
-                              onChange={(e) => {
-                                const newMember = e.target.value;
-                                const newEvents = { ...events };
-
-                                if (newEvents[eventName] === undefined) {
-                                  newEvents[eventName] = [];
-                                }
-
-                                // Create a copy of the array to ensure immutability
-                                const updatedParticipants = [...newEvents[eventName]];
-
-                                // If a member was previously selected for this slot, remove them from other events in the same session
-                                if (updatedParticipants[slot]) {
-                                  const prevMember = updatedParticipants[slot];
-                                  const sessionEvents = morningEvents.includes(eventName) ? morningEvents : afternoonEvents;
-                                  sessionEvents.forEach(ev => {
-                                    if (newEvents[ev]) {
-                                      newEvents[ev] = newEvents[ev].filter(p => p !== prevMember);
-                                    }
-                                  });
-                                }
-
-                                if (newMember) {
-                                  // Add the new member, ensuring no duplicates in the same session
-                                  const sessionEvents = morningEvents.includes(eventName) ? morningEvents : afternoonEvents;
-                                  sessionEvents.forEach(ev => {
-                                      if (newEvents[ev] && newEvents[ev].includes(newMember)) {
-                                          newEvents[ev] = newEvents[ev].filter(p => p !== newMember);
-                                      }
-                                  });
-                                  updatedParticipants[slot] = newMember;
-                                } else {
-                                  updatedParticipants[slot] = ""; // Clear the slot
-                                }
-                                newEvents[eventName] = updatedParticipants.filter(Boolean); // Remove empty slots
-                                setEvents(newEvents);
-                              }}
-                            >
-                              <option value="">Select Member</option>
-                              {getAvailableMembers(eventName, slot).map(
-                                (m, idx) => (
-                                  <option
-                                    key={idx}
-                                    value={`${m.name} (${m.regNo})`}
-                                  >
-                                    {m.name} ({m.regNo})
-                                  </option>
-                                )
-                              )}
-                            </select>
-                          ))}
-                        </div>
-                        <p>
-                          Participants: {events[eventName].join(", ") || "None"}
-                        </p>
-                      </div>
-                    ))}
+          <div className="event-list">
+            {selectedMorningEvents.sort((a,b) => morningEvents.indexOf(a) - morningEvents.indexOf(b)).map((eventName) => (
+              <div key={eventName} className="event-box">
+                <h4 className="evt-box-header">
+                  {eventName}
+                  <p
+                    className="remove-event-button"
+                    onClick={() => handleRemoveEvent(eventName, true)} // Pass true for morning event
+                  >
+                    X
+                  </p>
+                </h4>
+                <div className="participants">
+                  {[0, 1].map((slot) => (
+                    <select
+                      key={slot}
+                      value={events[eventName][slot] || ""}
+                      onChange={(e) =>
+                        handleEventParticipantChange(
+                          eventName,
+                          slot,
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="">Select  Member</option>
+                      {getAvailableMembers(eventName, events[eventName][slot]).map(
+                        (m, idx) => (
+                          <option key={idx} value={`${m.name} (${m.regNo})`}>
+                            {m.name} ({m.regNo})
+                          </option>
+                        )
+                      )}
+                    </select>
+                  ))}
                 </div>
+                <p>
+                  Participants: {events[eventName].join(", ") || "None"}
+                </p>
+              </div>
+            ))}
+          </div>
 
-                {/* Off Stage Events (Afternoon) */}
-                <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>
-                  Off Stage Events
-                </h3>
-                <div className="event-list">
-                  {Object.keys(events)
-                    .slice(4)
-                    .map((eventName) => (
-                      <div key={eventName} className="event-box">
-                        <h4>{eventName}</h4>
-                        <div className="participants">
-                          {[0, 1].map((slot) => (
-                            <select
-                              key={slot}
-                              value={events[eventName][slot] || ""}
-                              onChange={(e) => {
-                                const newMember = e.target.value;
-                                const newEvents = { ...events };
+          {/* Afternoon Events Section */}
+          <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Off Stage Events</h3>
+          <div className="add-event-section">
+            <select
+            className="select-event"
+              value={eventToAddAfternoon}
+              onChange={(e) => setEventToAddAfternoon(e.target.value)}
+            >
+              <option value="">Select Event</option>
+              {afternoonEvents
+                .filter((eventName) => !selectedAfternoonEvents.includes(eventName))
+                .map((eventName) => (
+                  <option key={eventName} value={eventName}>
+                    {eventName}
+                  </option>
+                ))}
+            </select>
+            <button onClick={handleAddAfternoonEvent} disabled={!eventToAddAfternoon}>
+              Add Event
+            </button>
+          </div>
 
-                                if (newEvents[eventName] === undefined) {
-                                  newEvents[eventName] = [];
-                                }
-
-                                // Create a copy of the array to ensure immutability
-                                const updatedParticipants = [...newEvents[eventName]];
-
-                                // If a member was previously selected for this slot, remove them from other events in the same session
-                                if (updatedParticipants[slot]) {
-                                  const prevMember = updatedParticipants[slot];
-                                  const sessionEvents = afternoonEvents.includes(eventName) ? afternoonEvents : morningEvents; // This logic needs to be careful
-                                  sessionEvents.forEach(ev => {
-                                    if (newEvents[ev]) {
-                                      newEvents[ev] = newEvents[ev].filter(p => p !== prevMember);
-                                    }
-                                  });
-                                }
-
-                                if (newMember) {
-                                  // Add the new member, ensuring no duplicates in the same session
-                                  const sessionEvents = afternoonEvents.includes(eventName) ? afternoonEvents : morningEvents; // This logic needs to be careful
-                                  sessionEvents.forEach(ev => {
-                                      if (newEvents[ev] && newEvents[ev].includes(newMember)) {
-                                          newEvents[ev] = newEvents[ev].filter(p => p !== newMember);
-                                      }
-                                  });
-                                  updatedParticipants[slot] = newMember;
-                                } else {
-                                  updatedParticipants[slot] = ""; // Clear the slot
-                                }
-                                newEvents[eventName] = updatedParticipants.filter(Boolean); // Remove empty slots
-                                setEvents(newEvents);
-                              }}
-                            >
-                              <option value="">Select Member</option>
-                              {getAvailableMembers(eventName, slot).map(
-                                (m, idx) => (
-                                  <option
-                                    key={idx}
-                                    value={`${m.name} (${m.regNo})`}
-                                  >
-                                    {m.name} ({m.regNo})
-                                  </option>
-                                )
-                              )}
-                            </select>
-                          ))}
-                        </div>
-                        <p>
-                          Participants: {events[eventName].join(", ") || "None"}
-                        </p>
-                      </div>
-                    ))}
+          <div className="event-list">
+            {selectedAfternoonEvents.sort((a,b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b)).map((eventName) => (
+              <div key={eventName} className="event-box" >
+                <h4 className="evt-box-header ">
+                  {eventName}
+                  <p
+                    className="remove-event-button"
+                    onClick={() => handleRemoveEvent(eventName, false)} // Pass false for afternoon event
+                  >
+                    X
+                  </p>
+                </h4>
+                <div className="participants">
+                  {[0, 1].map((slot) => (
+                    <select
+                      key={slot}
+                      value={events[eventName][slot] || ""}
+                      onChange={(e) =>
+                        handleEventParticipantChange(
+                          eventName,
+                          slot,
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="">Select Member</option>
+                      {getAvailableMembers(eventName, events[eventName][slot]).map(
+                        (m, idx) => (
+                          <option key={idx} value={`${m.name} (${m.regNo})`}>
+                            {m.name} ({m.regNo})
+                          </option>
+                        )
+                      )}
+                    </select>
+                  ))}
                 </div>
-              </>
-            );
-          })()}
+                <p>
+                  Participants: {events[eventName].join(", ") || "None"}
+                </p>
+              </div>
+            ))}
+          </div>
 
           {/* Navigation buttons */}
           <div>

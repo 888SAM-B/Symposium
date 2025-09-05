@@ -7,8 +7,9 @@ import gsap from "gsap";
 
 // Components
 import Home from "./components/home";
-import TeamRegistrationForm from "./components/register";
+import TeamRegistrationForm from "./components/TeamRegister";
 import Idgen from "./components/idgen";
+import Register from "./components/register";
 import Register1 from "./components/SymposiumRegistration";
 import Event from "./components/event";
 import Org from "./components/org";
@@ -73,8 +74,9 @@ function App() {
         {/* Desktop navigation only */}
         <nav className="desktop-nav">
           <Link to="/">Home</Link>
-          <Link to="/register">Register</Link>
-          
+          <Link to="/#reg">Register</Link>
+          <Link to="/get-id">Get ID</Link>
+          <Link to='/team-reg1'>Team Reg</Link>
           <Link to="/reg">Symposium Reg</Link>
           <Link to="/event">Events</Link>
           <Link to="/org">Organizers</Link>
@@ -88,7 +90,8 @@ function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/register" element={<TeamRegistrationForm />} />
+          <Route path="/team-reg1" element={<TeamRegistrationForm />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/get-id" element={<Idgen />} />
           <Route path="/reg" element={<Register1 />} />
           <Route path="/event" element={<Event />} />

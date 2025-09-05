@@ -9,7 +9,7 @@ body {
 }
 
 /* 📝 Container */
-.register-container {
+.register-container1 {
   max-width: 900px;
   margin: 60px auto;
   padding: 40px 30px;
@@ -18,6 +18,7 @@ body {
   text-align: center;
   animation: fadeIn 0.8s ease-in-out;
   border:1px solid #cccccc44;
+  
 }
 
 /* ✨ Fade In Animation */
@@ -27,21 +28,21 @@ body {
 }
 
 /* 📌 Section Headings */
-.register-container h1 {
+.register-container1 h1 {
   font-size: 32px;
   color: #fff;
   margin-bottom: 35px;
   text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
 }
 
-.register-container h2 {
+.register-container1 h2 {
   margin: 30px 0 20px;
   color: #00e5ff;
   font-size: 24px;
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
 }
 
-.register-container h3 {
+.register-container1 h3 {
   margin: 25px 0 15px;
   font-size: 20px;
   color: #ffcc00;
@@ -50,7 +51,7 @@ body {
   padding-bottom: 5px;
 }
 
-.register-container h4 {
+.register-container1 h4 {
   text-align: left;
   font-size: 18px;
   margin-bottom: 12px;
@@ -58,10 +59,10 @@ body {
 }
 
 /* 🔲 Inputs & Selects */
-.register-container input,
-.register-container select {
-  width: 80%;
-  max-width: 500px;
+.register-container1 input,
+.register-container1 select {
+  /* width: 80%; */
+  /* max-width: 500px; */
   padding: 12px 14px;
   margin: 12px 0 18px;
   border-radius: 10px;
@@ -72,8 +73,8 @@ body {
   transition: border 0.25s ease, background 0.25s ease;
 }
 
-.register-container input:focus,
-.register-container select:focus {
+.register-container1 input:focus,
+.register-container1 select:focus {
   border: 2px solid #00e5ff;
   background: #333;
 }
@@ -130,7 +131,7 @@ body {
 }
 
 /* 🔘 Buttons */
-.register-container button {
+.register-container1 button {
   background: linear-gradient(135deg, #00e5ff, #0077ff);
   color: #fff;
   padding: 12px 24px;
@@ -143,18 +144,18 @@ body {
   letter-spacing: 0.5px;
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
-.register-container button:hover {
+.register-container1 button:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 18px rgba(0, 229, 255, 0.4);
 }
-.register-container button:disabled {
+.register-container1 button:disabled {
   background: #555;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 /* ℹ️ Info text */
-.register-container p {
+.register-container1 p {
   font-size: 14px;
   color: #bbb;
   margin: 8px 0 12px;
@@ -162,16 +163,16 @@ body {
 
 /* 📱 Responsive */
 @media screen and (max-width: 768px) {
-  .register-container {
+  .register-container1 {
     padding: 25px 15px;
     margin: 30px 15px;
   }
 
-  .register-container h1 {
+  .register-container1 h1 {
     font-size: 26px;
     margin-bottom: 25px;
   }
-  .register-container h2 {
+  .register-container1 h2 {
     font-size: 20px;
   }
 
@@ -190,7 +191,7 @@ body {
     gap: 10px;
   }
 
-  .register-container button {
+  .register-container1 button {
     width: 100%;
     margin: 15px 0;
   }
@@ -211,6 +212,36 @@ body {
   align-items: center;
   justify-content: center;
 }
+.step-1{
+  display: flex;
+  flex-direction: column;
+}
 ul{
   list-style: none;
+}
+.remove-event-button {
+  background-color: #f44336 !important; /* Red */
+  color: white !important;
+  border: none !important;
+  padding: 5px 8px !important ;
+  text-align: center !important ;
+  text-decoration: none !important ;
+  display: inline-block !important ;
+  font-size: 12px !important ;
+  margin-left: 10px !important ;
+  cursor: pointer !important ;
+  border-radius: 4px !important ;
+}
+
+.remove-event-button:hover {
+  background-color: #d32f2f;
+}
+.evt-box-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 5%;
+}
+.select-event{
+  width: 40%;
 }
