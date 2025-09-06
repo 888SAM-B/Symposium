@@ -4,6 +4,7 @@ import './App.css'
 
 import Home from './components/home'
 import Admin from './components/admin';
+import AdminPage from './components/AdminPage';
 function App() {
    
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path='/' element={<Home/>} ></Route>
 
         <Route path='/admin' element={<Admin/>} ></Route>
+        <Route path='/admin-page' element={<AdminPage/>} ></Route>
         <Route path='*' element={<h1>404 Not Found</h1>} ></Route>
 
       </Routes>
