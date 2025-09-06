@@ -374,28 +374,53 @@ app.post("/team-register", async (req, res) => {
 });
 
 
-// PUT mark attendance for a student
-app.put("/api/scanner/attendance/:regNo", async (req, res) => {
+// GET /team-scanner/:uniqueId
+app.get("/team-scanner/:uniqueId", async (req, res) => {
   try {
-    const { regNo } = req.params;
+    const { uniqueId } = req.params;
 
-    const student = await Student.findOne({ regNo });
-    if (!student) return res.status(404).json({ error: "Student not found" });
-
-    if (student.status === "Present") {
-      return res.json({ message: "Already marked as present" });
+    // Find the team with members
+    const team = await Team.findOne({ uniqueId });
+    if (!team) {
+      return res.status(404).json({ error: "Team not found" });
     }
 
-    student.status = "Present";
-    await student.save();
-
-    res.json({ message: `${student.name} marked as present` });
+    res.json(team);
   } catch (err) {
-    console.error("Error marking attendance:", err);
+    console.error("Error fetching team:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
+// PUT /scanner/attendance/:regNo
+app.put("/scanner/attendance/:regNo", async (req, res) => {
+  try {
+    const { regNo } = req.params;
+    const { status } = req.body; // "Present" or "Absent"
+
+    // 1️⃣ Update Student collection
+    const student = await Student.findOneAndUpdate(
+      { regNo },
+      { status },
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // 2️⃣ Update inside Team.members[]
+    await Team.updateOne(
+      { "members.regNo": regNo },
+      { $set: { "members.$.status": status } }
+    );
+
+    res.json({ message: `${student.name} marked as ${status}` });
+  } catch (err) {
+    console.error("Error updating attendance:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 
