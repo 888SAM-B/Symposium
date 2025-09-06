@@ -69,21 +69,43 @@ symposiumSchema.pre('save', async function(next) {
 
 const User = mongoose.model('User', symposiumSchema);
 
+
+const counterSchema1 = new mongoose.Schema({
+  name: { type: String, required: true, unique: true }, // "team" / "student"
+  seq: { type: Number, default: 0 },
+});
+
+const Counter1 = mongoose.model("Counter1", counterSchema1);
+
+// Function to get next sequence with prefix
+async function getNextSequence1(name, prefix) {
+  const counter = await Counter1.findOneAndUpdate(
+    { name },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return prefix + counter.seq.toString().padStart(2, "0"); // 01, 02, 03...
+}
+
+
+
 // ---------------- New Schemas for Team Registration ----------------
 const studentSchema = new mongoose.Schema({
+  studentNo: { type: String, unique: true }, // 🔢 Auto-increment student number
   name: { type: String, required: true },
-  regNo: { type: String, required: true, unique: true }, // email
+  regNo: { type: String, required: true, unique: true }, // email/roll no
   events: { type: [String], default: [] }, // selected events
   team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
   teamName: { type: String }, // extra field to save teamName directly
+  teamNo: { type: String }, // extra field to save teamNo directly
   status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
 });
-
 
 const Student = mongoose.model("Student", studentSchema);
 
 const teamSchema = new mongoose.Schema({
-  uniqueId: { type: String, default: uuidv4, unique: true }, // unique team id
+  teamNo: { type: String, unique: true }, // 🔢 Auto-increment team number
+  uniqueId: { type: String, default: uuidv4, unique: true }, // random UUID
   teamName: { type: String, required: true, unique: true },
   collegeName: { type: String, required: true },
   dept: { type: String, required: true },
@@ -91,13 +113,14 @@ const teamSchema = new mongoose.Schema({
   // Store events as { "Event 1": [studentRegNos] }
   event: {
     type: Map,
-    of: [String], 
+    of: [String],
     default: {},
   },
 
   // 🚀 Direct store student objects instead of ObjectId
   members: [
     {
+      studentNo: { type: String }, // 🔢 Local to team OR global — your choice
       name: { type: String, required: true },
       regNo: { type: String, required: true },
       events: { type: [String], default: [] },
@@ -273,7 +296,7 @@ app.post("/team-register", async (req, res) => {
   try {
     const { teamName, event, members, collegeName, dept } = req.body;
 
-    // 1. Duplicate regNo check inside same request
+    // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
     const duplicate = regNos.find((regNo, i) => regNos.indexOf(regNo) !== i);
     if (duplicate) {
@@ -291,43 +314,53 @@ app.post("/team-register", async (req, res) => {
       });
     }
 
-    // 3. Prepare members with their events
-    const membersWithEvents = members.map((m) => {
+    // 3. Generate Team No (VTxx)
+    const teamNo = await getNextSequence1("team", "VT");
+
+    // 4. Prepare members with events + studentNo
+    const membersWithEvents = [];
+    for (const m of members) {
       const studentEvents = Object.entries(event)
         .filter(([eventName, participants]) =>
           participants.includes(`${m.name} (${m.regNo})`)
         )
         .map(([eventName]) => eventName);
 
-      return {
-        ...m,
-        events: studentEvents,
-      };
-    });
+      const studentNo = await getNextSequence1("student", "VS");
 
-    // 4. Create Team with updated members
+      membersWithEvents.push({
+        ...m,
+        studentNo,
+        events: studentEvents,
+      });
+    }
+
+    // 5. Create Team
     const newTeam = new Team({
+      teamNo, // ✅ prefixed team number (VTxx)
       teamName,
       event,
       collegeName,
       dept,
-      members: membersWithEvents, // ✅ now members include their events
+      members: membersWithEvents,
     });
     await newTeam.save();
 
-    // 5. Save Students with their events
+    // 6. Save Students
     const studentDocs = await Student.insertMany(
       membersWithEvents.map((m) => ({
+        studentNo: m.studentNo, // ✅ prefixed student number (VSxx)
         name: m.name,
         regNo: m.regNo,
         team: newTeam._id,
+        teamNo: newTeam.teamNo,
         teamName,
-        events: m.events, // ✅ store individual events
+        events: m.events,
         status: m.status || "Absent",
       }))
     );
 
-    // 6. Send Emails
+    // 7. Send Emails
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -341,14 +374,15 @@ app.post("/team-register", async (req, res) => {
     for (const student of studentDocs) {
       const mailOptions = {
         from: `"VIBE Registration" <${process.env.EMAIL_USER}>`,
-        to: student.regNo, // regNo is email
+        to: student.regNo,
         subject: "VIBE Registration Successful 🎉",
         html: `
           <h2>Hi ${student.name},</h2>
           <p>You have been successfully registered for the event.</p>
-          <p><b>Team Name:</b> ${teamName}</p>
+          <p><b>Team Name:</b> ${teamName} (${newTeam.teamNo})</p>
           <p><b>College:</b> ${collegeName}</p>
           <p><b>Department:</b> ${dept}</p>
+          <p><b>Student No:</b> ${student.studentNo}</p>
           <p><b>Events:</b></p>
           <ul>
             ${student.events.map((e) => `<li>${e}</li>`).join("")}
@@ -361,9 +395,9 @@ app.post("/team-register", async (req, res) => {
       await transporter.sendMail(mailOptions);
     }
 
-    // 7. Response
+    // 8. Response
     res.json({
-      message: "Team registered successfully and confirmation mails sent",
+      message: "Team registered successfully with VTxx/VSxx numbers 🎉",
       team: newTeam,
       students: studentDocs,
     });
