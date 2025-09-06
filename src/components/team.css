@@ -1,0 +1,251 @@
+/* TeamScanner.css
+   Colors: background #212121, accent #00F0FF
+*/
+
+:root{
+  --bg: #212121;
+  --accent: #00F0FF;
+  --muted: #9e9e9e;
+  --card: #2a2a2a;
+  --glass: rgba(255,255,255,0.03);
+  --text: #ffffff;
+  --danger: #ff6b6b; /* lightweight for negative actions */
+  --radius: 12px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+
+/* Page layout */
+.team-scanner-root{
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 36px 16px;
+  box-sizing: border-box;
+}
+
+/* Card wrapper */
+.scanner-card{
+  width: 100%;
+  max-width: 920px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-radius: calc(var(--radius) + 4px);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Header */
+.scanner-card h2{
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.2px;
+}
+.scanner-card p.lead{
+  margin: 0 0 18px 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Reader area */
+.reader-wrap{
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+#reader{
+  width: 320px;
+  height: 320px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.02));
+  border: 1px dashed rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* Scanned id chip */
+.scanned-id{
+  background: var(--card);
+  padding: 10px 12px;
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Team details */
+.team-details{
+  flex: 1;
+  min-width: 300px;
+  background: var(--glass);
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.team-meta{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.team-meta .meta-item{
+  background: rgba(255,255,255,0.02);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Members list */
+.members-list{
+  margin-top: 12px;
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.member-item{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.member-left{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.avatar{
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.member-info{
+  min-width: 0;
+}
+.member-info .name{
+  font-weight: 700;
+  font-size: 0.98rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.member-info .meta{
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status badge */
+.status-badge{
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.status-present{
+  background: linear-gradient(90deg, rgba(0,240,255,0.06), rgba(0,240,255,0.03));
+  color: var(--accent);
+  box-shadow: 0 4px 14px rgba(0,240,255,0.06);
+}
+.status-absent{
+  background: rgba(255,255,255,0.02);
+  color: var(--muted);
+}
+
+/* Buttons */
+.btn{
+  border: none;
+  background: var(--accent);
+  color: #0b0b0b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  box-shadow: 0 8px 28px rgba(0,240,255,0.06);
+}
+.btn:active{ transform: translateY(1px); }
+.btn.secondary{
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: none;
+}
+.btn.ghost{
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 6px 10px;
+}
+.btn.small{
+  padding: 6px 8px;
+  font-size: 0.9rem;
+}
+
+/* Mark present/absent variants */
+.btn.present{
+  background: var(--accent);
+  color: #001617;
+}
+.btn.absent{
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Message text */
+.message{
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Footer controls */
+.controls{
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 760px){
+  .reader-wrap{ flex-direction: column; align-items: center; }
+  #reader{ width: 260px; height: 260px; }
+  .team-details{ width: 100%; }
+}
+
+/* Tiny helper */
+.hidden{ display: none !important; }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { useNavigate } from "react-router-dom";
+import './team.css'
 
 const TeamScanner = () => {
   const [scannedId, setScannedId] = useState("");
@@ -54,9 +55,7 @@ const TeamScanner = () => {
     try {
       setMessage("");
       const res = await fetch(`${import.meta.env.VITE_URL}/team-scanner/${uniqueId}`);
-      if (!res.ok) {
-        throw new Error("Team not found");
-      }
+      if (!res.ok) throw new Error("Team not found");
       const data = await res.json();
       setTeam(data);
     } catch (err) {
@@ -77,11 +76,9 @@ const TeamScanner = () => {
           body: JSON.stringify({ status: newStatus }),
         }
       );
-
       const result = await res.json();
       setMessage(result.message);
 
-      // Update local state (reflect in UI immediately)
       setTeam((prev) => ({
         ...prev,
         members: prev.members.map((m) =>
@@ -101,56 +98,62 @@ const TeamScanner = () => {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h2>Scan QR Code</h2>
+    <div className="team-scanner-root">
+      <div className="scanner-card">
+        <h2>Scan QR Code</h2>
+        {!scannedId && <div id="reader" className="reader-wrap"></div>}
+        {scannedId && <p className="scanned-id">Scanned ID: {scannedId}</p>}
 
-      {!scannedId && (
-        <div id="reader" style={{ width: "300px", margin: "auto" }}></div>
-      )}
+        {team ? (
+          <div className="team-details">
+            <h3>Team Details:</h3>
+            <div className="team-meta">
+              <span className="meta-item"><b>Team Name:</b> {team.teamName}</span>
+              <span className="meta-item"><b>College:</b> {team.collegeName}</span>
+              <span className="meta-item"><b>Department:</b> {team.dept}</span>
+            </div>
 
-      {scannedId && <p>Scanned ID: {scannedId}</p>}
+            <h4>Members:</h4>
+            <ul className="members-list">
+              {team.members.map((m, idx) => (
+                <li key={idx} className="member-item">
+                  <div className="member-left">
+                    <div className="avatar">{m.name.split(" ").map(n => n[0]).join("")}</div>
+                    <div className="member-info">
+                      <div className="name">{m.name} ({m.regNo})</div>
+                      <div className="meta">{m.events.join(", ")}</div>
+                    </div>
+                  </div>
 
-      {team ? (
-        <div>
-          <h3>Team Details:</h3>
-          <p><b>Team Name:</b> {team.teamName}</p>
-          <p><b>College:</b> {team.collegeName}</p>
-          <p><b>Department:</b> {team.dept}</p>
+                  <div className="member-right">
+                    <span className={`status-badge ${m.status === "Present" ? "status-present" : "status-absent"}`}>
+                      {m.status === "Present" ? "✅ Present" : "❌ Absent"}
+                    </span>
+                    {m.status === "Present" ? (
+                      <button className="btn absent" onClick={() => markStudentAttendance(m.regNo, "Absent")}>
+                        Mark Absent
+                      </button>
+                    ) : (
+                      <button className="btn present" onClick={() => markStudentAttendance(m.regNo, "Present")}>
+                        Mark Present
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : scannedId ? (
+          <p>Loading team...</p>
+        ) : null}
 
-          <h4>Members:</h4>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {team.members.map((m, idx) => (
-              <li key={idx} style={{ margin: "10px 0", borderBottom: "1px solid #ccc", paddingBottom: "10px" }}>
-                <b>{m.name}</b> ({m.regNo}) - {m.events.join(", ")}
-                <br />
-                Status:{" "}
-                {m.status === "Present" ? (
-                  <span style={{ color: "green" }}>✅ Present</span>
-                ) : (
-                  <span style={{ color: "red" }}>❌ Absent</span>
-                )}
-                <br />
-                {m.status === "Present" ? (
-                  <button onClick={() => markStudentAttendance(m.regNo, "Absent")}>
-                    Mark Absent
-                  </button>
-                ) : (
-                  <button onClick={() => markStudentAttendance(m.regNo, "Present")}>
-                    Mark Present
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+        {message && <p className="message">{message}</p>}
+
+        <div className="controls">
+          {scannedId && <button className="btn secondary" onClick={resetScanner}>Fetch Again</button>}
+          <button className="btn secondary" onClick={() => window.location.reload()}>Scan new QR</button>
         </div>
-      ) : scannedId ? (
-        <p>Loading team...</p>
-      ) : null}
-
-      {message && <p><b>{message}</b></p>}
-
-      {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
-      <button onClick={() => window.location.reload()}>Scan new QR</button>
+      </div>
     </div>
   );
 };
