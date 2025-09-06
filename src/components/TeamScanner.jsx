@@ -49,39 +49,48 @@ const TeamScanner = () => {
     };
   }, []);
 
-  // ✅ Fetch team details
+  // ✅ Fetch team details by uniqueId
   const fetchTeamDetails = async (uniqueId) => {
     try {
       setMessage("");
-      const res = await fetch(`${import.meta.env.VITE_URL}/api/scanner/${uniqueId}`);
+      const res = await fetch(`${import.meta.env.VITE_URL}/team-scanner/${uniqueId}`);
+      if (!res.ok) {
+        throw new Error("Team not found");
+      }
       const data = await res.json();
       setTeam(data);
     } catch (err) {
       console.error("Error fetching team:", err);
       setTeam(null);
+      setMessage("Team not found");
     }
   };
 
-  // ✅ Mark individual student attendance
-  const markStudentAttendance = async (regNo) => {
+  // ✅ Mark student attendance (Present/Absent)
+  const markStudentAttendance = async (regNo, newStatus) => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_URL}/api/scanner/attendance/${regNo}`,
-        { method: "PUT" }
+        `${import.meta.env.VITE_URL}/scanner/attendance/${regNo}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        }
       );
+
       const result = await res.json();
       setMessage(result.message);
 
-      // Update local state (mark student as present)
+      // Update local state (reflect in UI immediately)
       setTeam((prev) => ({
         ...prev,
         members: prev.members.map((m) =>
-          m.regNo === regNo ? { ...m, attendance: true } : m
+          m.regNo === regNo ? { ...m, status: newStatus } : m
         ),
       }));
     } catch (err) {
       console.error("Error marking attendance:", err);
-      setMessage("Failed to mark attendance");
+      setMessage("Failed to update attendance");
     }
   };
 
@@ -105,22 +114,28 @@ const TeamScanner = () => {
         <div>
           <h3>Team Details:</h3>
           <p><b>Team Name:</b> {team.teamName}</p>
-          <p><b>College:</b> {team.college}</p>
-          <p><b>Department:</b> {team.department}</p>
-          <p><b>Events:</b> {team.events?.join(", ")}</p>
+          <p><b>College:</b> {team.collegeName}</p>
+          <p><b>Department:</b> {team.dept}</p>
 
           <h4>Members:</h4>
           <ul style={{ listStyle: "none", padding: 0 }}>
             {team.members.map((m, idx) => (
-              <li key={idx} style={{ margin: "10px 0" }}>
-                <b>{m.name}</b> ({m.regNo}) - {m.dept}
+              <li key={idx} style={{ margin: "10px 0", borderBottom: "1px solid #ccc", paddingBottom: "10px" }}>
+                <b>{m.name}</b> ({m.regNo}) - {m.events.join(", ")}
                 <br />
-                Events: {m.events.join(", ")}
-                <br />
-                {m.attendance ? (
+                Status:{" "}
+                {m.status === "Present" ? (
                   <span style={{ color: "green" }}>✅ Present</span>
                 ) : (
-                  <button onClick={() => markStudentAttendance(m.regNo)}>
+                  <span style={{ color: "red" }}>❌ Absent</span>
+                )}
+                <br />
+                {m.status === "Present" ? (
+                  <button onClick={() => markStudentAttendance(m.regNo, "Absent")}>
+                    Mark Absent
+                  </button>
+                ) : (
+                  <button onClick={() => markStudentAttendance(m.regNo, "Present")}>
                     Mark Present
                   </button>
                 )}
@@ -129,10 +144,10 @@ const TeamScanner = () => {
           </ul>
         </div>
       ) : scannedId ? (
-        <p>Loading...</p>
+        <p>Loading team...</p>
       ) : null}
 
-      {message && <p>{message}</p>}
+      {message && <p><b>{message}</b></p>}
 
       {scannedId && <button onClick={resetScanner}>Fetch Again</button>}
       <button onClick={() => window.location.reload()}>Scan new QR</button>

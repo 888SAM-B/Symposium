@@ -18,7 +18,7 @@ const Home = () => {
       const expiryTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour
       sessionStorage.setItem("scanner-auth", JSON.stringify({ loggedIn: true, expiry: expiryTime }));
 
-      navigate("/qr-scanner"); // redirect to dashboard or wherever
+      navigate("/team-scanner"); // redirect to dashboard or wherever
     } else {
       setError("Invalid username or password");
     }
