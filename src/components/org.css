@@ -32,16 +32,18 @@
 
 /* Individual card */
 .organizer-card {
-  text-transform: uppercase;
+  text-transform:capitalize;
   background-color: #1f1f1f;
   padding: 1rem;
   width: 12rem;
+  cursor: pointer;
   border-radius: 1.2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease;
 }
 
 .organizer-card:hover {
+  border: 1px solid #cccccc1f;
   transform: scale(1.05);
 }
 
@@ -60,8 +62,8 @@
   font-weight: 500;
 }
 .org-name{
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 .org-des{
-    font-size: 0.75rem;
+    font-size: 0.95rem;
 }

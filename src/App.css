@@ -496,3 +496,9 @@ header {
   right: 7px;
 }
 }
+.qr-code-container{
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  align-items: center;
+}
