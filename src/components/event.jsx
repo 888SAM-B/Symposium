@@ -7,43 +7,65 @@ import EventCard from "./animations/eventCard";
 const Event = () => {
   const [details, setDetails] = useState([]);
   const [rules, setRules] = useState([]);
+  const [coordinators, setCoordinators] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [teamSize,setTeamsize]=useState("")
   const [image, setImage] = useState("");
   const [display, setDisplay] = useState(false);
   const events = [
     {
       title: "PAPER PRESENTATION",
-      description: "Start the vibe",
+      description: "Showcase your innovative research and ideas through a structured presentation",
       image: "/paper-presentation.png",
-      details: ["Showcase your ideas, research, and innovations in the field of Computer Science.", " Present your work in front of a panel of experts and peers, highlighting your concept, methodology, and results.", "This event gives you the chance to share knowledge, gainfeedback, and inspire others with your presentation skills."],
+      teamSize:"Team Size : 1 - 2",
+      details: [
+        "Present innovative research in Computer Science",
+        "Eligibility: UG & PG students (CS/IT), solo or team (max 2)",
+        "Submission: Abstract (≤300 words), Full paper (6–10 pages IEEE), PDF/PPT format",
+        "Evaluation: Originality 30, Technical Depth 30, Presentation 20, Theme 10, Q&A 10 (Total 100)",
+        "Rewards: Best Paper Award + E-Certificates"
+      ],
       rules: [
-        "Submit your paper in the required format before the deadline.",
-        "Presentations are limited to 10 minutes plus for 5 minutes Q&A.",
-        "Present original, unpublished work with proper citations.",
-        "Arrive 15 minutes early for setup and maintain professionalism."
+        "No plagiarism (>15% similarity = rejection)",
+        "8 min presentation + 2 min Q&A",
+        "Formal attire required; report 30 mins early",
+        "Only one submission per student",
+        "Bring backup slides (PPT/PDF)"
+      ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
     },
     {
       title: "POSTER PRESENTATION",
-      description: "Start the vibe",
+      description: "Express concepts creatively with visuals, infographics, and concise explanations",
       image: "/poster-presentation.jpg",
+      teamSize:"Team Size : 1 - 2",
       details: [
-        "The Poster Presentation event gives participants the chance to express their research, projects, and innovative concepts in a creative visual format.",
-        "Instead of lengthy papers, ideas are communicated through eye-catching posters with charts, diagrams, and graphics that make complex concepts easy to understand."
-      ]
-      ,
+        "Design AI prompts creatively and test outputs",
+        "Eligibility: UG & PG students (CS/IT), individual only",
+        "Rounds: 1) Prompt Analytics (online) 2) Live Coding (HTML/CSS/JS only)",
+        "Evaluation: Accuracy 40, Structure 25, Creativity 15, Rule Compliance 20 (Total 100)",
+        "Rewards: Winner & Runner-up Awards, Best prompts showcased"
+      ],
       rules: [
-        "Posters should visually communicate your research or project clearly and creatively.",
-        "Poster size must not exceed the specified dimensions (e.g., 36 x 48 inches).",
-        "Presenters should be available at their poster during the assigned session time for discussion.",
-        "Ensure all content is original and properly cited; no offensive or plagiarized material allowed."
+      "No frameworks (React/Angular etc.)",
+      "No external tools or websites",
+      "Laptops mandatory in Round 2",
+      "Only HTML/CSS/JS code allowed"
+    ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
     },
     {
       title: "QUIZ",
-      description: "Visualize your concepts and designs effectively.",
+      description: "Test your knowledge and quick thinking across multiple domains",
       image: "/quiz-image.png",
+      teamSize:"Team Size : 1 -2 ",
       details: [
         "The Technical Quiz is a fast-paced event designed to test your knowledge, speed, and presence of mind in the field of Computer Science and general technology.",
         "Participants will face a mix of conceptual questions, logical puzzles, and real-world tech scenarios that challenge both accuracy and quick thinking."
@@ -54,12 +76,17 @@ const Event = () => {
         "The quiz will consist of multiple rounds with increasing difficulty levels.",
         "Use of electronic devices or external help during the quiz is strictly prohibited.",
         "Winners will be decided based on accuracy and speed; tie-breakers may be used if necessary."
+      ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
     },
     {
       title: "WORD HUNT",
-      description: "Visualize your concepts and designs effectively.",
+      description: "Challenge your vocabulary and speed in finding hidden words",
       image: "/word-hunt.png",
+      teamSize:"Team Size : 1 - 2",
       details: [
         "The Word Hunt is a fun and brain-teasing event where participants search, decode, and solve hidden words and puzzles related to Computer Science and technology.",
         "It tests your speed, vocabulary, and logical thinking as you race against time to crack the challenge.",
@@ -70,52 +97,67 @@ const Event = () => {
         "All words must be related to Computer Science and technology topics.",
         "No use of external help, dictionaries, or electronic devices is allowed during the event.",
         "Winners will be decided based on the number of correct words found and speed of completion."
+      ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
     },
     {
-      title: "SOCIAL ENGINEERING ",
-      title2:"APP",
-      description: "Visualize your concepts and designs effectively.",
+      title: "PROMPT BUILDER",
+      teamSize:"Individual Participation ",
+      description: "Craft powerful prompts to unlock AI’s full potential with creativity and precision",
       image: "/social-eng.png",
       details: [
-        "The Social Engineering App event is designed to test how well you understand the human side of cybersecurity.",
-        "Participants will face real-life inspired scenarios where they need to identify tricks, detect risks, and create smart solutions against social engineering attacks like phishing, fake apps, and data theft.",
-        "This event helps participants improve their awareness of cyber threats and sharpen their problem-solving skills in a practical and fun way."
-      ]
+      "Design AI prompts creatively and test outputs",
+      "Eligibility: UG & PG students (CS/IT), individual only",
+      "Rounds: 1) Prompt Analytics (online) 2) Live Coding (HTML/CSS/JS only)",
+      "Evaluation: Accuracy 40, Structure 25, Creativity 15, Rule Compliance 20 (Total 100)",
+      "Rewards: Winner & Runner-up Awards, Best prompts showcased"
+    ],
 
-      ,
       rules: [
-        "Participants must analyze scenarios and provide effective countermeasures against social engineering attacks.",
-        "Use of external resources or collaboration during the event is not allowed.",
-        "Solutions will be judged based on creativity, practicality, and understanding of cybersecurity principles.",
-        "Participants should demonstrate clear awareness of common social engineering tactics and preventive strategies."
+      "No frameworks (React/Angular etc.)",
+      "No external tools or websites",
+      "Laptops mandatory in Round 2",
+      "Only HTML/CSS/JS code allowed"
+    ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
 
     },
     {
       title: "API FUSION",
-      description: "Visualize your concepts and designs effectively.",
+      description: "Build unique solutions by creatively integrating and using APIs",
       image: "/api.png",
+      teamSize:"Team Size : 1 to 3",
       details: [
-        "The API Fusion event is all about bringing different systems together using the power of APIs (Application Programming Interfaces).",
-        "Participants will be given tasks where they need to connect services, share data, and build solutions by integrating multiple APIs.",
-        "This event focuses on your coding skills, creativity, and problem-solving ability to design apps that work smoothly and efficiently."
-      ]
-
-
-      ,
+      "Build applications using APIs for real-world problems",
+      "Eligibility: UG & PG students (CS/IT), teams of 1–3",
+      "Rounds: 1) API Quiz (1 hr) 2) Coding Challenge (2 hrs with ≥2 APIs)",
+      "Evaluation: API Usage 30, Functionality 25, Code Quality 20, Presentation 15, Quiz 10 (Total 100)",
+      "Rewards: 1st Place Cash Prize + Certificates"
+    ],
+      
       rules: [
-        "Participants must build solutions by integrating multiple APIs within the given time frame.",
-        "All code should be original and written during the event; pre-built libraries are allowed unless otherwise specified.",
-        "Solutions will be evaluated based on functionality, creativity, and efficient use of APIs.",
-        "Teams or individuals should ensure their applications run smoothly without errors during the demo."
+      "Must integrate at least 2 given APIs",
+      "Applications must solve real-world problems",
+      "Submit source code, demo, and documentation",
+      "Strict time-bound schedule; no extensions"
+    ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
 
     },
     {
       title: "STORY TELLING",
-      description: "Visualize your concepts and designs effectively.",
+      description: "Share your imagination and creativity through engaging and impactful stories",
       image: "/story.png",
+      teamSize:"Team Size : 1 - 2",
       details: [
         "The Storytelling event is all about using your imagination and creativity to share ideas through stories.",
         "Participants can create and present stories related to technology, innovation, or everyday life in a way that is engaging and inspiring.",
@@ -127,6 +169,10 @@ const Event = () => {
         "Each participant will be given 3–5 minutes to present their story.",
         "Stories should be related to technology, innovation, or everyday life.",
         "Participants will be judged on creativity, clarity, expression, and audience engagement."
+      ],
+      coordinators: [
+        { name: "Name", phone: "9876543210" },
+        { name: "Name", phone: "9876543210" }
       ]
     }
 
@@ -137,8 +183,14 @@ const Event = () => {
     setTitle(event.title);
     setDescription(event.description);
     setImage(event.image);
+    setTeamsize(event.teamSize)
     setRules(event.rules);
     setDetails(event.details);
+    const c = event.coordinators.map((coordinator, index) => (
+      <p key={index}>{coordinator.name} : {coordinator.phone}</p>
+    ));
+    setCoordinators(c);
+
     console.log(title);
   };
   return (
@@ -157,25 +209,34 @@ const Event = () => {
             ))
           }
         </div>
-        <div className="pop-up" style={{ display: display ? "block" : "none" }}>
-          <div className="pop-title">
-            <h1>{title}</h1>
-          </div>
-          <div className="popElements" >
-            <img src={image || null} alt=" " width="100px" />
-            <div className="contents">
-              <h2 className="ch" >Details</h2>
-              {details.map((rule, index) => (
-                <p key={index}>{rule}</p>
-              ))}
-              <h2 className="ch" >Rules</h2>
-              {rules.map((rule, index) => (
-                <p key={index}>{rule}</p>
-              ))}
+        <div className="pop-container" style={{ display: display ? "flex" : "none" }}>
+          <div className="pop-up" style={{ display: display ? "block" : "none" }}>
+            <div className="pop-title">
+              <button onClick={() => setDisplay(false)} className="close-btn" >X</button>
+              <h1>{title}</h1>
             </div>
+            <div className="popElements" >
+              <img src={image || null} alt=" " />
+              <div className="contents">
+                <h2 style={{textAlign:"center"}} >{teamSize}</h2>
+                <h2 className="ch" >Details</h2>
+                {details.map((rule, index) => (
+                  <p key={index}>{rule}</p>
+                ))}
+                <h2 className="ch" >Rules</h2>
+                {rules.map((rule, index) => (
+                  <p key={index}>{rule}</p>
+                ))}
+                <h2 className="ch" >Price Money</h2>
+                <pre className="price-amount" >1st Place    : &#8377; 1500</pre>
+                <pre className="price-amount" >2nd Place  : &#8377; 1000</pre>
+                <pre className="price-amount" >3rd Place   : &#8377; 500</pre>
+                <h2 className="ch" >Coordinators</h2>
+                {coordinators}
+              </div>
 
+            </div>
           </div>
-          <button style={{ marginTop: "0px", padding: "8px 16px", border: "none", borderRadius: "5px", background: "linear-gradient(90deg, #007bff, #00c6ff)", color: "#fff", cursor: "pointer" }} onClick={() => setDisplay(false)} className="close-btn" >close</button>
         </div>
       </div>
 

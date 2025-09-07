@@ -134,7 +134,7 @@ const Home = () => {
         <div className="btn-container" id="reg">
         <button
           className="reg-button"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/reg")}
           style={{
             padding: "12px 28px",
             fontSize: "clamp(16px, 4vw, 18px)",

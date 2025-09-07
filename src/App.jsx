@@ -74,10 +74,9 @@ function App() {
         {/* Desktop navigation only */}
         <nav className="desktop-nav">
           <Link to="/">Home</Link>
-          <Link to="/#reg">Register</Link>
-          <Link to="/get-id">Get ID</Link>
-          <Link to='/team-reg1'>Team Reg</Link>
-          <Link to="/reg">Symposium Reg</Link>
+          <Link to="/reg">Team Registration</Link>
+          <Link to="/register">Solo Registration</Link>
+          {/* <Link to="/get-id">Get ID</Link> */}
           <Link to="/event">Events</Link>
           <Link to="/org">Organizers</Link>
         </nav>
@@ -90,7 +89,7 @@ function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/team-reg1" element={<TeamRegistrationForm />} />
+          
           <Route path="/register" element={<Register />} />
           <Route path="/get-id" element={<Idgen />} />
           <Route path="/reg" element={<Register1 />} />
