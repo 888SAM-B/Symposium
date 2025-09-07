@@ -239,6 +239,10 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+.memcontainer{
+  display: flex;
+  flex-direction: column;
+}
 
 /* Responsive */
 @media (max-width: 760px){

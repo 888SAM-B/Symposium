@@ -117,27 +117,29 @@ const TeamScanner = () => {
             <ul className="members-list">
               {team.members.map((m, idx) => (
                 <li key={idx} className="member-item">
-                  <div className="member-left">
-                    <div className="avatar">{m.name.split(" ").map(n => n[0]).join("")}</div>
-                    <div className="member-info">
-                      <div className="name">{m.name} ({m.regNo})</div>
-                      <div className="meta">{m.events.join(", ")}</div>
+                  <div className="memcontainer">
+                    <div className="">
+                      <div className="avatar">{m.name.split(" ").map(n => n[0]).join("")}</div>
+                      <div className="member-info">
+                        <div className="name">{m.name} ({m.regNo})</div>
+                        <div className="meta">{m.events.join(", ")}</div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="member-right">
-                    <span className={`status-badge ${m.status === "Present" ? "status-present" : "status-absent"}`}>
-                      {m.status === "Present" ? "✅ Present" : "❌ Absent"}
-                    </span>
-                    {m.status === "Present" ? (
-                      <button className="btn absent" onClick={() => markStudentAttendance(m.regNo, "Absent")}>
-                        Mark Absent
-                      </button>
-                    ) : (
-                      <button className="btn present" onClick={() => markStudentAttendance(m.regNo, "Present")}>
-                        Mark Present
-                      </button>
-                    )}
+                    <div className="">
+                      <span className={`status-badge ${m.status === "Present" ? "status-present" : "status-absent"}`}>
+                        {m.status === "Present" ? "✅ Present" : "❌ Absent"}
+                      </span>
+                      {m.status === "Present" ? (
+                        <button className="btn absent" onClick={() => markStudentAttendance(m.regNo, "Absent")}>
+                          Mark Absent
+                        </button>
+                      ) : (
+                        <button className="btn present" onClick={() => markStudentAttendance(m.regNo, "Present")}>
+                          Mark Present
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
