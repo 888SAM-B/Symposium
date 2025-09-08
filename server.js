@@ -93,8 +93,9 @@ async function getNextSequence1(name, prefix) {
 const studentSchema = new mongoose.Schema({
   studentNo: { type: String, unique: true }, // 🔢 Auto-increment student number
   name: { type: String, required: true },
-  regNo: { type: String, required: true, unique: true }, // email/roll no
+  regNo: { type: String, required: true }, // email/roll no
   events: { type: [String], default: [] }, // selected events
+  mobile:{type:String,required:true},
   team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
   teamName: { type: String }, // extra field to save teamName directly
   teamNo: { type: String }, // extra field to save teamNo directly
@@ -106,7 +107,7 @@ const Student = mongoose.model("Student", studentSchema);
 const teamSchema = new mongoose.Schema({
   teamNo: { type: String, unique: true }, // 🔢 Auto-increment team number
   uniqueId: { type: String, default: uuidv4, unique: true }, // random UUID
-  teamName: { type: String, required: true, unique: true },
+  teamName: { type: String, required: true },
   collegeName: { type: String, required: true },
   dept: { type: String, required: true },
 
@@ -123,6 +124,7 @@ const teamSchema = new mongoose.Schema({
       studentNo: { type: String }, // 🔢 Local to team OR global — your choice
       name: { type: String, required: true },
       regNo: { type: String, required: true },
+      mobile:{type:String, required:true},
       events: { type: [String], default: [] },
       status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
     },
@@ -295,7 +297,7 @@ app.post('/check',async(req,res)=>{
 app.post("/team-register", async (req, res) => {
   try {
     const { teamName, event, members, collegeName, dept } = req.body;
-
+    console.log(members)
     // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
     const duplicate = regNos.find((regNo, i) => regNos.indexOf(regNo) !== i);
@@ -331,6 +333,7 @@ app.post("/team-register", async (req, res) => {
       membersWithEvents.push({
         ...m,
         studentNo,
+        mobile:m.mobile,
         events: studentEvents,
       });
     }
@@ -356,6 +359,7 @@ app.post("/team-register", async (req, res) => {
         teamNo: newTeam.teamNo,
         teamName,
         events: m.events,
+        mobile:m.mobile,
         status: m.status || "Absent",
       }))
     );
