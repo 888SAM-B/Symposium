@@ -495,10 +495,21 @@ header {
   position: relative;
   right: 7px;
 }
+.select-event{
+  width: 90% !important;
+}
 }
 .qr-code-container{
   display: flex;
   flex-direction: column;
   width: auto;
+  align-items: center;
+}
+.pl{
+  width: 95%;
+}
+.participants{
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }

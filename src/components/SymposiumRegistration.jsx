@@ -6,10 +6,14 @@ const RegisterSymposium = () => {
   const [step, setStep] = useState(1);
   const [college, setCollege] = useState("");
   const [memberCount, setMemberCount] = useState(0);
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] = useState([
+    { name: "", regNo: "", mobile: "" },
+  ]);
   const [collegeName, setCollegeName] = useState("");
   const [dept, setDept] = useState("");
-  const [close,setClose]=useState(false)
+  const [close, setClose] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown1, setShowDropdown1] = useState(false);
   const [events, setEvents] = useState({
     "Paper Presentation": [],
     "Poster Presentation": [],
@@ -18,7 +22,7 @@ const RegisterSymposium = () => {
     "Word Hunt": [],
     "Social Engineering App": [],
     "API Fusion": [],
-   
+
   });
   const [loading, setLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -37,10 +41,26 @@ const RegisterSymposium = () => {
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
 
   const handleMemberInput = (index, field, value) => {
-    const newMembers = [...members];
-    newMembers[index] = { ...newMembers[index], [field]: value };
-    setMembers(newMembers);
-  };
+  const newMembers = [...members];
+  newMembers[index] = { ...newMembers[index], [field]: value };
+  setMembers(newMembers);
+
+  // 🔑 If already in step 3, clear only participants inside events
+  if (step > 2) {
+    const clearedEvents = {};
+    Object.keys(events).forEach((ev) => {
+      clearedEvents[ev] = []; // box visible, but empty list
+    });
+    setEvents(clearedEvents);
+
+    setSelectedMorningEvents([]);
+    setSelectedAfternoonEvents([]);
+  }
+};
+const isSubmitDisabled =
+  selectedMorningEvents.length === 0 &&
+  selectedAfternoonEvents.length === 0 &&
+  Object.values(events).every((list) => list.length === 0);
 
   const hasDuplicateRegNo = () => {
     const regNos = members.map((m) => m.regNo.trim());
@@ -49,7 +69,7 @@ const RegisterSymposium = () => {
 
   const handleSubmit = async () => {
     if (hasDuplicateRegNo()) {
-      alert("Duplicate registration numbers are not allowed!");
+      alert("Duplicate E-mails are not allowed!");
       return;
     }
 
@@ -85,7 +105,7 @@ const RegisterSymposium = () => {
       if (res.ok) {
         console.log("Response:", result);
         setRegisteredTeamData({
-          teamId: result.team.uniqueId,
+          teamId: result.team.teamNo,
           teamName: college,
           collegeName: collegeName,
           dept: dept,
@@ -94,7 +114,7 @@ const RegisterSymposium = () => {
         });
         setShowSuccessPopup(true);
       } else if (res.status === 400) {
-        alert(result.error || "Duplicate registration numbers found!");
+        alert(result.error || "Duplicate E-mails numbers found!");
       } else {
         alert(result.message || "Something went wrong!");
       }
@@ -106,23 +126,26 @@ const RegisterSymposium = () => {
     }
   };
 
-  const verifyTeamName = () => {
-    fetch(`${import.meta.env.VITE_URL}/check`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ college }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.exists) {
-          alert("Team name already exists!");
-        } else {
-          setStep(2);
-        }
-      })
-      .catch((error) => {
-        console.error("Error checking team name:", error);
+    const verifyTeamName = async () => {
+    setLoading(true); // Start loading
+    try {
+      const response = await fetch(`${import.meta.env.VITE_URL}/check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ college }),
       });
+      const data = await response.json();
+      if (data.exists) {
+        alert("Team name already exists!");
+      } else {
+        setStep(2);
+      }
+    } catch (error) {
+      console.error("Error checking team name:", error);
+      alert("Error checking team name. Please try again.");
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   const closePopupAndReset = () => {
@@ -135,8 +158,8 @@ const RegisterSymposium = () => {
     setCollegeName("");
     setDept("");
     setEvents({
-      "Paper Presentation": [],  "Story Telling": [], "Quiz": [],
-      "Word Hunt": [], "Social Engineering App": [],"Poster Presentation": [], "API Fusion": [], 
+      "Paper Presentation": [], "Story Telling": [], "Quiz": [],
+      "Word Hunt": [], "Social Engineering App": [], "Poster Presentation": [], "API Fusion": [],
     });
     setSelectedMorningEvents([]);
     setSelectedAfternoonEvents([]);
@@ -247,13 +270,13 @@ const RegisterSymposium = () => {
 
     // Filter out any empty strings from the event's participant list
     Object.keys(newEvents).forEach(key => {
-        if (newEvents[key]) {
-            newEvents[key] = newEvents[key].filter(Boolean);
-        }
+      if (newEvents[key]) {
+        newEvents[key] = newEvents[key].filter(Boolean);
+      }
     });
 
     setEvents(newEvents);
-};
+  };
 
 
   return (
@@ -324,8 +347,18 @@ const RegisterSymposium = () => {
                 type="email"
                 placeholder="Mail ID"
                 value={m.regNo}
-                onChange={(e) =>
+                onChange={(e) =>{
                   handleMemberInput(idx, "regNo", e.target.value)
+                  
+                }
+                }
+              />
+              <input
+                type="tel"
+                placeholder="Whatsapp Number"
+                value={m.mobile}
+                onChange={(e) =>
+                  handleMemberInput(idx, "mobile", e.target.value)
                 }
               />
             </div>
@@ -333,15 +366,14 @@ const RegisterSymposium = () => {
 
           {step === 2 && (
             <div>
-              <button onClick={() => setStep(1)} className="back" disabled={loading}>
-                Back
-              </button>
+ 
               <button
                 onClick={async () => {
+                  setLoading(true)
                   const regNos = members.map((m) => m.regNo.trim());
                   const uniqueRegNos = new Set(regNos);
                   if (uniqueRegNos.size !== regNos.length) {
-                    alert("Duplicate Registration Numbers are not allowed!");
+                    alert("Duplicate E-mails Numbers are not allowed!");
                     return;
                   }
 
@@ -359,7 +391,7 @@ const RegisterSymposium = () => {
 
                     if (data.exists && data.exists.length > 0) {
                       alert(
-                        `These Registration Numbers already exist: ${data.exists.join(
+                        `These E-mails Numbers already exist: ${data.exists.join(
                           ", "
                         )}`
                       );
@@ -370,13 +402,19 @@ const RegisterSymposium = () => {
                   } catch (error) {
                     console.error("Error checking regNos:", error);
                     alert(
-                      "Something went wrong while checking registration numbers!"
+                      "Something went wrong while checking E-mails numbers!"
                     );
+                  }
+                  finally{
+                    setLoading(false)
                   }
                 }}
                 disabled={members.some((m) => !m.name || !m.regNo) || loading}
               >
                 Next
+              </button>
+                    <button onClick={() => setStep(1)} className="back" disabled={loading}>
+                Back
               </button>
             </div>
           )}
@@ -390,28 +428,10 @@ const RegisterSymposium = () => {
 
           {/* Morning Events Section */}
           <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Stage Events</h3>
-          <div className="add-event-section">
-            <select
-              className="select-event"
-              value={eventToAddMorning}
-              onChange={(e) => setEventToAddMorning(e.target.value)}
-            >
-              <option value="">Select Event</option>
-              {morningEvents
-                .filter((eventName) => !selectedMorningEvents.includes(eventName))
-                .map((eventName) => (
-                  <option key={eventName} value={eventName}>
-                    {eventName}
-                  </option>
-                ))}
-            </select>
-            <button onClick={handleAddMorningEvent} disabled={!eventToAddMorning}>
-              Add Event
-            </button>
-          </div>
+
 
           <div className="event-list">
-            {selectedMorningEvents.sort((a,b) => morningEvents.indexOf(a) - morningEvents.indexOf(b)).map((eventName) => (
+            {selectedMorningEvents.sort((a, b) => morningEvents.indexOf(a) - morningEvents.indexOf(b)).map((eventName) => (
               <div key={eventName} className="event-box">
                 <h4 className="evt-box-header">
                   {eventName}
@@ -425,6 +445,7 @@ const RegisterSymposium = () => {
                 <div className="participants">
                   {[0, 1].map((slot) => (
                     <select
+                    className="pl"
                       key={slot}
                       value={events[eventName][slot] || ""}
                       onChange={(e) =>
@@ -435,7 +456,7 @@ const RegisterSymposium = () => {
                         )
                       }
                     >
-                      <option value="">Select  Member</option>
+                      <option value=""  >Select  Member</option>
                       {getAvailableMembers(eventName, events[eventName][slot]).map(
                         (m, idx) => (
                           <option key={idx} value={`${m.name} (${m.regNo})`}>
@@ -453,30 +474,45 @@ const RegisterSymposium = () => {
             ))}
           </div>
 
-          {/* Afternoon Events Section */}
-          <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Off Stage Events</h3>
           <div className="add-event-section">
-            <select
-            className="select-event"
-              value={eventToAddAfternoon}
-              onChange={(e) => setEventToAddAfternoon(e.target.value)}
-            >
-              <option value="">Select Event</option>
-              {afternoonEvents
-                .filter((eventName) => !selectedAfternoonEvents.includes(eventName))
-                .map((eventName) => (
-                  <option key={eventName} value={eventName}>
-                    {eventName}
-                  </option>
-                ))}
-            </select>
-            <button onClick={handleAddAfternoonEvent} disabled={!eventToAddAfternoon}>
-              Add Event
-            </button>
+            {!showDropdown1 ? (
+              <button onClick={() => setShowDropdown1(true)}>Add Event</button>
+            ) : (
+              <>
+                <select
+                  className="select-event"
+                  value={eventToAddMorning}
+                  onChange={(e) => setEventToAddMorning(e.target.value)}
+                >
+                  <option value="">Select Event</option>
+                  {morningEvents
+                    .filter((eventName) => !selectedMorningEvents.includes(eventName))
+                    .map((eventName) => (
+                      <option key={eventName} value={eventName}>
+                        {eventName}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  onClick={() => {
+                    handleAddMorningEvent();
+                    setShowDropdown1(false); // after confirm, go back to Add Event button
+                  }}
+                  disabled={!eventToAddMorning}
+                >
+                  Confirm
+                </button>
+              </>
+            )}
           </div>
 
+
+          {/* Afternoon Events Section */}
+          <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Off Stage Events</h3>
+          
+
           <div className="event-list">
-            {selectedAfternoonEvents.sort((a,b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b)).map((eventName) => (
+            {selectedAfternoonEvents.sort((a, b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b)).map((eventName) => (
               <div key={eventName} className="event-box" >
                 <h4 className="evt-box-header ">
                   {eventName}
@@ -491,6 +527,7 @@ const RegisterSymposium = () => {
                   {[0, 1].map((slot) => (
                     <select
                       key={slot}
+                      className="pl"
                       value={events[eventName][slot] || ""}
                       onChange={(e) =>
                         handleEventParticipantChange(
@@ -518,13 +555,50 @@ const RegisterSymposium = () => {
             ))}
           </div>
 
+          <div className="add-event-section">
+            {!showDropdown ? (
+              <button onClick={() => setShowDropdown(true)}>Add Event</button>
+            ) : (
+              <>
+                <select
+                  className="select-event"
+                  value={eventToAddAfternoon}
+                  onChange={(e) => setEventToAddAfternoon(e.target.value)}
+                >
+                  <option value="">Select Event</option>
+                  {afternoonEvents
+                    .filter((eventName) => !selectedAfternoonEvents.includes(eventName))
+                    .map((eventName) => (
+                      <option key={eventName} value={eventName}>
+                        {eventName}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  onClick={() => {
+                    handleAddAfternoonEvent();
+                    setShowDropdown(false); // after confirm, go back to Add Event button
+                  }}
+                  disabled={!eventToAddAfternoon}
+                >
+                  Confirm
+                </button>
+              </>
+            )}
+          </div>
+
+            <br /><br />
+            <hr />
+            <br /><br />
+
           {/* Navigation buttons */}
           <div>
+            
+            <button onClick={handleSubmit} disabled={isSubmitDisabled || loading}>
+              {loading ? "Registering..." : "Submit"}
+            </button>
             <button onClick={() => setStep(2)} disabled={loading}>
               Back
-            </button>
-            <button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Registering..." : "Submit"}
             </button>
           </div>
         </div>
@@ -570,189 +644,186 @@ const RegisterSymposium = () => {
 
             <div className="qr-code-container">
               <h3>Scan for Team ID:</h3>
-             <div style={{ padding: "16px", background: "white", display: "inline-block", borderRadius: "8px" }}>
-  <QRCodeCanvas value={registeredTeamData.teamId} size={128} level="H" />
-</div>
+              <div style={{ padding: "16px", background: "white", display: "inline-block", borderRadius: "8px" }}>
+                <QRCodeCanvas value={registeredTeamData.teamId} size={128} level="H" />
+              </div>
 
             </div>
 
 
 
-               <button
-          
-            onClick={() => {
-              // Poster size (you can scale this up/down)
-              const W = 800;
-              const H = 1200;
+            <button
 
-              // Layout metrics
-              const topGap = 40;
-              const qrCardSize = 420;
-              const qrPaddingInside = 36; // padding inside the white QR card for the qrCanvas
-              const qrCardX = (W - qrCardSize) / 2;
-              const qrCardY =380;
+              onClick={() => {
+                // Poster size (you can scale this up/down)
+                const W = 800;
+                const H = 1200;
 
-              // Create canvas
-              const canvas = document.createElement("canvas");
-              canvas.width = W;
-              canvas.height = H;
-              const ctx = canvas.getContext("2d");
+                // Layout metrics
+                const topGap = 40;
+                const qrCardSize = 420;
+                const qrPaddingInside = 36; // padding inside the white QR card for the qrCanvas
+                const qrCardX = (W - qrCardSize) / 2;
+                const qrCardY = 380;
 
-              // --- Background gradient (purple -> teal) ---
-              const g = ctx.createLinearGradient(0, 0, 0, H);
-              g.addColorStop(0, "#4b0082"); // deep purple
-              g.addColorStop(0.45, "#6a39c6");
-              g.addColorStop(1, "#2bd1c9"); // teal-ish
-              ctx.fillStyle = g;
-              ctx.fillRect(0, 0, W, H);
+                // Create canvas
+                const canvas = document.createElement("canvas");
+                canvas.width = W;
+                canvas.height = H;
+                const ctx = canvas.getContext("2d");
 
-              // --- Big top text: PERIYAR / UNIVERSITY ---
-              ctx.textAlign = "center";
-              ctx.shadowColor = "rgba(0,0,0,0.25)";
-              ctx.shadowBlur = 8;
-              ctx.fillStyle = "#c8ffd6"; // mint green for PERIYAR
-              ctx.font = "bold 86px Arial";
-              ctx.fillText("VIBE 2K25", W / 2, topGap + 90);
+                // --- Background gradient (purple -> teal) ---
+                const g = ctx.createLinearGradient(0, 0, 0, H);
+                g.addColorStop(0, "#4b0082"); // deep purple
+                g.addColorStop(0.45, "#6a39c6");
+                g.addColorStop(1, "#2bd1c9"); // teal-ish
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
 
-              ctx.fillStyle = "#ffffff"; // white for UNIVERSITY
-              ctx.font = "600 56px Arial";
-              ctx.fillText("PERIYAR UNIVERSITY", W / 2, topGap + 170);
+                // --- Big top text: PERIYAR / UNIVERSITY ---
+                ctx.textAlign = "center";
+                ctx.shadowColor = "rgba(0,0,0,0.25)";
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = "#c8ffd6"; // mint green for PERIYAR
+                ctx.font = "bold 86px Arial";
+                ctx.fillText("VIBE 2K25", W / 2, topGap + 90);
 
-              // --- Registration Successful (subheading) ---
-              ctx.shadowBlur = 6;
-              ctx.fillStyle = "#ffffff";
-              ctx.font = "600 34px Arial";
-              ctx.fillText("ID CARD", W / 2, topGap + 230);
-              ctx.shadowBlur = 0; // reset
+                ctx.fillStyle = "#ffffff"; // white for UNIVERSITY
+                ctx.font = "600 56px Arial";
+                ctx.fillText("PERIYAR UNIVERSITY", W / 2, topGap + 170);
 
-              // --- QR Card with shadow (white rectangle with subtle drop shadow) ---
-              ctx.save();
-              ctx.shadowColor = "rgba(0,0,0,0.35)";
-              ctx.shadowBlur = 20;
-              ctx.shadowOffsetY = 50;
-              ctx.shadowOffsetX = -50;
-              // Draw white rounded rectangle (manual rounded rect)
-              const r = 6; // corner radius
-              ctx.fillStyle = "#ffffff";
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + r, qrCardY);
-              ctx.lineTo(qrCardX + qrCardSize - r, qrCardY);
-              ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY, qrCardX + qrCardSize, qrCardY + r);
-              ctx.lineTo(qrCardX + qrCardSize, qrCardY + qrCardSize - r);
-              ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY + qrCardSize, qrCardX + qrCardSize - r, qrCardY + qrCardSize);
-              ctx.lineTo(qrCardX + r, qrCardY + qrCardSize);
-              ctx.quadraticCurveTo(qrCardX, qrCardY + qrCardSize, qrCardX, qrCardY + qrCardSize - r);
-              ctx.lineTo(qrCardX, qrCardY + r);
-              ctx.quadraticCurveTo(qrCardX, qrCardY, qrCardX + r, qrCardY);
-              ctx.closePath();
-              ctx.fill();
-              ctx.restore();
+                // --- Registration Successful (subheading) ---
+                ctx.shadowBlur = 6;
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "600 34px Arial";
+                ctx.fillText("ID CARD", W / 2, topGap + 230);
+                ctx.shadowBlur = 0; // reset
 
-              // --- Optional angled soft shadow on right (like the example) ---
-              // a subtle long shadow block to the right-bottom
-              ctx.save();
-              ctx.globalAlpha = 0.08;
-              ctx.fillStyle = "#000000";
-              ctx.fillRect(qrCardX + qrCardSize + 20, qrCardY + 50, 160, 80);
-              ctx.restore();
+                // --- QR Card with shadow (white rectangle with subtle drop shadow) ---
+                ctx.save();
+                ctx.shadowColor = "rgba(0,0,0,0.35)";
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetY = 50;
+                ctx.shadowOffsetX = -50;
+                // Draw white rounded rectangle (manual rounded rect)
+                const r = 6; // corner radius
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.moveTo(qrCardX + r, qrCardY);
+                ctx.lineTo(qrCardX + qrCardSize - r, qrCardY);
+                ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY, qrCardX + qrCardSize, qrCardY + r);
+                ctx.lineTo(qrCardX + qrCardSize, qrCardY + qrCardSize - r);
+                ctx.quadraticCurveTo(qrCardX + qrCardSize, qrCardY + qrCardSize, qrCardX + qrCardSize - r, qrCardY + qrCardSize);
+                ctx.lineTo(qrCardX + r, qrCardY + qrCardSize);
+                ctx.quadraticCurveTo(qrCardX, qrCardY + qrCardSize, qrCardX, qrCardY + qrCardSize - r);
+                ctx.lineTo(qrCardX, qrCardY + r);
+                ctx.quadraticCurveTo(qrCardX, qrCardY, qrCardX + r, qrCardY);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
 
-              // --- Draw green corner markers inside the QR card (like the poster) ---
-              const cornerColor = "#bff7c7";
-              const markLen = 70;
-              const markW = 14;
-              ctx.strokeStyle = cornerColor;
-              ctx.lineWidth = markW;
-              ctx.lineCap = "round";
+                // --- Optional angled soft shadow on right (like the example) ---
+                // a subtle long shadow block to the right-bottom
+                ctx.save();
+                ctx.globalAlpha = 0.08;
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(qrCardX + qrCardSize + 20, qrCardY + 50, 160, 80);
+                ctx.restore();
 
-              // Top-left
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside + markLen);
-              ctx.stroke();
+                // --- Draw green corner markers inside the QR card (like the poster) ---
+                const cornerColor = "#bff7c7";
+                const markLen = 70;
+                const markW = 14;
+                ctx.strokeStyle = cornerColor;
+                ctx.lineWidth = markW;
+                ctx.lineCap = "round";
 
-              // Top-right
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside + markLen);
+                // Top-left
+                ctx.beginPath();
+                ctx.moveTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrPaddingInside);
+                ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside);
+                ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrPaddingInside + markLen);
                 ctx.stroke();
 
-              // Bottom-left
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
-              ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.lineTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.stroke();
+                // Top-right
+                ctx.beginPath();
+                ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrPaddingInside);
+                ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside);
+                ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrPaddingInside + markLen);
+                ctx.stroke();
 
-              // Bottom-right
-              ctx.beginPath();
-              ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrCardSize - qrPaddingInside);
-              ctx.stroke();
+                // Bottom-left
+                ctx.beginPath();
+                ctx.moveTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
+                ctx.lineTo(qrCardX + qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
+                ctx.lineTo(qrCardX + qrPaddingInside + markLen, qrCardY + qrCardSize - qrPaddingInside);
+                ctx.stroke();
 
-              // --- Draw the actual QR (from existing canvas on page) ---
-              const qrCanvas = document.querySelector("canvas"); // assumes the QR canvas exists on page
-              if (qrCanvas) {
-                // Compute area inside the white card for the QR (centered)
-                const innerSize = qrCardSize - qrPaddingInside * 2;
-                const innerX = qrCardX + qrPaddingInside;
-                const innerY = qrCardY + qrPaddingInside;
-                try {
-                  ctx.drawImage(qrCanvas, innerX, innerY, innerSize, innerSize);
-                } catch (e) {
-                  // fallback: draw text placeholder if QR not available
-                  ctx.fillStyle = "#f3f3f3";
-                  ctx.fillRect(innerX, innerY, innerSize, innerSize);
-                  ctx.fillStyle = "#444";
-                  ctx.font = "22px Arial";
-                  ctx.textAlign = "center";
-                  ctx.fillText("QR CODE", innerX + innerSize / 2, innerY + innerSize / 2 + 8);
+                // Bottom-right
+                ctx.beginPath();
+                ctx.moveTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside - markLen);
+                ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside, qrCardY + qrCardSize - qrPaddingInside);
+                ctx.lineTo(qrCardX + qrCardSize - qrPaddingInside - markLen, qrCardY + qrCardSize - qrPaddingInside);
+                ctx.stroke();
+
+                // --- Draw the actual QR (from existing canvas on page) ---
+                const qrCanvas = document.querySelector("canvas"); // assumes the QR canvas exists on page
+                if (qrCanvas) {
+                  // Compute area inside the white card for the QR (centered)
+                  const innerSize = qrCardSize - qrPaddingInside * 2;
+                  const innerX = qrCardX + qrPaddingInside;
+                  const innerY = qrCardY + qrPaddingInside;
+                  try {
+                    ctx.drawImage(qrCanvas, innerX, innerY, innerSize, innerSize);
+                  } catch (e) {
+                    // fallback: draw text placeholder if QR not available
+                    ctx.fillStyle = "#f3f3f3";
+                    ctx.fillRect(innerX, innerY, innerSize, innerSize);
+                    ctx.fillStyle = "#444";
+                    ctx.font = "22px Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText("QR CODE", innerX + innerSize / 2, innerY + innerSize / 2 + 8);
+                  }
                 }
-              }
 
-              // --- Bottom details (NAME, SERIAL NUMBER, EVENT) ---
-              const bottomStartY = qrCardY + qrCardSize + 90;
-              ctx.textAlign = "center";
-              ctx.fillStyle = "#ffffff";
-              ctx.font = "700 34px Arial";
-              // slight shadow for emboss effect
-              ctx.shadowColor = "rgba(0,0,0,0.35)";
-              ctx.shadowBlur = 8;
-              if (registeredTeamData.teamName) {
-                ctx.fillText((registeredTeamData.teamName || "NAME").toUpperCase(), W / 2, bottomStartY);
-              } else {
-                ctx.fillText("NAME", W / 2, bottomStartY);
-              }
-
-              
-              
-
-              // --- Small footer / stamp (optional) ---
-              ctx.fillStyle = "rgba(255,255,255,0.12)";
-              ctx.font = "14px Arial";
-              ctx.fillText("Powered by Periyar University - Event Registration", W / 2, H - 24);
-
-              // --- Download image ---
-              const url = canvas.toDataURL("image/png");
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `qr_${ Date.now()}.png`;
-              link.click();
-              setClose(true)
-            }}
-            style={{ marginTop: "10px" }}
-            
-          >
-            Download QR Code
-            
-          </button> 
+                // --- Bottom details (NAME, SERIAL NUMBER, EVENT) ---
+                const bottomStartY = qrCardY + qrCardSize + 90;
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "700 34px Arial";
+                // slight shadow for emboss effect
+                ctx.shadowColor = "rgba(0,0,0,0.35)";
+                ctx.shadowBlur = 8;
+                if (registeredTeamData.teamName) {
+                  ctx.fillText((registeredTeamData.teamName || "NAME").toUpperCase(), W / 2, bottomStartY);
+                } else {
+                  ctx.fillText("NAME", W / 2, bottomStartY);
+                }
+                if (registeredTeamData.teamId) {
+                  ctx.fillText((registeredTeamData.teamId || "NAME").toUpperCase(), W / 2, bottomStartY+50);
+                } else {
+                  ctx.fillText("NAME", W / 2, bottomStartY+50);
+                }
 
 
 
+                // --- Small footer / stamp (optional) ---
+                ctx.fillStyle = "rgba(255,255,255,0.12)";
+                ctx.font = "14px Arial";
+                ctx.fillText("Powered by Periyar University - Event Registration", W / 2, H - 24);
 
-
+                // --- Download image ---
+                const url = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `qr_${Date.now()}.png`;
+                link.click();
+                setClose(true)
+              }}
+              style={{ marginTop: "10px" }}
+            >
+              Download QR Code
+            </button>
             <button onClick={closePopupAndReset} disabled={!close} >Close & Register New Team</button>
           </div>
         </div>
