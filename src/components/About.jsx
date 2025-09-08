@@ -25,7 +25,7 @@ const About = () => {
                         
                     />
                     </div>
-
+                    <br/> <br />
                     <p className='lr1'> 
 
                         This prestigious event serves as a vibrant platform for students from across the nation to showcase their talent, creativity, and technical excellence through a variety of engaging competitions.
