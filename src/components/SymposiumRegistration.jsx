@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 const RegisterSymposium = () => {
   const [step, setStep] = useState(1);
   const [college, setCollege] = useState("");
-  const [memberCount, setMemberCount] = useState(0);
+  const [memberCount, setMemberCount] = useState();
   const [members, setMembers] = useState([
     { name: "", regNo: "", mobile: "" },
   ]);
@@ -35,7 +35,7 @@ const RegisterSymposium = () => {
   // New states for categorized event selection dropdowns
   const [eventToAddMorning, setEventToAddMorning] = useState("");
   const [eventToAddAfternoon, setEventToAddAfternoon] = useState("");
-
+  const [uploadedImage, setUploadedImage] = useState(null);
   const morningEvents = ["Paper Presentation", "Story Telling", "Quiz"];
   const afternoonEvents = ["Word Hunt", "Social Engineering App", "API Fusion", "Poster Presentation"];
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
@@ -579,20 +579,68 @@ const isSubmitDisabled =
                   onClick={() => {
                     handleAddAfternoonEvent();
                     setShowDropdown(false); // after confirm, go back to Add Event button
-                  }}
-                  disabled={!eventToAddAfternoon}
-                >
-                  Confirm
-                </button>
-              </>
-            )}
-          </div>
+                    }}
+                    disabled={!eventToAddAfternoon}
+                  >
+                    Confirm
+                  </button>
+                  </>
+                )}
+                </div>
 
-            <br /><br />
-            <hr />
-            <br /><br />
+                <br /><br />
+                <hr />
+                <br /><br />
 
-          {/* Navigation buttons */}
+                <div className="payment">
+                  <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Payment Details</h3>
+                  <p>Registration Fee: ₹150 per member</p>
+                  <h3>Total Amount : {150 * memberCount}</h3>
+                  <p>Please make the payment to the following UPI ID:</p>
+                  <img width={300} src="/payment-scanner.png" alt="" />
+                  <div className="file">
+                  <input
+        type="file"
+        accept="image/jpeg,image/jpg"
+        onChange={async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Upload to Cloudinary
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", "payment-images");
+
+          try {
+            const res = await fetch(
+              "https://api.cloudinary.com/v1_1/defwsymvj/image/upload",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+            const data = await res.json();
+
+            if (data.secure_url) {
+              // Save both url + public_id in state
+              setUploadedImage({
+                url: data.secure_url,
+                public_id: data.public_id,
+              });
+              alert("Uploaded! Link: " + data.secure_url);
+            } else {
+              alert("Upload failed!");
+            }
+          } catch (err) {
+            alert("Error uploading file!");
+          }
+        }}
+      />
+
+                  </div>
+                </div>
+
+                {/* Navigation buttons */}
           <div>
             
             <button onClick={handleSubmit} disabled={isSubmitDisabled || loading}>
