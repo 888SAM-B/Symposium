@@ -110,6 +110,7 @@ const teamSchema = new mongoose.Schema({
   teamName: { type: String, required: true },
   collegeName: { type: String, required: true },
   dept: { type: String, required: true },
+  imgUrl:{type:String},
 
   // Store events as { "Event 1": [studentRegNos] }
   event: {
@@ -296,7 +297,7 @@ app.post('/check',async(req,res)=>{
 
 app.post("/team-register", async (req, res) => {
   try {
-    const { teamName, event, members, collegeName, dept } = req.body;
+    const { teamName, event, members, collegeName, dept , imgUrl} = req.body;
     console.log(members)
     // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
@@ -346,6 +347,7 @@ app.post("/team-register", async (req, res) => {
       collegeName,
       dept,
       members: membersWithEvents,
+      imgUrl
     });
     await newTeam.save();
 
