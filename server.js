@@ -96,9 +96,14 @@ const studentSchema = new mongoose.Schema({
   regNo: { type: String, required: true }, // email/roll no
   events: { type: [String], default: [] }, // selected events
   mobile:{type:String,required:true},
+  college:{type:String},
+  department:{type:String},
   team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
   teamName: { type: String }, // extra field to save teamName directly
   teamNo: { type: String }, // extra field to save teamNo directly
+  imgUrl:{type:String},
+  a1:{ type: String, enum: ["Present", "Absent"], default: "Absent" },
+  a2:{ type: String, enum: ["Present", "Absent"], default: "Absent" },
   status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
 });
 
@@ -135,28 +140,82 @@ const teamSchema = new mongoose.Schema({
 const Team = mongoose.model("Team", teamSchema);
 
 // ---------------- Existing Routes ----------------
+
+
 app.post('/register', async (req, res) => {
-    try {
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) {
-            return res.status(400).send('User already exists');
-        }
-        const userData = req.body;
-        console.log('Received user data:', userData);
-        const newUser = new User(userData);
-        await newUser.save();
-        res.status(201).send({
-            message: 'Registration successful',
-            name: newUser.name,
-            serialNumber:newUser.serialNumber,
-            uniqueId: newUser.uniqueId,
-            event: newUser.event,
-        });
-    } catch (error) {
-        console.error('Error registering:', error);
-        res.status(500).send('Internal Server Error');
+  try {
+    const { name, regNo, mobile, college, department, events, imgUrl } = req.body;
+
+    // Check if student with this regNo already exists
+    const existingStudent = await Student.findOne({ regNo: regNo });
+    if (existingStudent) {
+      return res.status(400).json({ message: 'Student already registered with this email.' });
     }
+
+    // Create new student
+    const newStudent = new Student({
+      studentNo: await getNextSequence1("student", "VS"),
+      name,
+      regNo, // <-- mail id ah use panrom
+      mobile,
+      college,
+      teamName: "SOLO-REG",
+      teamNo: "SOLO",
+      department,
+      imgUrl,
+      events,
+    });
+
+    await newStudent.save();
+
+    // ✅ Mail transporter setup
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // or your mail service
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // ✅ Mail content
+    const mailOptions = {
+      from: `VIBE Registration <${process.env.EMAIL_USER}>`,
+      to: newStudent.regNo, // email id (regNo field)
+      subject: "VIBE Registration Successful 🎉",
+      html: `
+        <h2>Hi ${newStudent.name},</h2>
+        <p>You have been successfully registered for the event.</p>
+        <p><b>College:</b> ${newStudent.college}</p>
+        <p><b>Department:</b> ${newStudent.department}</p>
+        <p><b>Student No:</b> ${newStudent.studentNo}</p>
+        <p><b>Events:</b></p>
+        <ul>
+          ${newStudent.events.map((e) => `<li>${e}</li>`).join("")}
+        </ul>
+        <br/>
+        <p>All the best 👍</p>
+      `,
+    };
+
+    // ✅ Send mail
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      message: 'Registration successful & email sent 🎉',
+      name: newStudent.name,
+      studentNo: newStudent.studentNo,
+      events: newStudent.events,
+    });
+
+  } catch (error) {
+    console.error('Error registering student:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
+
 
 // Get participant by uniqueId
 app.get('/participant/:uniqueId', async (req, res) => {
@@ -312,7 +371,7 @@ app.post("/team-register", async (req, res) => {
     const existingStudents = await Student.find({ regNo: { $in: regNos } });
     if (existingStudents.length > 0) {
       return res.status(400).json({
-        error: "Some regNos already registered",
+        error: "Some emails already registered",
         existing: existingStudents.map((s) => s.regNo),
       });
     }
