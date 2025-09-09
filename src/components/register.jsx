@@ -62,43 +62,38 @@ const Register = () => {
           <label htmlFor="mobile" className="form-label">Mobile Number:</label>
           <input type="tel" name="mobile" id="mobile" className="form-input" required />
         </div>
-        <div className="form-group" id="form-group-level">
-          <label htmlFor="level" className="form-label">Graduation Level:</label>
-          <select name="level" id="level" className="form-select" required>
-            <option value="">Select Level</option>
-            <option value="1">Under Graduate</option>
-            <option value="2">Post Graduate</option>
-          </select>
-        </div>
+        
         <div className="form-group" id="form-group-college">
           <label htmlFor="college" className="form-label">College:</label>
           <input type="text" name="college" id="college" className="form-input" required />
         </div>
-        <div className="form-group" id="form-group-year">
-          <label htmlFor="year" className="form-label">Year of Study:</label>
-          <select name="year" id="year" className="form-select" required>
-            <option value="">Select Year</option>
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
-        </div>
+        
         <div className="form-group" id="form-group-department">
           <label htmlFor="department" className="form-label">Department:</label>
           <input type="text" name="department" id="department" className="form-input" required />
         </div>
         <div className="form-group" id="form-group-event">
-          <label htmlFor="event" className="form-label">Event Name:</label>
+          <label htmlFor="event" className="form-label">Stage Event:</label>
           <select name="event" id="event" className="form-select" required>
             <option value="">Select Event</option>
-            <option value="Event1">Event 1</option>
-            <option value="Event2">Event 2</option>
-            <option value="Event3">Event 3</option>
-            <option value="Event4">Event 4</option>
-            <option value="Event5">Event 5</option>
+            <option value="Event1">Story Telling</option>
+            <option value="Event2">Poster Preentation</option>
+            <option value="Event3">Quiz</option>
           </select>
         </div>
+
+      <div className="form-group" id="form-group-event">
+          <label htmlFor="event2" className="form-label">Off Stage Event:</label>
+          <select name="event2" id="event2" className="form-select" required>
+            <option value="">Select Event</option>
+            <option value="Event1">API Fusion</option>
+            <option value="Event2">Social Engineering App</option>
+            <option value="Event2">Word Hunt</option>
+            <option value="Event2">Poster Presentation</option>
+            <option value="Event3">Quiz</option>
+          </select>
+        </div>
+
         <button type="submit" disabled={loading} className="register-btn" id="register-btn"  >Register</button>
       </form>
 

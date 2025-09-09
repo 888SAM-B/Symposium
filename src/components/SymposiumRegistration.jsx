@@ -106,6 +106,7 @@ const isSubmitDisabled =
         console.log("Response:", result);
         setRegisteredTeamData({
           teamId: result.team.teamNo,
+          teamUid: result.team.uniqueId,
           teamName: college,
           collegeName: collegeName,
           dept: dept,
@@ -645,7 +646,7 @@ const isSubmitDisabled =
             <div className="qr-code-container">
               <h3>Scan for Team ID:</h3>
               <div style={{ padding: "16px", background: "white", display: "inline-block", borderRadius: "8px" }}>
-                <QRCodeCanvas value={registeredTeamData.teamId} size={128} level="H" />
+                <QRCodeCanvas value={registeredTeamData.teamUid} size={128} level="H" />
               </div>
 
             </div>
