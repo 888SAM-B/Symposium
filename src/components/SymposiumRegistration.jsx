@@ -20,7 +20,7 @@ const RegisterSymposium = () => {
     "Poster Presentation": [],
     "Story Telling": [],
     "Quiz": [],
-    "Word Hunt": [],
+    "Prompt Builder": [],
     "Social Engineering App": [],
     "API Fusion": [],
 
@@ -38,7 +38,7 @@ const RegisterSymposium = () => {
   const [eventToAddAfternoon, setEventToAddAfternoon] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
   const morningEvents = ["Paper Presentation", "Story Telling", "Quiz"];
-  const afternoonEvents = ["Word Hunt", "Social Engineering App", "API Fusion", "Poster Presentation"];
+  const afternoonEvents = ["Prompt Builder", "Social Engineering App", "API Fusion", "Poster Presentation"];
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
 
   const handleMemberInput = (index, field, value) => {
@@ -163,7 +163,7 @@ const RegisterSymposium = () => {
     setDept("");
     setEvents({
       "Paper Presentation": [], "Story Telling": [], "Quiz": [],
-      "Word Hunt": [], "Social Engineering App": [], "Poster Presentation": [], "API Fusion": [],
+      "Prompt Builder": [], "Social Engineering App": [], "Poster Presentation": [], "API Fusion": [],
     });
     setSelectedMorningEvents([]);
     setSelectedAfternoonEvents([]);
@@ -516,48 +516,51 @@ const RegisterSymposium = () => {
 
 
           <div className="event-list">
-            {selectedAfternoonEvents.sort((a, b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b)).map((eventName) => (
-              <div key={eventName} className="event-box" >
-                <h4 className="evt-box-header ">
-                  {eventName}
-                  <p
-                    className="remove-event-button"
-                    onClick={() => handleRemoveEvent(eventName, false)} // Pass false for afternoon event
-                  >
-                    X
-                  </p>
-                </h4>
-                <div className="participants">
-                  {[0, 1].map((slot) => (
-                    <select
-                      key={slot}
-                      className="pl"
-                      value={events[eventName][slot] || ""}
-                      onChange={(e) =>
-                        handleEventParticipantChange(
-                          eventName,
-                          slot,
-                          e.target.value
-                        )
-                      }
-                    >
-                      <option value="">Select Member</option>
-                      {getAvailableMembers(eventName, events[eventName][slot]).map(
-                        (m, idx) => (
-                          <option key={idx} value={`${m.name} (${m.regNo})`}>
-                            {m.name} ({m.regNo})
-                          </option>
-                        )
-                      )}
-                    </select>
-                  ))}
-                </div>
-                <p>
-                  Participants: {events[eventName].join(", ") || "None"}
-                </p>
-              </div>
-            ))}
-          </div>
+  {selectedAfternoonEvents
+    .sort((a, b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b))
+    .map((eventName) => (
+      <div key={eventName} className="event-box">
+        <h4 className="evt-box-header">
+          {eventName}
+          <p
+            className="remove-event-button"
+            onClick={() => handleRemoveEvent(eventName, false)} // Pass false for afternoon event
+          >
+            X
+          </p>
+        </h4>
+
+        <div className="participants">
+          {(
+            eventName === "API Fusion" || eventName === "Prompt Builder"
+              ? [0] // only one slot
+              : [0, 1] // default two slots
+          ).map((slot) => (
+            <select
+              key={slot}
+              className="pl"
+              value={events[eventName][slot] || ""}
+              onChange={(e) =>
+                handleEventParticipantChange(eventName, slot, e.target.value)
+              }
+            >
+              <option value="">Select Member</option>
+              {getAvailableMembers(eventName, events[eventName][slot]).map(
+                (m, idx) => (
+                  <option key={idx} value={`${m.name} (${m.regNo})`}>
+                    {m.name} ({m.regNo})
+                  </option>
+                )
+              )}
+            </select>
+          ))}
+        </div>
+
+        <p>Participants: {events[eventName].join(", ") || "None"}</p>
+      </div>
+    ))}
+</div>
+
 
           <div className="add-event-section">
             {!showDropdown ? (

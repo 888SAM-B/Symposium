@@ -10,7 +10,7 @@ const Event = () => {
   const [coordinators, setCoordinators] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [teamSize,setTeamsize]=useState("")
+  const [teamSize, setTeamsize] = useState("")
   const [image, setImage] = useState("");
   const [display, setDisplay] = useState(false);
   const events = [
@@ -18,7 +18,7 @@ const Event = () => {
       title: "PAPER PRESENTATION",
       description: "Showcase your innovative research and ideas through a structured presentation",
       image: "/paper-presentation.png",
-      teamSize:"Team Size : 1 - 2",
+      teamSize: "Team Size : 1 - 2",
       details: [
         "Present innovative research in Computer Science",
         "Eligibility: UG & PG students (CS/IT), solo or team (max 2)",
@@ -42,7 +42,7 @@ const Event = () => {
       title: "POSTER PRESENTATION",
       description: "Express concepts creatively with visuals, infographics, and concise explanations",
       image: "/poster-presentation.jpg",
-      teamSize:"Team Size : 1 - 2",
+      teamSize: "Team Size : 1 - 2",
       details: [
         "Design AI prompts creatively and test outputs",
         "Eligibility: UG & PG students (CS/IT), individual only",
@@ -51,11 +51,11 @@ const Event = () => {
         "Rewards: Winner & Runner-up Awards, Best prompts showcased"
       ],
       rules: [
-      "No frameworks (React/Angular etc.)",
-      "No external tools or websites",
-      "Laptops mandatory in Round 2",
-      "Only HTML/CSS/JS code allowed"
-    ],
+        "No frameworks (React/Angular etc.)",
+        "No external tools or websites",
+        "Laptops mandatory in Round 2",
+        "Only HTML/CSS/JS code allowed"
+      ],
       coordinators: [
         { name: "Name", phone: "9876543210" },
         { name: "Name", phone: "9876543210" }
@@ -65,7 +65,7 @@ const Event = () => {
       title: "QUIZ",
       description: "Test your knowledge and quick thinking across multiple domains",
       image: "/quiz-image.png",
-      teamSize:"Team Size : 1 -2 ",
+      teamSize: "Team Size : 1 -2 ",
       details: [
         "The Technical Quiz is a fast-paced event designed to test your knowledge, speed, and presence of mind in the field of Computer Science and general technology.",
         "Participants will face a mix of conceptual questions, logical puzzles, and real-world tech scenarios that challenge both accuracy and quick thinking."
@@ -83,17 +83,17 @@ const Event = () => {
       ]
     },
     {
-      title: "WORD HUNT",
-      description: "Challenge your vocabulary and speed in finding hidden words",
+      title: "SOCIAL ENGINEERING APP",
+      description: "Explore and Build",
       image: "/word-hunt.png",
-      teamSize:"Team Size : 1 - 2",
+      teamSize: "Team Size : 1 - 2",
       details: [
-        "The Word Hunt is a fun and brain-teasing event where participants search, decode, and solve hidden words and puzzles related to Computer Science and technology.",
-        "It tests your speed, vocabulary, and logical thinking as you race against time to crack the challenge.",
-        "This event is not just about finding words — it’s about sharpening your mind, improving focus, and enjoying a playful competition with your peers."
+        "The Prompt Builder event is designed to nurture creativity and logical thinking among students in the emerging field of Artificial Intelligence (AI) prompt engineering.",
+        "In the age of AI-powered applications, the ability to construct precise, structured, and context-rich prompts has become a highly valued skill.",
+        "This event encourages participants to explore how carefully crafted prompts influence the accuracy, creativity, and usefulness of AI-generated outputs."
       ],
       rules: [
-        "Participants must complete the puzzles within the given time limit to qualify.",
+        "Participants must complete the prompt within the given time limit to qualify.",
         "All words must be related to Computer Science and technology topics.",
         "No use of external help, dictionaries, or electronic devices is allowed during the event.",
         "Winners will be decided based on the number of correct words found and speed of completion."
@@ -105,23 +105,23 @@ const Event = () => {
     },
     {
       title: "PROMPT BUILDER",
-      teamSize:"Individual Participation ",
+      teamSize: "Individual Participation ",
       description: "Craft powerful prompts to unlock AI’s full potential with creativity and precision",
       image: "/social-eng.png",
       details: [
-      "Design AI prompts creatively and test outputs",
-      "Eligibility: UG & PG students (CS/IT), individual only",
-      "Rounds: 1) Prompt Analytics (online) 2) Live Coding (HTML/CSS/JS only)",
-      "Evaluation: Accuracy 40, Structure 25, Creativity 15, Rule Compliance 20 (Total 100)",
-      "Rewards: Winner & Runner-up Awards, Best prompts showcased"
-    ],
+        "Design AI prompts creatively and test outputs",
+        "Eligibility: UG & PG students (CS/IT), individual only",
+        "Rounds: 1) Prompt Analytics (online) 2) Live Coding (HTML/CSS/JS only)",
+        "Evaluation: Accuracy 40, Structure 25, Creativity 15, Rule Compliance 20 (Total 100)",
+        "Rewards: Winner & Runner-up Awards, Best prompts showcased"
+      ],
 
       rules: [
-      "No frameworks (React/Angular etc.)",
-      "No external tools or websites",
-      "Laptops mandatory in Round 2",
-      "Only HTML/CSS/JS code allowed"
-    ],
+        "No frameworks (React/Angular etc.)",
+        "No external tools or websites",
+        "Laptops mandatory in Round 2",
+        "Only HTML/CSS/JS code allowed"
+      ],
       coordinators: [
         { name: "Name", phone: "9876543210" },
         { name: "Name", phone: "9876543210" }
@@ -132,21 +132,21 @@ const Event = () => {
       title: "API FUSION",
       description: "Build unique solutions by creatively integrating and using APIs",
       image: "/api.png",
-      teamSize:"Team Size : 1 to 3",
+      teamSize: "Team Size : 1 to 3",
       details: [
-      "Build applications using APIs for real-world problems",
-      "Eligibility: UG & PG students (CS/IT), teams of 1–3",
-      "Rounds: 1) API Quiz (1 hr) 2) Coding Challenge (2 hrs with ≥2 APIs)",
-      "Evaluation: API Usage 30, Functionality 25, Code Quality 20, Presentation 15, Quiz 10 (Total 100)",
-      "Rewards: 1st Place Cash Prize + Certificates"
-    ],
-      
+        "Build applications using APIs for real-world problems",
+        "Eligibility: UG & PG students (CS/IT), teams of 1–3",
+        "Rounds: 1) API Quiz (1 hr) 2) Coding Challenge (2 hrs with ≥2 APIs)",
+        "Evaluation: API Usage 30, Functionality 25, Code Quality 20, Presentation 15, Quiz 10 (Total 100)",
+        "Rewards: 1st Place Cash Prize + Certificates"
+      ],
+
       rules: [
-      "Must integrate at least 2 given APIs",
-      "Applications must solve real-world problems",
-      "Submit source code, demo, and documentation",
-      "Strict time-bound schedule; no extensions"
-    ],
+        "Must integrate at least 2 given APIs",
+        "Applications must solve real-world problems",
+        "Submit source code, demo, and documentation",
+        "Strict time-bound schedule; no extensions"
+      ],
       coordinators: [
         { name: "Name", phone: "9876543210" },
         { name: "Name", phone: "9876543210" }
@@ -154,10 +154,10 @@ const Event = () => {
 
     },
     {
-      title: "STORY TELLING",
+      title: "DATA VISION",
       description: "Share your imagination and creativity through engaging and impactful stories",
       image: "/story.png",
-      teamSize:"Team Size : 1 - 2",
+      teamSize: "Team Size : 1 - 2",
       details: [
         "The Storytelling event is all about using your imagination and creativity to share ideas through stories.",
         "Participants can create and present stories related to technology, innovation, or everyday life in a way that is engaging and inspiring.",
@@ -218,7 +218,7 @@ const Event = () => {
             <div className="popElements" >
               <img src={image || null} alt=" " />
               <div className="contents">
-                <h2 style={{textAlign:"center"}} >{teamSize}</h2>
+                <h2 style={{ textAlign: "center" }} >{teamSize}</h2>
                 <h2 className="ch" >Details</h2>
                 {details.map((rule, index) => (
                   <p key={index}>{rule}</p>
