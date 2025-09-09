@@ -513,3 +513,12 @@ header {
   flex-direction: column;
   align-items: center;
 }
+.upi{
+  width: 300px;
+}
+@media screen and (max-width:480px) {
+.upi{
+  /* max-width: 300px; */
+  width: 80%;
+}
+}

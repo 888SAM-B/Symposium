@@ -14,6 +14,7 @@ const RegisterSymposium = () => {
   const [close, setClose] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false);
   const [showDropdown1, setShowDropdown1] = useState(false);
+  const [photostatus, setPhotostatus] = useState(false)
   const [events, setEvents] = useState({
     "Paper Presentation": [],
     "Poster Presentation": [],
@@ -41,26 +42,26 @@ const RegisterSymposium = () => {
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
 
   const handleMemberInput = (index, field, value) => {
-  const newMembers = [...members];
-  newMembers[index] = { ...newMembers[index], [field]: value };
-  setMembers(newMembers);
+    const newMembers = [...members];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    setMembers(newMembers);
 
-  // 🔑 If already in step 3, clear only participants inside events
-  if (step > 2) {
-    const clearedEvents = {};
-    Object.keys(events).forEach((ev) => {
-      clearedEvents[ev] = []; // box visible, but empty list
-    });
-    setEvents(clearedEvents);
+    // 🔑 If already in step 3, clear only participants inside events
+    if (step > 2) {
+      const clearedEvents = {};
+      Object.keys(events).forEach((ev) => {
+        clearedEvents[ev] = []; // box visible, but empty list
+      });
+      setEvents(clearedEvents);
 
-    setSelectedMorningEvents([]);
-    setSelectedAfternoonEvents([]);
-  }
-};
-const isSubmitDisabled =
-  selectedMorningEvents.length === 0 &&
-  selectedAfternoonEvents.length === 0 &&
-  Object.values(events).every((list) => list.length === 0);
+      setSelectedMorningEvents([]);
+      setSelectedAfternoonEvents([]);
+    }
+  };
+  const isSubmitDisabled =
+    selectedMorningEvents.length === 0 &&
+    selectedAfternoonEvents.length === 0 &&
+    Object.values(events).every((list) => list.length === 0);
 
   const hasDuplicateRegNo = () => {
     const regNos = members.map((m) => m.regNo.trim());
@@ -68,6 +69,7 @@ const isSubmitDisabled =
   };
 
   const handleSubmit = async () => {
+    console.log(uploadedImage)
     if (hasDuplicateRegNo()) {
       alert("Duplicate E-mails are not allowed!");
       return;
@@ -98,6 +100,7 @@ const isSubmitDisabled =
           members,
           collegeName,
           dept,
+          imgUrl:uploadedImage.url
         }),
       });
 
@@ -127,7 +130,7 @@ const isSubmitDisabled =
     }
   };
 
-    const verifyTeamName = async () => {
+  const verifyTeamName = async () => {
     setLoading(true); // Start loading
     try {
       const response = await fetch(`${import.meta.env.VITE_URL}/check`, {
@@ -324,7 +327,7 @@ const isSubmitDisabled =
             <button
               className="next"
               onClick={verifyTeamName}
-              disabled={!college || memberCount < 1}
+              disabled={!college || !collegeName || !dept || !memberCount}
             >
               Next
             </button>
@@ -348,9 +351,9 @@ const isSubmitDisabled =
                 type="email"
                 placeholder="Mail ID"
                 value={m.regNo}
-                onChange={(e) =>{
+                onChange={(e) => {
                   handleMemberInput(idx, "regNo", e.target.value)
-                  
+
                 }
                 }
               />
@@ -367,7 +370,7 @@ const isSubmitDisabled =
 
           {step === 2 && (
             <div>
- 
+
               <button
                 onClick={async () => {
                   setLoading(true)
@@ -406,15 +409,15 @@ const isSubmitDisabled =
                       "Something went wrong while checking E-mails numbers!"
                     );
                   }
-                  finally{
+                  finally {
                     setLoading(false)
                   }
                 }}
-                disabled={members.some((m) => !m.name || !m.regNo) || loading}
+                disabled={members.some((m) => !m.name || !m.regNo || !m.mobile) || loading}
               >
                 Next
               </button>
-                    <button onClick={() => setStep(1)} className="back" disabled={loading}>
+              <button onClick={() => setStep(1)} className="back" disabled={loading}>
                 Back
               </button>
             </div>
@@ -446,7 +449,7 @@ const isSubmitDisabled =
                 <div className="participants">
                   {[0, 1].map((slot) => (
                     <select
-                    className="pl"
+                      className="pl"
                       key={slot}
                       value={events[eventName][slot] || ""}
                       onChange={(e) =>
@@ -510,7 +513,7 @@ const isSubmitDisabled =
 
           {/* Afternoon Events Section */}
           <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Off Stage Events</h3>
-          
+
 
           <div className="event-list">
             {selectedAfternoonEvents.sort((a, b) => afternoonEvents.indexOf(a) - afternoonEvents.indexOf(b)).map((eventName) => (
@@ -579,71 +582,86 @@ const isSubmitDisabled =
                   onClick={() => {
                     handleAddAfternoonEvent();
                     setShowDropdown(false); // after confirm, go back to Add Event button
-                    }}
-                    disabled={!eventToAddAfternoon}
-                  >
-                    Confirm
-                  </button>
-                  </>
-                )}
-                </div>
+                  }}
+                  disabled={!eventToAddAfternoon}
+                >
+                  Confirm
+                </button>
+              </>
+            )}
+          </div>
 
-                <br /><br />
-                <hr />
-                <br /><br />
+          <br /><br />
+          <hr />
+          <br /><br />
 
-                <div className="payment">
-                  <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Payment Details</h3>
-                  <p>Registration Fee: ₹150 per member</p>
-                  <h3>Total Amount : {150 * memberCount}</h3>
-                  <p>Please make the payment to the following UPI ID:</p>
-                  <img width={300} src="/payment-scanner.png" alt="" />
-                  <div className="file">
-                  <input
-        type="file"
-        accept="image/jpeg,image/jpg"
-        onChange={async (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
+          <div className="payment">
+            <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Payment Details</h3>
+            <p>Registration Fee: ₹150 per member</p>
+            <h3>Total Amount : {150 * memberCount}</h3>
+            <p>Please make the payment to the following UPI ID:</p>
+            <img  className="upi" src="/payment-scanner.png" alt="" />
+            <div className="file">
+              <br />
+              <p>Attach the Transaction Screenshot</p>
+              <input
+                type="file"
+                className="select-event"
+                accept="image/jpeg,image/jpg"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const maxSizeKB = 200;
+                  if (file.size / 1024 > maxSizeKB) {
+                    alert(`File size should not exceed ${maxSizeKB} KB`);
+                    e.target.value = ""; // clear file input
+                    return;
+                  }
 
-          // Upload to Cloudinary
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("upload_preset", "payment-images");
+                  setLoading(true)
+                  // Upload to Cloudinary
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  formData.append("upload_preset", "payment-images");
 
-          try {
-            const res = await fetch(
-              "https://api.cloudinary.com/v1_1/defwsymvj/image/upload",
-              {
-                method: "POST",
-                body: formData,
-              }
-            );
-            const data = await res.json();
+                  try {
+                    const res = await fetch(
+                      "https://api.cloudinary.com/v1_1/defwsymvj/image/upload",
+                      {
+                        method: "POST",
+                        body: formData,
+                      }
+                    );
+                    const data = await res.json();
 
-            if (data.secure_url) {
-              // Save both url + public_id in state
-              setUploadedImage({
-                url: data.secure_url,
-                public_id: data.public_id,
-              });
-              alert("Uploaded! Link: " + data.secure_url);
-            } else {
-              alert("Upload failed!");
-            }
-          } catch (err) {
-            alert("Error uploading file!");
-          }
-        }}
-      />
+                    if (data.secure_url) {
+                      // Save both url + public_id in state
+                      setUploadedImage({
+                        url: data.secure_url,
+                        public_id: data.public_id,
+                      });
+                      setPhotostatus(true)
+                      
+                    } else {
+                      alert("Upload failed!");
+                    }
+                  } catch (err) {
+                    alert("Error uploading file!");
+                  }
+                  finally {
+                    setLoading(false)
+                  }
+                }}
+              />
+              {loading && <p>Uploading... Please wait ⏳</p>}
 
-                  </div>
-                </div>
+            </div>
+          </div>
 
-                {/* Navigation buttons */}
+          {/* Navigation buttons */}
           <div>
-            
-            <button onClick={handleSubmit} disabled={isSubmitDisabled || loading}>
+
+            <button onClick={handleSubmit} disabled={isSubmitDisabled || loading || !photostatus}>
               {loading ? "Registering..." : "Submit"}
             </button>
             <button onClick={() => setStep(2)} disabled={loading}>
@@ -849,9 +867,9 @@ const isSubmitDisabled =
                   ctx.fillText("NAME", W / 2, bottomStartY);
                 }
                 if (registeredTeamData.teamId) {
-                  ctx.fillText((registeredTeamData.teamId || "NAME").toUpperCase(), W / 2, bottomStartY+50);
+                  ctx.fillText((registeredTeamData.teamId || "NAME").toUpperCase(), W / 2, bottomStartY + 50);
                 } else {
-                  ctx.fillText("NAME", W / 2, bottomStartY+50);
+                  ctx.fillText("NAME", W / 2, bottomStartY + 50);
                 }
 
 
