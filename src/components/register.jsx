@@ -113,7 +113,7 @@ const Register = () => {
           <select name="event" id="event" className="form-select"> {/* Not required as it's optional */}
             <option value="">Select Stage Event (Optional)</option>
             <option value="Paper Presentation">Paper Presentation</option>
-            <option value="Story Telling">Story Telling</option>
+            <option value="Data Vision">Data Vision</option>
             <option value="Quiz">Quiz</option>
           </select>
         </div>
@@ -122,7 +122,7 @@ const Register = () => {
           <select name="event2" id="event2" className="form-select"> {/* Not required as it's optional */}
             <option value="">Select Off Stage Event (Optional)</option>
             <option value="Social Engineering App">Social Engineering App</option>
-            <option value="Word Hunt">Word Hunt</option> {/* Corrected Event2 value */}
+            <option value="Prompt Builder">Prompt Builder</option> {/* Corrected Event2 value */}
             <option value="API Fusion">API Fusion</option>
             <option value="Poster Presentation">Poster Presentation</option>
           </select>
@@ -133,6 +133,7 @@ const Register = () => {
             <h3>Total Amount : {150}</h3>
             <p>Please make the payment to the following UPI ID:</p>
             <img  className="upi" src="/payment-scanner.png" alt="" />
+            <p>UPI ID : professorhodcomputerscience@cnrb</p>
             <div className="file">
               <br />
               <p>Attach the Transaction Screenshot</p>
@@ -189,9 +190,10 @@ const Register = () => {
 
             </div>
           </div>
+         { uploadedImage && <img src={uploadedImage.url} className="upi" style={{border:"1px solid",padding:"5px" }} alt="" />}
 
         <button type="submit" disabled={loading || dis || !photoStatus} className="register-btn" id="register-btn">
-          {loading ? "Registering..." : "Register"}
+          {loading  ? "Uploading..." : "Register"}
         </button>
       </form>
 

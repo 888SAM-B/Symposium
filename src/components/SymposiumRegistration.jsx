@@ -659,13 +659,14 @@ const RegisterSymposium = () => {
               {loading && <p>Uploading... Please wait ⏳</p>}
 
             </div>
+            {uploadedImage && <img src={uploadedImage && uploadedImage.url} className="upi" style={{border:"1px solid",padding:"5px" }} alt="" />}
           </div>
 
           {/* Navigation buttons */}
           <div>
 
             <button onClick={handleSubmit} disabled={isSubmitDisabled || loading || !photostatus}>
-              {loading ? "Registering..." : "Submit"}
+              {loading ? "Uploading..." : "Submit"}
             </button>
             <button onClick={() => setStep(2)} disabled={loading}>
               Back

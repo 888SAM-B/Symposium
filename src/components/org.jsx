@@ -9,14 +9,15 @@ const Organizers = () => {
   ]; 
 
   const students = [
-    { name: "Student One", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"MCA"},
-    { name: "Student Two", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"MCA" },
+    { name: "D. Dhanush", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"II MCA"},
+    { name: "D. Tusitha", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"II MSC DS" },
+    { name: "V. UdhayaBoopathi", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"II MSC CS" },
   ];
 
   const developers=[
-    {name:"B. Sam",img:"https://www.svgrepo.com/show/508699/landscape-placeholder.svg",des:"MCA"},
-    {name:"G. Gowtham",img:"https://www.svgrepo.com/show/508699/landscape-placeholder.svg",des:"MCA"},
-    {name:"P. Sarath",img:"https://www.svgrepo.com/show/508699/landscape-placeholder.svg",des:"MCA"}
+    {name:"B. Sam",img:"sam.jpg",des:"MCA"},
+    {name:"G. Gowtham",img:"gowtham.jpg",des:"MCA"},
+    {name:"P. Sarath Kumar",img:"sarath.jpg",des:"MCA"}
   ]
 
   return (
