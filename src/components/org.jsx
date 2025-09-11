@@ -17,7 +17,7 @@ const Organizers = () => {
   const developers=[
     {name:"B. Sam",img:"sam.jpg",des:"MCA"},
     {name:"G. Gowtham",img:"gowtham.jpg",des:"MCA"},
-    {name:"P. Sarath Kumar",img:"sarath.jpg",des:"MCA"}
+    {name:"P. Sarathkumar",img:"sarath-img.jpeg",des:"MCA"}
   ]
 
   return (
