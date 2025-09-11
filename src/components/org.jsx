@@ -9,9 +9,10 @@ const Organizers = () => {
   ]; 
 
   const students = [
-    { name: "D. Dhanush", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"II MCA"},
-    { name: "D. Tusitha", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"II MSC DS" },
-    { name: "V. UdhayaBoopathi", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg" , des:"II MSC CS" },
+    { name: "D. Dhanush", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"II MCA",role:"Coordinator  "},
+    { name: "V. UdhayaBoopathi", img: "president.jpg" , des:"II MSC CS",role:"President" },
+    { name: "D. Krithika Sri", img: "secretary.jpg" , des:"II MSC DS",role:"Secretary" },
+    { name: "P. Dhayanidhi", img: "joint-secretary.jpg" , des:"II MSC DS",role:"Joint-Secretary" },  
   ];
 
   const developers=[
@@ -41,7 +42,7 @@ const Organizers = () => {
           <div key={idx} className="organizer-card">
             <img src={person.img} alt={person.name} />
             <p className="org-name"> {person.name}</p>
-            <p className="org-des"> {person.des}</p>
+            <p className="org-des"> {person.role}</p>
           </div>
         ))}
       </div>

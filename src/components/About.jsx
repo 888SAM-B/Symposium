@@ -28,8 +28,8 @@ const About = () => {
                     <br/> <br />
                     <p className='lr1'> 
 
-                        This prestigious event serves as a vibrant platform for students from across the nation to showcase their talent, creativity, and technical excellence through a variety of engaging competitions.
-                        <br /> From challenging quizzes to innovative project presentations and exciting contests, VIBE 2K25 is designed to inspire participation and healthy competition.
+                        VIBE 2025– Value-drivenInnovation for Better Era is the technical symposium organized by the Department of ComputerScience, PeriyarUniversity.
+                        Scheduled for 8th October 2025,this one-day event is designed to bring together students,researchers,and industry professionals to explore, exchange,and celebrate innovations in the field of Computer Science and emerging technologies.
                         <br />
                         Here, every participant gets the chance to prove their skills, unleash their potential, and make their mark. The best talents will be honored with awards and recognition, celebrating not just victory, but the spirit of innovation and teamwork.
                     </p>

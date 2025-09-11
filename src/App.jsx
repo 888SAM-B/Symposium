@@ -36,15 +36,22 @@ function Sidebar({ isOpen, setIsOpen }) {
   return (
     <div ref={sidebarRef} className="sidebar">
       <div className="sidebar-header">
-        <h2>Navigation</h2>
+        <h2>Quick Links</h2>
         <button onClick={() => setIsOpen(false)}>✖</button>
       </div>
       <nav>
         <Link to="/" onClick={() => setIsOpen(false)}>Home</Link>
-        <Link to="/register" onClick={() => setIsOpen(false)}>Register</Link>
-        
-        <Link to="/reg" onClick={() => setIsOpen(false)}>Symposium Reg</Link>
         <Link to="/event" onClick={() => setIsOpen(false)}>Events</Link>
+        <a
+          href="/vibebroucher.pdf"
+          download
+          className="text-blue-600 hover:underline"
+        >
+          Broucher
+        </a>
+        <Link to="/reg" onClick={() => setIsOpen(false)}>Team Registration</Link>
+
+        <Link to="/register" onClick={() => setIsOpen(false)}>Solo Register</Link>
         <Link to="/org" onClick={() => setIsOpen(false)}>Organizers</Link>
       </nav>
     </div>
@@ -74,10 +81,17 @@ function App() {
         {/* Desktop navigation only */}
         <nav className="desktop-nav">
           <Link to="/">Home</Link>
+          <Link to="/event">Events</Link>
+          <a
+            href="/vibebroucher.pdf"
+            download
+            className="text-blue-600 hover:underline"
+          >
+            Broucher
+          </a>
           <Link to="/reg">Team Registration</Link>
           <Link to="/register">Solo Registration</Link>
-          {/* <Link to="/get-id">Get ID</Link> */}
-          <Link to="/event">Events</Link>
+
           <Link to="/org">Organizers</Link>
         </nav>
       </header>
@@ -89,7 +103,7 @@ function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          
+
           <Route path="/register" element={<Register />} />
           <Route path="/get-id" element={<Idgen />} />
           <Route path="/reg" element={<Register1 />} />

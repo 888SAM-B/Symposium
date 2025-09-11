@@ -4,6 +4,7 @@
 .organizers-container {
   padding: 2rem;
   text-align: center;
+  scale: 1.08;
 }
 
 /* Headings */
@@ -66,4 +67,9 @@
 }
 .org-des{
     font-size: 0.95rem;
+}
+@media screen and (max-width:745px) {
+  .organizers-container{
+    margin-top: 70px;
+  }
 }
