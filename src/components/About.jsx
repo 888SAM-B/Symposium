@@ -36,7 +36,7 @@ const About = () => {
                 </div>
                 <div className="about-cards">
                     <GlareHover className='glare-hover'>
-                        <img src='/calendar.png' className='icon' />26th September 2025
+                        <img src='/calendar.png' className='icon' />8th October 2025
                     </GlareHover>
                     <GlareHover className='glare-hover'>
                         <img src='/clock.png' className='icon' />10:00 AM - 5:00 PM
@@ -45,7 +45,7 @@ const About = () => {
                         <img src='/location.png' className='icon' alt="" /> Periyar University, Salem- 636011
                     </GlareHover>
                     <GlareHover className='glare-hover mid '>
-                        Registraion Ends On  : 25th September 2025
+                        Registraion Ends On  : 7th October 2025
                     </GlareHover>
                 </div>
 
