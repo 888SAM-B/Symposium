@@ -9,9 +9,10 @@ const Organizers = () => {
   ]; 
 
   const students = [
-    { name: "D. Dhanush", img: "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"  , des:"II MCA",role:"Coordinator  "},
+    { name: "D. Dhanush", img: "dhanush.jpeg"  , des:"II MCA",role:"Coordinator  "},
     { name: "V. UdhayaBoopathi", img: "president.jpg" , des:"II MSC CS",role:"President" },
-    { name: "D. Krithika Sri", img: "secretary.jpg" , des:"II MSC DS",role:"Secretary" },
+    { name: "D. Thusitha", img: "vice-president.jpeg" , des:"II MSC DS",role:"Vice President" },  
+    { name: "D. Krithika Sri", img: "secretary.jpg" , des:"II MSC CS",role:"Secretary" },
     { name: "P. Dhayanidhi", img: "joint-secretary.jpg" , des:"II MSC DS",role:"Joint-Secretary" },  
   ];
 

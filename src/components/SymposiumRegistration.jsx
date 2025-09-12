@@ -378,6 +378,7 @@ const RegisterSymposium = () => {
                   const uniqueRegNos = new Set(regNos);
                   if (uniqueRegNos.size !== regNos.length) {
                     alert("Duplicate E-mails Numbers are not allowed!");
+                    setLoading(false)
                     return;
                   }
 
@@ -399,6 +400,7 @@ const RegisterSymposium = () => {
                           ", "
                         )}`
                       );
+                      setLoading(false)
                       return;
                     }
 

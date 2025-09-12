@@ -83,10 +83,9 @@ const Event = () => {
     {
       "title": "QUIZ ",
       "description": "Test your knowledge and quick thinking in the exciting world of Artificial Intelligence.",
-      "image": "quiz.png",
+      "image": "quiz-image.png",
       "teamSize": "1 – 2 members",
       "eligibility": "UG & PG",
-      "date": "SEP 26",
       "language": "English Only",
       "about": "The Quiz Competition is designed to spark curiosity and test students’ knowledge in the exciting domain of Artificial Intelligence (AI) and related technologies. The event provides an interactive platform for participants to demonstrate their understanding of AI concepts, applications, and recent trends while enhancing their problem-solving and critical thinking abilities.",
       "details": [
@@ -137,10 +136,9 @@ const Event = () => {
     {
       "title": "SOCIAL ENGINEERING APP",
       "description": "Design and present an interactive application to simulate social engineering attacks and educate users on cybersecurity.",
-      "image": "s-e-app.png",
+      "image": "soc-eng.jpeg",
       "teamSize": "1 - 2 members",
       "eligibility": "UG & PG (Computer Science, IT & allied disciplines)",
-      "date": "To be updated",
       "language": "English",
       "about": "The Social Engineering App event challenges participants to develop an interactive application that not only simulates various social engineering attack vectors but also effectively educates users on how to identify, avoid, and report such threats. This competition fosters innovative thinking in cybersecurity education and application development.",
       "details": [
@@ -171,7 +169,6 @@ const Event = () => {
       "image": "api.png",
       "teamSize": "1 - 2 members",
       "eligibility": "UG & PG (Computer Science, IT & allied disciplines)",
-      "date": "To be updated",
       "about": "This is a hands-on technical challenge focusing on API integration. Participants design and develop functional applications using a given set of APIs, enhancing programming skills, problem-solving, and innovative thinking.",
       "details": [
         "Design and develop functional applications using a given set of APIs.",
