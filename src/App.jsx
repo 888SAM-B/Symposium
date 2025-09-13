@@ -47,7 +47,7 @@ function Sidebar({ isOpen, setIsOpen }) {
           download
           className="text-blue-600 hover:underline"
         >
-          Broucher
+          Brochure
         </a>
         <Link to="/reg" onClick={() => setIsOpen(false)}>Team Registration</Link>
 
@@ -87,7 +87,7 @@ function App() {
             download
             className="text-blue-600 hover:underline"
           >
-            Broucher
+            Brochure
           </a>
           <Link to="/reg">Team Registration</Link>
           <Link to="/register">Solo Registration</Link>
