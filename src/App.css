@@ -481,6 +481,13 @@ header {
   margin: 5px 0px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.bottom-2{
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap :10%;
+}
 @media screen and (max-width:500px) {
 .pop-up{
   width: 90%;
@@ -497,6 +504,10 @@ header {
 }
 .select-event{
   width: 90% !important;
+}
+.bottom-2{
+  flex-direction: column;
+  margin-top: 0px;
 }
 }
 .qr-code-container{

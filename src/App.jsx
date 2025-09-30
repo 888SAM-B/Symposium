@@ -43,7 +43,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         <Link to="/" onClick={() => setIsOpen(false)}>Home</Link>
         <Link to="/event" onClick={() => setIsOpen(false)}>Events</Link>
         <a
-          href="/vibebroucher.pdf"
+          href="/VIBE.pdf"
           download
           className="text-blue-600 hover:underline"
         >
@@ -83,7 +83,7 @@ function App() {
           <Link to="/">Home</Link>
           <Link to="/event">Events</Link>
           <a
-            href="/vibebroucher.pdf"
+            href="/VIBE.pdf"
             download
             className="text-blue-600 hover:underline"
           >
