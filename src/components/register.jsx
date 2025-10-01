@@ -41,7 +41,9 @@ const Register = () => {
       college: data.college, // Assuming you want to store college and department
       department: data.department,
       events: selectedEvents, // This will be an array of selected events
+      transactionId: data.transactionId,
     };
+    console.log(payload)
 
     fetch(`${import.meta.env.VITE_URL}/register`, {
       method: "POST",
@@ -131,7 +133,7 @@ const Register = () => {
             <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Payment Details</h3>
             <p>Registration Fee: ₹150 per member</p>
             <h3>Total Amount : {150}</h3>
-            <p>Please make the payment to the following UPI ID:</p>
+            <p>Kindly make the payment to the following UPI ID:</p>
             <img  className="upi" src="/payment-scanner.png" alt="" />
             <p>UPI ID : professorhodcomputerscience@cnrb</p>
             <div className="file">
@@ -187,7 +189,10 @@ const Register = () => {
                 }}
               />
               {loading && <p>Uploading... Please wait ⏳</p>}
-
+                <div className="transaction-id">
+                  <label htmlFor="transactionId" className="form-label">Transaction ID:</label>
+                  <input type="text" name="transactionId" id="transactionId" placeholder="Transaction Id" />
+                </div>
             </div>
           </div>
          { uploadedImage && <img src={uploadedImage.url} className="upi" style={{border:"1px solid",padding:"5px" }} alt="" />}

@@ -40,7 +40,7 @@ const RegisterSymposium = () => {
   const morningEvents = ["Paper Presentation", "Story Telling", "Quiz"];
   const afternoonEvents = ["Prompt Builder", "Social Engineering App", "API Fusion", "Poster Presentation"];
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
-
+ const [transactionId,setTransactionId]=useState("") 
   const handleMemberInput = (index, field, value) => {
     const newMembers = [...members];
     newMembers[index] = { ...newMembers[index], [field]: value };
@@ -100,7 +100,8 @@ const RegisterSymposium = () => {
           members,
           collegeName,
           dept,
-          imgUrl:uploadedImage.url
+          imgUrl:uploadedImage.url,
+          transactionId:transactionId
         }),
       });
 
@@ -604,7 +605,7 @@ const RegisterSymposium = () => {
             <h3 style={{ color: "#00f0ff", marginTop: "20px" }}>Payment Details</h3>
             <p>Registration Fee: ₹150 per member</p>
             <h3>Total Amount : {150 * memberCount}</h3>
-            <p>Please make the payment to the following UPI ID:</p>
+            <p>Kindly make the payment to the following UPI ID:</p>
             <img  className="upi" src="/payment-scanner.png" alt="" />
             <div className="file">
               <br />
@@ -658,10 +659,18 @@ const RegisterSymposium = () => {
                   }
                 }}
               />
+              <div className="transaction-id">
+                  <label htmlFor="transactionId" className="form-label">Transaction ID:</label>
+                  <input type="text" name="transactionId" id="transactionId" placeholder="Transaction Id" onChange={(e) => setTransactionId(e.target.value)} />
+                </div>
               {loading && <p>Uploading... Please wait ⏳</p>}
 
+                <p>Uploaded Image:</p>
+                
+                
             </div>
             {uploadedImage && <img src={uploadedImage && uploadedImage.url} className="upi" style={{border:"1px solid",padding:"5px" }} alt="" />}
+
           </div>
 
           {/* Navigation buttons */}
