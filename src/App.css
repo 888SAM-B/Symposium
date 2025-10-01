@@ -1,0 +1,25 @@
+.img-pop{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of other content */
+}
+.img-pop-up{
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto; /* Enable scrolling if content is too large */
+}
+.img-pop-up img{
+    width: 100%;
+    height: 500px;
+    border-radius: 10px;
+}
