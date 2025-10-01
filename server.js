@@ -102,6 +102,7 @@ const studentSchema = new mongoose.Schema({
   teamName: { type: String }, // extra field to save teamName directly
   teamNo: { type: String }, // extra field to save teamNo directly
   imgUrl:{type:String},
+  transactionId: { type: String },
   a1:{ type: String, enum: ["Present", "Absent"], default: "Absent" },
   a2:{ type: String, enum: ["Present", "Absent"], default: "Absent" },
   status: { type: String, enum: ["Present", "Absent"], default: "Absent" },
@@ -116,7 +117,7 @@ const teamSchema = new mongoose.Schema({
   collegeName: { type: String, required: true },
   dept: { type: String, required: true },
   imgUrl:{type:String},
-
+  transactionId: { type: String },
   // Store events as { "Event 1": [studentRegNos] }
   event: {
     type: Map,
@@ -144,7 +145,7 @@ const Team = mongoose.model("Team", teamSchema);
 
 app.post('/register', async (req, res) => {
   try {
-    const { name, regNo, mobile, college, department, events, imgUrl } = req.body;
+    const { name, regNo, mobile, college, department, events, imgUrl, transactionId } = req.body;
 
     // Check if student with this regNo already exists
     const existingStudent = await Student.findOne({ regNo: regNo });
@@ -163,6 +164,7 @@ app.post('/register', async (req, res) => {
       teamNo: "SOLO",
       department,
       imgUrl,
+      transactionId,
       events,
     });
 
@@ -356,7 +358,7 @@ app.post('/check',async(req,res)=>{
 
 app.post("/team-register", async (req, res) => {
   try {
-    const { teamName, event, members, collegeName, dept , imgUrl} = req.body;
+    const { teamName, event, members, collegeName, dept , imgUrl, transactionId} = req.body;
     console.log(members)
     // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
@@ -404,9 +406,11 @@ app.post("/team-register", async (req, res) => {
       teamName,
       event,
       collegeName,
+      
       dept,
       members: membersWithEvents,
-      imgUrl
+      imgUrl,
+      transactionId
     });
     await newTeam.save();
 
@@ -419,6 +423,8 @@ app.post("/team-register", async (req, res) => {
         team: newTeam._id,
         teamNo: newTeam.teamNo,
         teamName,
+        transactionId:transactionId,
+        imgUrl:imgUrl,
         events: m.events,
         mobile:m.mobile,
         status: m.status || "Absent",
@@ -555,6 +561,28 @@ app.post('/fetchId', async (req, res) => {
         console.error('Error fetching ID:', error);
         res.status(500).send('Internal Server Error');
     }
+});
+
+app.put('/students/:studentId/status', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { status } = req.body; // "Present" or "Absent"
+
+    const student = await Student.findByIdAndUpdate(
+      studentId,
+      { status },
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    res.json({ message: `Student status updated to ${status}`, student });
+  } catch (error) {
+    console.error('Error updating student status:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 
