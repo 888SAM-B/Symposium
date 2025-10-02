@@ -148,7 +148,7 @@ app.post('/register', async (req, res) => {
     const { name, regNo, mobile, college, department, events, imgUrl, transactionId } = req.body;
 
     // Check if student with this regNo already exists
-    const existingStudent = await Student.findOne({ regNo: regNo });
+    const existingStudent = await Student.findOne({ regNo });
     if (existingStudent) {
       return res.status(400).json({ message: 'Student already registered with this email.' });
     }
@@ -157,7 +157,7 @@ app.post('/register', async (req, res) => {
     const newStudent = new Student({
       studentNo: await getNextSequence1("student", "VS"),
       name,
-      regNo, // <-- mail id ah use panrom
+      regNo, // email id
       mobile,
       college,
       teamName: "SOLO-REG",
@@ -170,19 +170,24 @@ app.post('/register', async (req, res) => {
 
     await newStudent.save();
 
-    // ✅ Mail transporter setup
+    // ✅ Mail transporter setup with explicit host/port & debug
     const transporter = nodemailer.createTransport({
-      service: "gmail", // or your mail service
+      host: "smtp.gmail.com",
+      port: 587,          // 465 secure true / 587 secure false
+      secure: false,      // true for 465, false for 587
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS, // Gmail app password
       },
+      logger: true,
+      debug: true,
+      connectionTimeout: 10000, // 10 seconds timeout
     });
 
     // ✅ Mail content
     const mailOptions = {
       from: `VIBE Registration <${process.env.EMAIL_USER}>`,
-      to: newStudent.regNo, // email id (regNo field)
+      to: newStudent.regNo,
       subject: "VIBE Registration Successful 🎉",
       html: `
         <h2>Hi ${newStudent.name},</h2>
@@ -192,18 +197,24 @@ app.post('/register', async (req, res) => {
         <p><b>Student No:</b> ${newStudent.studentNo}</p>
         <p><b>Events:</b></p>
         <ul>
-          ${newStudent.events.map((e) => `<li>${e}</li>`).join("")}
+          ${newStudent.events.map(e => `<li>${e}</li>`).join("")}
         </ul>
         <br/>
         <p>All the best 👍</p>
       `,
     };
 
-    // ✅ Send mail
-    await transporter.sendMail(mailOptions);
+    // ✅ Send mail with separate try-catch
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${newStudent.regNo}`);
+    } catch (mailError) {
+      console.error('Email sending failed:', mailError);
+      // Optional: continue without breaking registration
+    }
 
     res.status(201).json({
-      message: 'Registration successful & email sent 🎉',
+      message: 'Registration successful 🎉', // even if mail fails
       name: newStudent.name,
       studentNo: newStudent.studentNo,
       events: newStudent.events,
@@ -217,6 +228,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
 
 
 // Get participant by uniqueId
@@ -434,8 +446,8 @@ app.post("/team-register", async (req, res) => {
     // 7. Send Emails
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
