@@ -370,15 +370,13 @@ app.post('/check',async(req,res)=>{
 
 app.post("/team-register", async (req, res) => {
   try {
-    const { teamName, event, members, collegeName, dept , imgUrl, transactionId} = req.body;
-    console.log(members)
+    const { teamName, event, members, collegeName, dept , imgUrl, transactionId } = req.body;
+
     // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
     const duplicate = regNos.find((regNo, i) => regNos.indexOf(regNo) !== i);
     if (duplicate) {
-      return res
-        .status(400)
-        .json({ error: `Duplicate RegNo in team: ${duplicate}` });
+      return res.status(400).json({ error: `Duplicate RegNo in team: ${duplicate}` });
     }
 
     // 2. Already registered students check
@@ -407,43 +405,42 @@ app.post("/team-register", async (req, res) => {
       membersWithEvents.push({
         ...m,
         studentNo,
-        mobile:m.mobile,
+        mobile: m.mobile,
         events: studentEvents,
       });
     }
 
     // 5. Create Team
     const newTeam = new Team({
-      teamNo, // ✅ prefixed team number (VTxx)
+      teamNo,
       teamName,
       event,
       collegeName,
-      
       dept,
       members: membersWithEvents,
       imgUrl,
-      transactionId
+      transactionId,
     });
     await newTeam.save();
 
     // 6. Save Students
     const studentDocs = await Student.insertMany(
       membersWithEvents.map((m) => ({
-        studentNo: m.studentNo, // ✅ prefixed student number (VSxx)
+        studentNo: m.studentNo,
         name: m.name,
         regNo: m.regNo,
         team: newTeam._id,
         teamNo: newTeam.teamNo,
         teamName,
-        transactionId:transactionId,
-        imgUrl:imgUrl,
+        transactionId,
+        imgUrl,
         events: m.events,
-        mobile:m.mobile,
+        mobile: m.mobile,
         status: m.status || "Absent",
       }))
     );
 
-    // 7. Send Emails
+    // 7. Send Emails (separate try-catch)
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -475,15 +472,22 @@ app.post("/team-register", async (req, res) => {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${student.regNo}`);
+      } catch (mailError) {
+        console.error(`Email failed for ${student.regNo}:`, mailError);
+        // Continue without breaking registration
+      }
     }
 
-    // 8. Response
+    // 8. Response (always success)
     res.json({
       message: "Team registered successfully with VTxx/VSxx numbers 🎉",
       team: newTeam,
       students: studentDocs,
     });
+
   } catch (err) {
     console.error("Error in /team-register:", err);
     res.status(500).json({ error: "Server error" });
