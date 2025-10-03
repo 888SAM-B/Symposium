@@ -10,8 +10,8 @@ const Home = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    const staticUsername = "puvibescanner";
-    const staticPassword = "@ScAnNeR#";
+    const staticUsername = "puvibeadmin";
+    const staticPassword = "@ViBe2k25#";
 
     if (username === staticUsername && password === staticPassword) {
       // Set session storage with expiry (1 hour)
