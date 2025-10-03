@@ -150,7 +150,11 @@ const AdminPage = () => {
         }
         entry.displayImgUrl = entry.imgUrls.length > 0 ? entry.imgUrls[0] : "";
       }
+      if (entry.type === "solo") {
+        entry.overallStatus = entry.status;
+      }
     });
+
 
     return Array.from(participantsMap.values());
   }, [students, teams, selectedEventForEventsTab]);
