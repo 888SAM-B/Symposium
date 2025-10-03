@@ -97,7 +97,7 @@ const AdminPage = () => {
           regNo: student.regNo,
           teamNo: student.teamNo,
           teamName: student.teamName,
-          collegeName: student.collegeName,
+          collegeName: student.college,
           status: student.status,
           imgUrl: student.imgUrl,
           events: student.events,
