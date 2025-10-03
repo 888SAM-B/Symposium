@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-
+import { useNavigate } from "react-router-dom";
 const AdminPage = () => {
   const [students, setStudents] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -7,10 +7,29 @@ const AdminPage = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [teamFilter, setTeamFilter] = useState("");
   const [eventFilter, setEventFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // New state for status filter
+  const [statusFilter, setStatusFilter] = useState("");
   const [display, setDisplay] = useState("none");
+  const navigate = useNavigate();
+  const [selectedEventForEventsTab, setSelectedEventForEventsTab] = useState("");
 
   const API_URL = import.meta.env.VITE_URL;
+   useEffect(() => {
+    const authData = sessionStorage.getItem("scanner-auth");
+    if (!authData) {
+      alert("Please login to continue");
+      navigate("/");
+      return;
+    }
+
+    const parsed = JSON.parse(authData);
+    if (parsed.expiry < new Date().getTime()) {
+      sessionStorage.removeItem("scanner-auth");
+      alert("Session expired. Please login again");
+      navigate("/");
+      return;
+    }
+  }, [navigate]);
+
 
   const fetchStudents = () => {
     fetch(`${API_URL}/students`)
@@ -41,7 +60,6 @@ const AdminPage = () => {
     return [...Array.from(events).sort()];
   }, [students]);
 
-  // Updated smart filtering to include status filter
   const filteredStudents = students.filter((student) => {
     const teamMatch = teamFilter
       ? student.teamNo?.toLowerCase().includes(teamFilter.toLowerCase())
@@ -53,13 +71,89 @@ const AdminPage = () => {
         )
       : true;
 
-    // New status filter condition
     const statusMatch = statusFilter
       ? student.status === statusFilter
       : true;
 
     return teamMatch && eventMatch && statusMatch;
   });
+
+  const processedEventParticipants = useMemo(() => {
+    if (!selectedEventForEventsTab) return [];
+
+    const participantsMap = new Map();
+
+    students.forEach(student => {
+      if (!student.events.includes(selectedEventForEventsTab)) {
+        return;
+      }
+
+      if (student.teamName === "SOLO-REG") {
+        participantsMap.set(`solo-${student._id}`, {
+          type: "solo",
+          _id: student._id,
+          studentNo: student.studentNo,
+          name: student.name,
+          regNo: student.regNo,
+          teamNo: student.teamNo,
+          teamName: student.teamName,
+          collegeName: student.collegeName,
+          status: student.status,
+          imgUrl: student.imgUrl,
+          events: student.events,
+        });
+      } else {
+        const teamNo = student.teamNo;
+        if (!participantsMap.has(teamNo)) {
+          const teamDetails = teams.find(t => t.teamNo === teamNo);
+          participantsMap.set(teamNo, {
+            type: "team",
+            teamNo: teamNo,
+            teamName: student.teamName,
+            collegeName: teamDetails ? teamDetails.collegeName : "N/A",
+            members: [],
+            hasPaymentProof: false,
+            overallStatus: "N/A",
+            imgUrls: [],
+          });
+        }
+        const teamEntry = participantsMap.get(teamNo);
+        teamEntry.members.push({
+          _id: student._id,
+          studentNo: student.studentNo,
+          name: student.name,
+          regNo: student.regNo,
+          status: student.status,
+          imgUrl: student.imgUrl,
+        });
+
+        if (student.imgUrl) {
+          teamEntry.hasPaymentProof = true;
+          teamEntry.imgUrls.push(student.imgUrl);
+        }
+      }
+    });
+
+    participantsMap.forEach((entry, key) => {
+      if (entry.type === "team") {
+        const presentMembers = entry.members.filter(m => m.status === "Present").length;
+        const absentMembers = entry.members.filter(m => m.status === "Absent").length;
+
+        if (presentMembers === entry.members.length) {
+          entry.overallStatus = "Present";
+        } else if (absentMembers === entry.members.length) {
+          entry.overallStatus = "Absent";
+        } else if (presentMembers > 0 || absentMembers > 0) {
+          entry.overallStatus = "Mixed";
+        } else {
+          entry.overallStatus = "N/A";
+        }
+        entry.displayImgUrl = entry.imgUrls.length > 0 ? entry.imgUrls[0] : "";
+      }
+    });
+
+    return Array.from(participantsMap.values());
+  }, [students, teams, selectedEventForEventsTab]);
 
   const handleStatusChange = async (studentId, currentStatus) => {
     const newStatus = currentStatus === "Present" ? "Absent" : "Present";
@@ -100,6 +194,84 @@ const AdminPage = () => {
     }
   };
 
+  // --- NEW EXCEL DOWNLOAD FUNCTION ---
+  const downloadExcel = (data, headers, filename = "data") => {
+    if (!data || data.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    const csvRows = [];
+    
+    // Add headers
+    csvRows.push(headers.map(header => `"${header}"`).join(','));
+
+    // Add data rows
+    data.forEach(item => {
+      // Map data items to header order to ensure correct column placement
+      const row = headers.map(header => {
+        let value = '';
+        switch (header) {
+          case 'Student No': value = item.studentNo; break;
+          case 'Name': value = item.name; break;
+          case 'RegNo': value = item.regNo; break;
+          case 'Team No': value = item.teamNo; break;
+          case 'Team Name': value = item.teamName; break;
+          case 'College Name': 
+            // Logic for Students tab's College Name
+            if (item.teamName === "SOLO-REG") {
+              value = item.collegeName;
+            } else {
+              const team = teams.find((t) => t.teamNo === item.teamNo);
+              value = team ? team.collegeName : "N/A";
+            }
+            break;
+          case 'Event 1': value = item.events?.[0] || ''; break;
+          case 'Event 2': value = item.events?.[1] || ''; break;
+          case 'Payment Status': value = item.imgUrl ? 'Proof Available' : 'N/A'; break;
+          case 'Status': value = item.status; break;
+          case 'Team No': value = item.teamNo; break; // Teams tab
+          case 'College': value = item.collegeName; break; // Teams tab
+          case 'Department': value = item.dept; break; // Teams tab
+          case 'Members': // Teams tab
+            value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Status: ${m.status}`).join('; ') : ''; 
+            break;
+          case 'Events': // Teams tab
+            value = item.event ? Object.keys(item.event).join(', ') : ''; 
+            break;
+          case 'Type': value = item.type === 'solo' ? 'Solo' : 'Team'; break; // Events tab
+          case 'Team/Student Name': value = item.type === 'solo' ? item.name : item.teamName; break; // Events tab
+          case 'Members/Reg No': // Events tab
+            value = item.type === 'solo' ? item.regNo : item.members.map(m => `${m.name} (${m.regNo}) - Status: ${m.status}`).join('; ');
+            break;
+          case 'Overall Status': value = item.overallStatus; break; // Events tab
+          // Default case for any other direct properties
+          default: value = item[header.replace(/\s/g, '')] || ''; // Try to match by header name (remove spaces for direct keys)
+        }
+        // Ensure values are strings and handle commas/quotes within values
+        return `"${String(value).replace(/"/g, '""')}"`;
+      });
+      csvRows.push(row.join(','));
+    });
+
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) { // Feature detection for download attribute
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${filename}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Clean up
+    } else {
+      alert("Your browser does not support downloading files directly. Please copy the data manually.");
+    }
+  };
+  // --- END EXCEL DOWNLOAD FUNCTION ---
+
   return (
     <>
       <div className="img-pop" style={{ display: display }} onClick={closeImagePopup}>
@@ -109,16 +281,17 @@ const AdminPage = () => {
       </div>
       <div>
         <h1>Admin Page</h1>
-        <div>
+        <div style={{ marginBottom: '20px' }}>
           <button onClick={() => setActiveTab("students")}>Students</button>
           <button onClick={() => setActiveTab("teams")}>Teams</button>
+          <button onClick={() => setActiveTab("events")}>Events</button>
         </div>
 
         {activeTab === "students" && (
           <div>
             <h2>Student Details</h2>
 
-            <div style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap" }}>
+            <div style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "flex-end" }}>
               <label>
                 Search by Team No:{" "}
                 <input
@@ -142,7 +315,6 @@ const AdminPage = () => {
                   ))}
                 </select>
               </label>
-              {/* New Status Filter Dropdown */}
               <label>
                 Filter by Status:{" "}
                 <select
@@ -154,6 +326,26 @@ const AdminPage = () => {
                   <option value="Absent">Absent</option>
                 </select>
               </label>
+              <button
+                onClick={() => {
+                  const headers = [
+                    "Student No", "Name", "RegNo", "Team No", "Team Name", 
+                    "College Name", "Event 1", "Event 2", "Payment Status", "Status"
+                  ];
+                  downloadExcel(filteredStudents, headers, "Students_List");
+                }}
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 15px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginLeft: "auto" // Pushes button to the right
+                }}
+              >
+                Download Students as Excel
+              </button>
             </div>
 
             <table border="1" cellPadding="10" style={{ width: "100%" }}>
@@ -164,6 +356,7 @@ const AdminPage = () => {
                   <th>RegNo</th>
                   <th>Team No</th>
                   <th>Team Name</th>
+                  <th>College Name</th>
                   <th>Event 1</th>
                   <th>Event 2</th>
                   <th>Payment Status</th>
@@ -173,42 +366,57 @@ const AdminPage = () => {
               </thead>
               <tbody>
                 {filteredStudents.length > 0 ? (
-                  filteredStudents.map((s) => (
-                    <tr key={s._id}>
-                      <td>{s.studentNo}</td>
-                      <td>{s.name}</td>
-                      <td>{s.regNo}</td>
-                      <td>{s.teamNo}</td>
-                      <td>{s.teamName}</td>
-                      <td>{s.events[0] || '-'}</td>
-                      <td>{s.events[1] || '-'}</td>
-                      <td onClick={() => openImagePopup(s.imgUrl)}>
-                        <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
-                          Check Proof
-                        </p>
-                      </td>
-                      <td>{s.status}</td>
-                      <td>
-                        <button
-                          onClick={() => handleStatusChange(s._id, s.status)}
-                          style={{
-                            backgroundColor:
-                              s.status === "Present" ? "#dc3545" : "#28a745",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 12px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Mark {s.status === "Present" ? "Absent" : "Present"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  filteredStudents.map((s) => {
+                    let collegeDisplayName = "";
+                    if (s.teamName === "SOLO-REG") {
+                      collegeDisplayName = s.college;
+                    } else {
+                      const team = teams.find((t) => t.teamNo === s.teamNo);
+                      collegeDisplayName = team ? team.collegeName : "N/A";
+                    }
+
+                    return (
+                      <tr key={s._id}>
+                        <td>{s.studentNo}</td>
+                        <td>{s.name}</td>
+                        <td>{s.regNo}</td>
+                        <td>{s.teamNo}</td>
+                        <td>{s.teamName}</td>
+                        <td>{collegeDisplayName}</td>
+                        <td>{s.events[0] || '-'}</td>
+                        <td>{s.events[1] || '-'}</td>
+                        <td onClick={() => s.imgUrl && openImagePopup(s.imgUrl)}>
+                          {s.imgUrl ? (
+                            <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
+                              Check Proof
+                            </p>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                        <td>{s.status}</td>
+                        <td>
+                          <button
+                            onClick={() => handleStatusChange(s._id, s.status)}
+                            style={{
+                              backgroundColor:
+                                s.status === "Present" ? "#dc3545" : "#28a745",
+                              color: "white",
+                              border: "none",
+                              padding: "8px 12px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Mark {s.status === "Present" ? "Absent" : "Present"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan="10" style={{ textAlign: "center" }}>
+                    <td colSpan="11" style={{ textAlign: "center" }}>
                       No students found matching your criteria.
                     </td>
                   </tr>
@@ -221,6 +429,26 @@ const AdminPage = () => {
         {activeTab === "teams" && (
           <div>
             <h2>Team Details</h2>
+            <div style={{ marginBottom: "20px", textAlign: "right" }}>
+              <button
+                onClick={() => {
+                  const headers = [
+                    "Team No", "Team Name", "College", "Department", "Members", "Events"
+                  ];
+                  downloadExcel(teams, headers, "Teams_List");
+                }}
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 15px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Download Teams as Excel
+              </button>
+            </div>
             <table border="1" cellPadding="10" style={{ width: "100%" }}>
               <thead>
                 <tr>
@@ -264,6 +492,119 @@ const AdminPage = () => {
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {activeTab === "events" && (
+          <div>
+            <h2>Event-wise Participants</h2>
+            <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <label>
+                Select Event:{" "}
+                <select
+                  value={selectedEventForEventsTab}
+                  onChange={(e) => setSelectedEventForEventsTab(e.target.value)}
+                >
+                  <option value="">--- Select an Event ---</option>
+                  {uniqueEvents.map((event) => (
+                    <option key={event} value={event}>
+                      {event}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {selectedEventForEventsTab && (
+                <button
+                  onClick={() => {
+                    const headers = [
+                      "Type", "Team No", "Team/Student Name", "College Name", 
+                      "Members/Reg No", "Payment Status", "Overall Status"
+                    ];
+                    downloadExcel(processedEventParticipants, headers, `${selectedEventForEventsTab}_Participants`);
+                  }}
+                  style={{
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 15px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Download Event Data as Excel
+                </button>
+              )}
+            </div>
+
+            {selectedEventForEventsTab && (
+              <table border="1" cellPadding="10" style={{ width: "100%" }}>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Team No</th>
+                    <th>Team/Student Name</th>
+                    <th>College Name</th>
+                    <th>Members/Reg No</th>
+                    <th>Payment Status</th>
+                    <th>Overall Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {processedEventParticipants.length > 0 ? (
+                    processedEventParticipants.map((entry) => (
+                      <tr key={entry.type === "solo" ? entry._id : entry.teamNo}>
+                        <td>{entry.type === "solo" ? "Solo" : "Team"}</td>
+                        <td>{entry.teamNo || '-'}</td>
+                        <td>
+                          {entry.type === "solo" ? entry.name : entry.teamName}
+                        </td>
+                        <td>{entry.collegeName}</td>
+                        <td>
+                          {entry.type === "solo" ? (
+                            entry.regNo
+                          ) : (
+                            <ul>
+                              {entry.members.map((member) => (
+                                <li key={member._id}>
+                                  {member.name} ({member.regNo}) - Status: {member.status}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </td>
+                        <td onClick={() => entry.displayImgUrl && openImagePopup(entry.displayImgUrl)}>
+                          {entry.type === "solo" ? (
+                            entry.imgUrl ? (
+                              <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
+                                Check Proof
+                              </p>
+                            ) : "N/A"
+                          ) : (
+                            entry.hasPaymentProof ? (
+                              <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
+                                {entry.imgUrls.length > 1 ? "Check Multiple Proofs" : "Check Proof"}
+                              </p>
+                            ) : "N/A"
+                          )}
+                        </td>
+                        <td>{entry.overallStatus}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
+                        No participants found for this event.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+            {!selectedEventForEventsTab && (
+              <p style={{ textAlign: "center", marginTop: "20px" }}>
+                Please select an event to view participants.
+              </p>
+            )}
           </div>
         )}
       </div>
