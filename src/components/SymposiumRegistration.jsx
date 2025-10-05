@@ -535,7 +535,7 @@ const RegisterSymposium = () => {
 
         <div className="participants">
           {(
-            eventName === "API Fusion" || eventName === "Prompt Builder"
+             eventName === "Prompt Builder"
               ? [0] // only one slot
               : [0, 1] // default two slots
           ).map((slot) => (
