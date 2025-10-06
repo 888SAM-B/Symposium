@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+
 const AdminPage = () => {
   const [students, setStudents] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -9,27 +9,12 @@ const AdminPage = () => {
   const [eventFilter, setEventFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [display, setDisplay] = useState("none");
-  const navigate = useNavigate();
+
+  const [studentNameFilter, setStudentNameFilter] = useState("");
+
   const [selectedEventForEventsTab, setSelectedEventForEventsTab] = useState("");
 
   const API_URL = import.meta.env.VITE_URL;
-   useEffect(() => {
-    const authData = sessionStorage.getItem("scanner-auth");
-    if (!authData) {
-      alert("Please login to continue");
-      navigate("/");
-      return;
-    }
-
-    const parsed = JSON.parse(authData);
-    if (parsed.expiry < new Date().getTime()) {
-      sessionStorage.removeItem("scanner-auth");
-      alert("Session expired. Please login again");
-      navigate("/");
-      return;
-    }
-  }, [navigate]);
-
 
   const fetchStudents = () => {
     fetch(`${API_URL}/students`)
@@ -75,7 +60,11 @@ const AdminPage = () => {
       ? student.status === statusFilter
       : true;
 
-    return teamMatch && eventMatch && statusMatch;
+    const nameMatch = studentNameFilter
+      ? student.name?.toLowerCase().includes(studentNameFilter.toLowerCase())
+      : true;
+
+    return teamMatch && eventMatch && statusMatch && nameMatch;
   });
 
   const processedEventParticipants = useMemo(() => {
@@ -94,13 +83,14 @@ const AdminPage = () => {
           _id: student._id,
           studentNo: student.studentNo,
           name: student.name,
-          regNo: student.regNo,
+          regNo: student.regNo, // This is now the Email ID
           teamNo: student.teamNo,
           teamName: student.teamName,
           collegeName: student.college,
           status: student.status,
           imgUrl: student.imgUrl,
           events: student.events,
+          // Removed 'email' field, will use 'regNo' as email
         });
       } else {
         const teamNo = student.teamNo;
@@ -122,9 +112,10 @@ const AdminPage = () => {
           _id: student._id,
           studentNo: student.studentNo,
           name: student.name,
-          regNo: student.regNo,
+          regNo: student.regNo, // This is now the Email ID
           status: student.status,
           imgUrl: student.imgUrl,
+          // Removed 'email' field, will use 'regNo' as email
         });
 
         if (student.imgUrl) {
@@ -136,25 +127,37 @@ const AdminPage = () => {
 
     participantsMap.forEach((entry, key) => {
       if (entry.type === "team") {
-        const presentMembers = entry.members.filter(m => m.status === "Present").length;
-        const absentMembers = entry.members.filter(m => m.status === "Absent").length;
+        const statuses = entry.members.map(m => m.status);
+        const presentCount = statuses.filter(s => s === "Present").length;
+        const absentCount = statuses.filter(s => s === "Absent").length;
+        const totalMembers = statuses.length;
 
-        if (presentMembers === entry.members.length) {
+        if (totalMembers === 0) {
+          entry.overallStatus = "No Members";
+        } else if (presentCount === totalMembers) {
           entry.overallStatus = "Present";
-        } else if (absentMembers === entry.members.length) {
+        } else if (absentCount === totalMembers) {
           entry.overallStatus = "Absent";
-        } else if (presentMembers > 0 || absentMembers > 0) {
+        } else if (presentCount > 0 && absentCount > 0) {
           entry.overallStatus = "Mixed";
+        } else if (presentCount > 0 && absentCount === 0) {
+          entry.overallStatus = "Partially Present";
+        } else if (absentCount > 0 && presentCount === 0) {
+          entry.overallStatus = "Partially Absent";
         } else {
           entry.overallStatus = "N/A";
         }
+        
         entry.displayImgUrl = entry.imgUrls.length > 0 ? entry.imgUrls[0] : "";
-      }
-      if (entry.type === "solo") {
+        // For teams, use the regNo (email) of the first member as the primary team email
+        entry.primaryEmail = entry.members[0]?.regNo || "N/A"; 
+      } else {
         entry.overallStatus = entry.status;
+        entry.displayImgUrl = entry.imgUrl;
+        // For solo, use their regNo (email) as primary email
+        entry.primaryEmail = entry.regNo;
       }
     });
-
 
     return Array.from(participantsMap.values());
   }, [students, teams, selectedEventForEventsTab]);
@@ -198,7 +201,6 @@ const AdminPage = () => {
     }
   };
 
-  // --- NEW EXCEL DOWNLOAD FUNCTION ---
   const downloadExcel = (data, headers, filename = "data") => {
     if (!data || data.length === 0) {
       alert("No data to export!");
@@ -207,52 +209,63 @@ const AdminPage = () => {
 
     const csvRows = [];
     
-    // Add headers
     csvRows.push(headers.map(header => `"${header}"`).join(','));
 
-    // Add data rows
     data.forEach(item => {
-      // Map data items to header order to ensure correct column placement
       const row = headers.map(header => {
         let value = '';
         switch (header) {
+          // --- Students Tab Headers ---
           case 'Student No': value = item.studentNo; break;
           case 'Name': value = item.name; break;
           case 'RegNo': value = item.regNo; break;
-          case 'Team No': value = item.teamNo; break;
-          case 'Team Name': value = item.teamName; break;
+          case 'Team No': value = item.teamNo; break; 
+          case 'Team Name': value = item.teamName; break; 
           case 'College Name': 
-            // Logic for Students tab's College Name
-            if (item.teamName === "SOLO-REG") {
-              value = item.collegeName;
-            } else {
-              const team = teams.find((t) => t.teamNo === item.teamNo);
-              value = team ? team.collegeName : "N/A";
+            if (activeTab === "students") {
+                if (item.teamName === "SOLO-REG") {
+                    value = item.college;
+                } else {
+                    const team = teams.find((t) => t.teamNo === item.teamNo);
+                    value = team ? team.collegeName : "N/A";
+                }
+            } else if (activeTab === "events") {
+                value = item.collegeName;
             }
             break;
           case 'Event 1': value = item.events?.[0] || ''; break;
           case 'Event 2': value = item.events?.[1] || ''; break;
           case 'Payment Status': value = item.imgUrl ? 'Proof Available' : 'N/A'; break;
           case 'Status': value = item.status; break;
-          case 'Team No': value = item.teamNo; break; // Teams tab
-          case 'College': value = item.collegeName; break; // Teams tab
-          case 'Department': value = item.dept; break; // Teams tab
-          case 'Members': // Teams tab
+
+          // --- Teams Tab Headers ---
+          case 'College': value = item.collegeName; break;
+          case 'Department': value = item.dept; break;
+          case 'Members': 
             value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Status: ${m.status}`).join('; ') : ''; 
             break;
-          case 'Events': // Teams tab
+          case 'Events': 
             value = item.event ? Object.keys(item.event).join(', ') : ''; 
             break;
-          case 'Type': value = item.type === 'solo' ? 'Solo' : 'Team'; break; // Events tab
-          case 'Team/Student Name': value = item.type === 'solo' ? item.name : item.teamName; break; // Events tab
-          case 'Members/Reg No': // Events tab
-            value = item.type === 'solo' ? item.regNo : item.members.map(m => `${m.name} (${m.regNo}) - Status: ${m.status}`).join('; ');
+          
+          // --- Events Tab Headers (Simplified for Attendance) ---
+          case 'Type': value = item.type === 'solo' ? 'Solo' : 'Team'; break;
+          case 'Student/Team Name': value = item.type === 'solo' ? item.name : item.teamName; break; 
+          case 'Members List': 
+            value = item.type === 'solo' 
+                ? `${item.name} (${item.regNo})` 
+                : (item.members && item.members.length > 0 
+                    ? item.members.map(m => `${m.name} (${m.regNo})`).join(', ') // Join with comma for excel
+                    : ''); 
             break;
-          case 'Overall Status': value = item.overallStatus; break; // Events tab
-          // Default case for any other direct properties
-          default: value = item[header.replace(/\s/g, '')] || ''; // Try to match by header name (remove spaces for direct keys)
+          case 'College Name': value = item.collegeName; break;
+          case 'Email ID': 
+            value = item.primaryEmail || 'N/A'; // Use the primaryEmail field
+            break;
+          case 'Overall Status': value = item.overallStatus; break; 
+
+          default: value = item[header.replace(/\s/g, '')] || ''; 
         }
-        // Ensure values are strings and handle commas/quotes within values
         return `"${String(value).replace(/"/g, '""')}"`;
       });
       csvRows.push(row.join(','));
@@ -261,7 +274,7 @@ const AdminPage = () => {
     const csvString = csvRows.join('\n');
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    if (link.download !== undefined) { // Feature detection for download attribute
+    if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
       link.setAttribute('download', `${filename}.csv`);
@@ -269,12 +282,11 @@ const AdminPage = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url); // Clean up
+      URL.revokeObjectURL(url);
     } else {
       alert("Your browser does not support downloading files directly. Please copy the data manually.");
     }
   };
-  // --- END EXCEL DOWNLOAD FUNCTION ---
 
   return (
     <>
@@ -296,6 +308,15 @@ const AdminPage = () => {
             <h2>Student Details</h2>
 
             <div style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "flex-end" }}>
+              <label>
+                Search by Student Name:{" "}
+                <input
+                  type="text"
+                  value={studentNameFilter}
+                  onChange={(e) => setStudentNameFilter(e.target.value)}
+                  placeholder="Type student name"
+                />
+              </label>
               <label>
                 Search by Team No:{" "}
                 <input
@@ -345,7 +366,7 @@ const AdminPage = () => {
                   padding: "10px 15px",
                   borderRadius: "5px",
                   cursor: "pointer",
-                  marginLeft: "auto" // Pushes button to the right
+                  marginLeft: "auto"
                 }}
               >
                 Download Students as Excel
@@ -521,10 +542,14 @@ const AdminPage = () => {
                 <button
                   onClick={() => {
                     const headers = [
-                      "Type", "Team No", "Team/Student Name", "College Name", 
-                      "Members/Reg No", "Payment Status", "Overall Status"
+                      "Type", 
+                      "Student/Team Name", 
+                      "Members List",
+                      "College Name",
+                      "Email ID", 
+                      "Overall Status" 
                     ];
-                    downloadExcel(processedEventParticipants, headers, `${selectedEventForEventsTab}_Participants`);
+                    downloadExcel(processedEventParticipants, headers, `${selectedEventForEventsTab}_Attendance`);
                   }}
                   style={{
                     backgroundColor: "#007bff",
@@ -535,7 +560,7 @@ const AdminPage = () => {
                     cursor: "pointer",
                   }}
                 >
-                  Download Event Data as Excel
+                  Download Attendance Sheet as Excel
                 </button>
               )}
             </div>
@@ -545,7 +570,7 @@ const AdminPage = () => {
                 <thead>
                   <tr>
                     <th>Type</th>
-                    <th>Team No</th>
+                    <th>Team No</th> 
                     <th>Team/Student Name</th>
                     <th>College Name</th>
                     <th>Members/Reg No</th>
@@ -565,7 +590,7 @@ const AdminPage = () => {
                         <td>{entry.collegeName}</td>
                         <td>
                           {entry.type === "solo" ? (
-                            entry.regNo
+                            `${entry.name} (${entry.regNo})` 
                           ) : (
                             <ul>
                               {entry.members.map((member) => (
@@ -586,7 +611,7 @@ const AdminPage = () => {
                           ) : (
                             entry.hasPaymentProof ? (
                               <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
-                                {entry.imgUrls.length > 1 ? "Check Multiple Proofs" : "Check Proof"}
+                                {"Check Payment Proof"}
                               </p>
                             ) : "N/A"
                           )}
