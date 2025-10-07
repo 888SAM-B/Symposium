@@ -96,7 +96,7 @@ const AdminPage = () => {
           collegeName: student.college,
           status: student.status,
           imgUrl: student.imgUrl,
-          events: student.events,
+          events: student.events, // All events for solo participant
           isOnlyForSelectedEvent: student.events.length === 1 && student.events[0] === selectedEventForEventsTab, // New flag
         });
       } else {
@@ -107,10 +107,10 @@ const AdminPage = () => {
             type: "team",
             teamNo: teamNo,
             teamName: student.teamName,
-            collegeName: teamDetails ? teamDetails.collegeName : "N/A",
+            collegeName: teamDetails ? teamDetails.collegeName : "-", // Changed N/A to -
             members: [],
             hasPaymentProof: false,
-            overallStatus: "N/A",
+            overallStatus: "-", // Changed N/A to -
             imgUrls: [],
             allTeamEvents: new Set(), // To track all events a team is part of
           });
@@ -159,12 +159,12 @@ const AdminPage = () => {
         } else if (absentCount > 0 && presentCount === 0) {
           entry.overallStatus = "Partially Absent";
         } else {
-          entry.overallStatus = "N/A";
+          entry.overallStatus = "-"; // Changed N/A to -
         }
         
         entry.displayImgUrl = entry.imgUrls.length > 0 ? entry.imgUrls[0] : "";
-        entry.primaryEmail = entry.members[0]?.regNo || "N/A"; 
-        entry.primarymobile = entry.members[0]?.mobile || "N/A"; // Added primary mobile for team
+        entry.primaryEmail = entry.members[0]?.regNo || "-"; // Changed N/A to -
+        entry.primarymobile = entry.members[0]?.mobile || "-"; // Changed N/A to -
         
         // Determine if team is only for this selected event
         entry.isOnlyForSelectedEvent = 
@@ -259,10 +259,11 @@ const AdminPage = () => {
         let value = '';
         switch (header) {
           // --- Students Tab Headers ---
+          case 'S.No': value = item.serialNo; break; 
           case 'Student No': value = item.studentNo; break;
           case 'Name': value = item.name; break;
           case 'RegNo': value = item.regNo; break;
-          case 'Mobile No': value = item.mobile; break; // Added mobile
+          case 'Mobile No': value = item.mobile || '-'; break; // Changed N/A to -
           case 'Team No': value = item.teamNo; break; 
           case 'Team Name': value = item.teamName; break; 
           case 'College Name': 
@@ -271,7 +272,7 @@ const AdminPage = () => {
                     value = item.college;
                 } else {
                     const team = teams.find((t) => t.teamNo === item.teamNo);
-                    value = team ? team.collegeName : "N/A";
+                    value = team ? team.collegeName : "-"; // Changed N/A to -
                 }
             } else if (activeTab === "events") {
                 value = item.collegeName;
@@ -279,39 +280,47 @@ const AdminPage = () => {
             break;
           case 'Event 1': value = item.events?.[0] || ''; break;
           case 'Event 2': value = item.events?.[1] || ''; break;
-          case 'Payment Status': value = item.imgUrl ? 'Proof Available' : 'N/A'; break;
+          case 'Payment Status': value = item.imgUrl ? 'Proof Available' : '-'; break; // Changed N/A to -
           case 'Status': value = item.status; break;
 
           // --- Teams Tab Headers ---
           case 'College': value = item.collegeName; break;
           case 'Department': value = item.dept; break;
           case 'Members': 
-            value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || 'N/A'} - Status: ${m.status}`).join('; ') : ''; 
+            // Reverted to original logic for members list in excel for teams tab
+            value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || '-'} - Status: ${m.status}`).join('; ') : '-'; // Changed N/A to -
             break;
           case 'Events': 
-            value = item.event ? Object.keys(item.event).join(', ') : ''; 
+            value = item.event ? Object.keys(item.event).join(', ') : '-'; // Changed 'No events' to -
             break;
           
           // --- Events Tab Headers (Simplified for Attendance) ---
-          case 'Type': value = item.type === 'solo' ? 'Solo' : 'Team'; break;
-          case 'Student/Team Name': value = item.type === 'solo' ? item.name : item.teamName; break; 
+          case 'Registration Type': value = item.type === 'solo' ? 'Solo' : 'Team'; break;
+          case 'Participant Name': value = item.type === 'solo' ? item.name : item.teamName; break; 
           case 'Members List': 
+            // Reverted to original logic for members list in excel for events tab
             value = item.type === 'solo' 
-                ? `${item.name} (${item.regNo}) - Mobile: ${item.mobile || 'N/A'}` 
+                ? `${item.name} (${item.regNo}) - Mobile: ${item.mobile || '-'}` // Changed N/A to -
                 : (item.members && item.members.length > 0 
-                    ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || 'N/A'}`).join(', ') // Join with comma for excel
-                    : ''); 
+                    ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || '-'} - Status: ${m.status}`).join(', ') // Join with comma for excel, changed N/A to -
+                    : '-'); // Changed empty to -
             break;
-          case 'College Name': value = item.collegeName; break;
           case 'Email ID': 
-            value = item.primaryEmail || 'N/A'; // Use the primaryEmail field
+            value = item.primaryEmail || '-'; // Changed N/A to -
             break;
           case 'Mobile No':
-            value = item.primarymobile || 'N/A'; // Use the primarymobile field
+            value = item.primarymobile || '-'; // Changed N/A to -
+            break;
+          case 'Other Events': 
+            if (item.type === 'solo') {
+                value = item.events.filter(e => e !== selectedEventForEventsTab).join(', ') || '-'; // Changed N/A to -
+            } else {
+                value = Array.from(item.allTeamEvents).filter(e => e !== selectedEventForEventsTab).join(', ') || '-'; // Changed N/A to -
+            }
             break;
           case 'Overall Status': value = item.overallStatus; break; 
 
-          default: value = item[header.replace(/\s/g, '')] || ''; 
+          default: value = item[header.replace(/\s/g, '')] || '-'; // Changed N/A to -
         }
         return `"${String(value).replace(/"/g, '""')}"`;
       });
@@ -410,10 +419,15 @@ const AdminPage = () => {
               <button
                 onClick={() => {
                   const headers = [
-                    "Student No", "Name", "RegNo", "Mobile No", "Team No", "Team Name", 
+                    "S.No", "Student No", "Name", "RegNo", "Mobile No", "Team No", "Team Name", 
                     "College Name", "Event 1", "Event 2", "Payment Status", "Status"
                   ];
-                  downloadExcel(filteredStudents, headers, "Students_List");
+                  // Attach a temporary serialNo for download
+                  const dataToDownload = filteredStudents.map((student, index) => ({
+                      ...student,
+                      serialNo: index + 1
+                  }));
+                  downloadExcel(dataToDownload, headers, "Students_List");
                 }}
                 style={{
                   backgroundColor: "#007bff",
@@ -432,10 +446,11 @@ const AdminPage = () => {
             <table border="1" cellPadding="10" style={{ width: "100%" }}>
               <thead>
                 <tr>
+                  <th>S.No</th>
                   <th>Student No</th>
                   <th>Name</th>
                   <th>RegNo</th>
-                  <th>Mobile No</th> {/* New column */}
+                  <th>Mobile No</th>
                   <th>Team No</th>
                   <th>Team Name</th>
                   <th>College Name</th>
@@ -448,21 +463,22 @@ const AdminPage = () => {
               </thead>
               <tbody>
                 {filteredStudents.length > 0 ? (
-                  filteredStudents.map((s) => {
+                  filteredStudents.map((s, index) => {
                     let collegeDisplayName = "";
                     if (s.teamName === "SOLO-REG") {
                       collegeDisplayName = s.college;
                     } else {
                       const team = teams.find((t) => t.teamNo === s.teamNo);
-                      collegeDisplayName = team ? team.collegeName : "N/A";
+                      collegeDisplayName = team ? team.collegeName : "-"; // Changed N/A to -
                     }
 
                     return (
                       <tr key={s._id}>
+                        <td>{index + 1}</td>
                         <td>{s.studentNo}</td>
                         <td>{s.name}</td>
                         <td>{s.regNo}</td>
-                        <td>{s.mobile || 'N/A'}</td> {/* Display mobile */}
+                        <td>{s.mobile || '-'}</td> {/* Changed N/A to - */}
                         <td>{s.teamNo}</td>
                         <td>{s.teamName}</td>
                         <td>{collegeDisplayName}</td>
@@ -474,7 +490,7 @@ const AdminPage = () => {
                               Check Proof
                             </p>
                           ) : (
-                            "N/A"
+                            "-" // Changed N/A to -
                           )}
                         </td>
                         <td>{s.status}</td>
@@ -499,7 +515,7 @@ const AdminPage = () => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="12" style={{ textAlign: "center" }}> {/* Colspan updated */}
+                    <td colSpan="13" style={{ textAlign: "center" }}>
                       No students found matching your criteria.
                     </td>
                   </tr>
@@ -516,9 +532,14 @@ const AdminPage = () => {
               <button
                 onClick={() => {
                   const headers = [
-                    "Team No", "Team Name", "College", "Department", "Members", "Events"
+                    "S.No", "Team No", "Team Name", "College", "Department", "Members", "Events"
                   ];
-                  downloadExcel(teams, headers, "Teams_List");
+                  // Attach a temporary serialNo for download
+                  const dataToDownload = teams.map((team, index) => ({
+                      ...team,
+                      serialNo: index + 1
+                  }));
+                  downloadExcel(dataToDownload, headers, "Teams_List");
                 }}
                 style={{
                   backgroundColor: "#007bff",
@@ -535,6 +556,7 @@ const AdminPage = () => {
             <table border="1" cellPadding="10" style={{ width: "100%" }}>
               <thead>
                 <tr>
+                  <th>S.No</th>
                   <th>Team No</th>
                   <th>Team Name</th>
                   <th>College</th>
@@ -545,8 +567,9 @@ const AdminPage = () => {
               </thead>
               <tbody>
                 {teams.length > 0 ? (
-                  teams.map((t) => (
+                  teams.map((t, index) => (
                     <tr key={t._id}>
+                      <td>{index + 1}</td>
                       <td>{t.teamNo}</td>
                       <td>{t.teamName}</td>
                       <td>{t.collegeName}</td>
@@ -554,7 +577,7 @@ const AdminPage = () => {
                       <td>
                         {t.members.map((m, i) => (
                           <div key={i}>
-                            {m.studentNo} - {m.name} ({m.regNo}) - Mobile: {m.mobile || 'N/A'} -{" "} {/* Added mobile */}
+                            {m.studentNo} - {m.name} ({m.regNo}) - Mobile: {m.mobile || '-'} -{" "} {/* Changed N/A to - */}
                             *Status: {m.status}*
                           </div>
                         ))}
@@ -562,13 +585,13 @@ const AdminPage = () => {
                       <td>
                         {Object.keys(t.event).length > 0
                           ? Object.keys(t.event).join(", ")
-                          : "No events"}
+                          : "-"} {/* Changed 'No events' to - */}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center" }}>
+                    <td colSpan="7" style={{ textAlign: "center" }}>
                       No teams found.
                     </td>
                   </tr>
@@ -606,23 +629,30 @@ const AdminPage = () => {
                   <option value="Present">Present</option>
                   <option value="Absent">Absent</option>
                   <option value="Mixed">Mixed</option>
-                  <option value="Partially">Partially Present/Absent</option> {/* Combined for simplicity */}
-                  <option value="No Members">No Members</option> {/* For teams with no members in the event */}
+                  <option value="Partially">Partially Present/Absent</option>
+                  <option value="No Members">No Members</option>
                 </select>
               </label>
               {selectedEventForEventsTab && (
                 <button
                   onClick={() => {
                     const headers = [
-                      "Type", 
-                      "Student/Team Name", 
-                      "Members List",
+                      "S.No",
+                      "Registration Type", 
+                      "Participant Name", 
                       "College Name",
+                      "Members List", // This header is for the combined field
                       "Email ID", 
-                      "Mobile No", // Added mobile no to events export
+                      "Mobile No",
+                      "Other Events",
                       "Overall Status" 
                     ];
-                    downloadExcel(processedEventParticipants, headers, `${selectedEventForEventsTab}_Attendance`);
+                    // Attach a temporary serialNo for download
+                    const dataToDownload = processedEventParticipants.map((participant, index) => ({
+                        ...participant,
+                        serialNo: index + 1
+                    }));
+                    downloadExcel(dataToDownload, headers, `${selectedEventForEventsTab}_Attendance`);
                   }}
                   style={{
                     backgroundColor: "#007bff",
@@ -643,53 +673,43 @@ const AdminPage = () => {
               <table border="1" cellPadding="10" style={{ width: "100%" }}>
                 <thead>
                   <tr>
-                    <th>Type</th>
-                    <th>Team No</th> 
-                    <th>Team/Student Name</th>
+                    <th>S.No</th>
+                    <th>Registration Type</th>
+                    <th>Participant Name</th>
                     <th>College Name</th>
-                    <th>Members/Reg No (Mobile No)</th> {/* Updated header */}
-                    <th>Payment Status</th>
+                    <th>Members/Reg No (Mobile No)</th>
+                    <th>Other Events</th>
                     <th>Overall Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {processedEventParticipants.length > 0 ? (
-                    processedEventParticipants.map((entry) => (
+                    processedEventParticipants.map((entry, index) => (
                       <tr key={entry.type === "solo" ? entry._id : entry.teamNo}>
+                        <td>{index + 1}</td>
                         <td>{entry.type === "solo" ? "Solo" : "Team"}</td>
-                        <td>{entry.teamNo || '-'}</td>
                         <td>
                           {entry.type === "solo" ? entry.name : entry.teamName}
-                          {entry.isOnlyForSelectedEvent && <span style={{fontSize: '0.8em', color: 'green', marginLeft: '5px'}}>(Only this event)</span>} {/* Indicator */}
+                          {entry.isOnlyForSelectedEvent && <span style={{fontSize: '0.8em', color: 'green', marginLeft: '5px'}}>(Only this event)</span>}
                         </td>
                         <td>{entry.collegeName}</td>
                         <td>
                           {entry.type === "solo" ? (
-                            `${entry.name} (${entry.regNo}) (Mobile: ${entry.mobile || 'N/A'})` 
+                            `${entry.name} (${entry.regNo}) (Mobile: ${entry.mobile || '-'})` // Changed N/A to -
                           ) : (
                             <ul>
                               {entry.members.map((member) => (
                                 <li key={member._id}>
-                                  {member.name} ({member.regNo}) (Mobile: {member.mobile || 'N/A'}) - Status: {member.status}
+                                  {member.name} ({member.regNo}) (Mobile: {member.mobile || '-'}) - Status: {member.status} {/* Changed N/A to - */}
                                 </li>
                               ))}
                             </ul>
                           )}
                         </td>
-                        <td onClick={() => entry.displayImgUrl && openImagePopup(entry.displayImgUrl)}>
-                          {entry.type === "solo" ? (
-                            entry.imgUrl ? (
-                              <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
-                                Check Proof
-                              </p>
-                            ) : "N/A"
-                          ) : (
-                            entry.hasPaymentProof ? (
-                              <p style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}>
-                                {"Check Payment Proof"}
-                              </p>
-                            ) : "N/A"
-                          )}
+                        <td>
+                          {entry.type === "solo"
+                            ? entry.events.filter(e => e !== selectedEventForEventsTab).join(', ') || '-' // Changed N/A to -
+                            : Array.from(entry.allTeamEvents).filter(e => e !== selectedEventForEventsTab).join(', ') || '-'} {/* Changed N/A to - */}
                         </td>
                         <td>{entry.overallStatus}</td>
                       </tr>
@@ -716,4 +736,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage; 
+export default AdminPage;
