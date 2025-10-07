@@ -374,19 +374,10 @@ app.post("/team-register", async (req, res) => {
 
     // 1. Duplicate regNo check
     const regNos = members.map((m) => m.regNo);
-    const duplicate = regNos.find((regNo, i) => regNos.indexOf(regNo) !== i);
-    if (duplicate) {
-      return res.status(400).json({ error: `Duplicate RegNo in team: ${duplicate}` });
-    }
+    
 
     // 2. Already registered students check
-    const existingStudents = await Student.find({ regNo: { $in: regNos } });
-    if (existingStudents.length > 0) {
-      return res.status(400).json({
-        error: "Some emails already registered",
-        existing: existingStudents.map((s) => s.regNo),
-      });
-    }
+    
 
     // 3. Generate Team No (VTxx)
     const teamNo = await getNextSequence1("team", "VT");
