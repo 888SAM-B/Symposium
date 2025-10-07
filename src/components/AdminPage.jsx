@@ -11,8 +11,10 @@ const AdminPage = () => {
   const [display, setDisplay] = useState("none");
 
   const [studentNameFilter, setStudentNameFilter] = useState("");
+  const [mobileFilter, setmobileFilter] = useState(""); // New: Mobile number filter
 
   const [selectedEventForEventsTab, setSelectedEventForEventsTab] = useState("");
+  const [overallStatusFilter, setOverallStatusFilter] = useState(""); // New: Overall status filter for events tab
 
   const API_URL = import.meta.env.VITE_URL;
 
@@ -63,8 +65,12 @@ const AdminPage = () => {
     const nameMatch = studentNameFilter
       ? student.name?.toLowerCase().includes(studentNameFilter.toLowerCase())
       : true;
+    
+    const mobileMatch = mobileFilter
+      ? student.mobile?.includes(mobileFilter) // Assuming mobile is string
+      : true;
 
-    return teamMatch && eventMatch && statusMatch && nameMatch;
+    return teamMatch && eventMatch && statusMatch && nameMatch && mobileMatch;
   });
 
   const processedEventParticipants = useMemo(() => {
@@ -84,13 +90,14 @@ const AdminPage = () => {
           studentNo: student.studentNo,
           name: student.name,
           regNo: student.regNo, // This is now the Email ID
+          mobile: student.mobile, // Added mobile
           teamNo: student.teamNo,
           teamName: student.teamName,
           collegeName: student.college,
           status: student.status,
           imgUrl: student.imgUrl,
           events: student.events,
-          // Removed 'email' field, will use 'regNo' as email
+          isOnlyForSelectedEvent: student.events.length === 1 && student.events[0] === selectedEventForEventsTab, // New flag
         });
       } else {
         const teamNo = student.teamNo;
@@ -105,6 +112,7 @@ const AdminPage = () => {
             hasPaymentProof: false,
             overallStatus: "N/A",
             imgUrls: [],
+            allTeamEvents: new Set(), // To track all events a team is part of
           });
         }
         const teamEntry = participantsMap.get(teamNo);
@@ -113,10 +121,13 @@ const AdminPage = () => {
           studentNo: student.studentNo,
           name: student.name,
           regNo: student.regNo, // This is now the Email ID
+          mobile: student.mobile, // Added mobile to member
           status: student.status,
           imgUrl: student.imgUrl,
-          // Removed 'email' field, will use 'regNo' as email
         });
+
+        // Add all events of this student to the team's allTeamEvents set
+        student.events.forEach(event => teamEntry.allTeamEvents.add(event));
 
         if (student.imgUrl) {
           teamEntry.hasPaymentProof = true;
@@ -125,7 +136,10 @@ const AdminPage = () => {
       }
     });
 
-    participantsMap.forEach((entry, key) => {
+    let participantsArray = Array.from(participantsMap.values());
+
+    // Calculate overall status and isOnlyForSelectedEvent for teams
+    participantsArray.forEach((entry) => {
       if (entry.type === "team") {
         const statuses = entry.members.map(m => m.status);
         const presentCount = statuses.filter(s => s === "Present").length;
@@ -149,18 +163,47 @@ const AdminPage = () => {
         }
         
         entry.displayImgUrl = entry.imgUrls.length > 0 ? entry.imgUrls[0] : "";
-        // For teams, use the regNo (email) of the first member as the primary team email
         entry.primaryEmail = entry.members[0]?.regNo || "N/A"; 
+        entry.primarymobile = entry.members[0]?.mobile || "N/A"; // Added primary mobile for team
+        
+        // Determine if team is only for this selected event
+        entry.isOnlyForSelectedEvent = 
+          entry.allTeamEvents.size === 1 && 
+          entry.allTeamEvents.has(selectedEventForEventsTab);
       } else {
         entry.overallStatus = entry.status;
         entry.displayImgUrl = entry.imgUrl;
-        // For solo, use their regNo (email) as primary email
         entry.primaryEmail = entry.regNo;
+        entry.primarymobile = entry.mobile; // For solo
       }
     });
 
-    return Array.from(participantsMap.values());
-  }, [students, teams, selectedEventForEventsTab]);
+    // Apply overall status filter for events tab
+    const filteredByOverallStatus = participantsArray.filter(entry => {
+      if (!overallStatusFilter) return true;
+      // Handle the "Partially Present/Absent" option
+      if (overallStatusFilter === "Partially" && 
+          (entry.overallStatus === "Partially Present" || entry.overallStatus === "Partially Absent" || entry.overallStatus === "Mixed")) {
+        return true;
+      }
+      return entry.overallStatus === overallStatusFilter;
+    });
+
+    // Sort participants: those only for the selected event first, then others.
+    // Within each group, sort alphabetically by name/team name.
+    filteredByOverallStatus.sort((a, b) => {
+      // Prioritize those only for the selected event
+      if (a.isOnlyForSelectedEvent && !b.isOnlyForSelectedEvent) return -1;
+      if (!a.isOnlyForSelectedEvent && b.isOnlyForSelectedEvent) return 1;
+
+      // Then sort alphabetically
+      const nameA = a.type === 'solo' ? a.name : a.teamName;
+      const nameB = b.type === 'solo' ? b.name : b.teamName;
+      return nameA.localeCompare(nameB);
+    });
+
+    return filteredByOverallStatus;
+  }, [students, teams, selectedEventForEventsTab, overallStatusFilter]); // Added overallStatusFilter dependency
 
   const handleStatusChange = async (studentId, currentStatus) => {
     const newStatus = currentStatus === "Present" ? "Absent" : "Present";
@@ -219,6 +262,7 @@ const AdminPage = () => {
           case 'Student No': value = item.studentNo; break;
           case 'Name': value = item.name; break;
           case 'RegNo': value = item.regNo; break;
+          case 'Mobile No': value = item.mobile; break; // Added mobile
           case 'Team No': value = item.teamNo; break; 
           case 'Team Name': value = item.teamName; break; 
           case 'College Name': 
@@ -242,7 +286,7 @@ const AdminPage = () => {
           case 'College': value = item.collegeName; break;
           case 'Department': value = item.dept; break;
           case 'Members': 
-            value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Status: ${m.status}`).join('; ') : ''; 
+            value = item.members ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || 'N/A'} - Status: ${m.status}`).join('; ') : ''; 
             break;
           case 'Events': 
             value = item.event ? Object.keys(item.event).join(', ') : ''; 
@@ -253,14 +297,17 @@ const AdminPage = () => {
           case 'Student/Team Name': value = item.type === 'solo' ? item.name : item.teamName; break; 
           case 'Members List': 
             value = item.type === 'solo' 
-                ? `${item.name} (${item.regNo})` 
+                ? `${item.name} (${item.regNo}) - Mobile: ${item.mobile || 'N/A'}` 
                 : (item.members && item.members.length > 0 
-                    ? item.members.map(m => `${m.name} (${m.regNo})`).join(', ') // Join with comma for excel
+                    ? item.members.map(m => `${m.name} (${m.regNo}) - Mobile: ${m.mobile || 'N/A'}`).join(', ') // Join with comma for excel
                     : ''); 
             break;
           case 'College Name': value = item.collegeName; break;
           case 'Email ID': 
             value = item.primaryEmail || 'N/A'; // Use the primaryEmail field
+            break;
+          case 'Mobile No':
+            value = item.primarymobile || 'N/A'; // Use the primarymobile field
             break;
           case 'Overall Status': value = item.overallStatus; break; 
 
@@ -318,6 +365,15 @@ const AdminPage = () => {
                 />
               </label>
               <label>
+                Search by Mobile No:{" "}
+                <input
+                  type="text"
+                  value={mobileFilter}
+                  onChange={(e) => setmobileFilter(e.target.value)}
+                  placeholder="Type mobile number"
+                />
+              </label>
+              <label>
                 Search by Team No:{" "}
                 <input
                   type="text"
@@ -354,7 +410,7 @@ const AdminPage = () => {
               <button
                 onClick={() => {
                   const headers = [
-                    "Student No", "Name", "RegNo", "Team No", "Team Name", 
+                    "Student No", "Name", "RegNo", "Mobile No", "Team No", "Team Name", 
                     "College Name", "Event 1", "Event 2", "Payment Status", "Status"
                   ];
                   downloadExcel(filteredStudents, headers, "Students_List");
@@ -379,6 +435,7 @@ const AdminPage = () => {
                   <th>Student No</th>
                   <th>Name</th>
                   <th>RegNo</th>
+                  <th>Mobile No</th> {/* New column */}
                   <th>Team No</th>
                   <th>Team Name</th>
                   <th>College Name</th>
@@ -405,6 +462,7 @@ const AdminPage = () => {
                         <td>{s.studentNo}</td>
                         <td>{s.name}</td>
                         <td>{s.regNo}</td>
+                        <td>{s.mobile || 'N/A'}</td> {/* Display mobile */}
                         <td>{s.teamNo}</td>
                         <td>{s.teamName}</td>
                         <td>{collegeDisplayName}</td>
@@ -441,7 +499,7 @@ const AdminPage = () => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="11" style={{ textAlign: "center" }}>
+                    <td colSpan="12" style={{ textAlign: "center" }}> {/* Colspan updated */}
                       No students found matching your criteria.
                     </td>
                   </tr>
@@ -496,7 +554,7 @@ const AdminPage = () => {
                       <td>
                         {t.members.map((m, i) => (
                           <div key={i}>
-                            {m.studentNo} - {m.name} ({m.regNo}) -{" "}
+                            {m.studentNo} - {m.name} ({m.regNo}) - Mobile: {m.mobile || 'N/A'} -{" "} {/* Added mobile */}
                             *Status: {m.status}*
                           </div>
                         ))}
@@ -523,7 +581,7 @@ const AdminPage = () => {
         {activeTab === "events" && (
           <div>
             <h2>Event-wise Participants</h2>
-            <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div style={{ marginBottom: "20px", display: "flex", gap: "15px", flexWrap: "wrap", alignItems: "flex-end" }}>
               <label>
                 Select Event:{" "}
                 <select
@@ -538,6 +596,20 @@ const AdminPage = () => {
                   ))}
                 </select>
               </label>
+              <label>
+                Filter by Overall Status:{" "}
+                <select
+                  value={overallStatusFilter}
+                  onChange={(e) => setOverallStatusFilter(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Mixed">Mixed</option>
+                  <option value="Partially">Partially Present/Absent</option> {/* Combined for simplicity */}
+                  <option value="No Members">No Members</option> {/* For teams with no members in the event */}
+                </select>
+              </label>
               {selectedEventForEventsTab && (
                 <button
                   onClick={() => {
@@ -547,6 +619,7 @@ const AdminPage = () => {
                       "Members List",
                       "College Name",
                       "Email ID", 
+                      "Mobile No", // Added mobile no to events export
                       "Overall Status" 
                     ];
                     downloadExcel(processedEventParticipants, headers, `${selectedEventForEventsTab}_Attendance`);
@@ -558,6 +631,7 @@ const AdminPage = () => {
                     padding: "10px 15px",
                     borderRadius: "5px",
                     cursor: "pointer",
+                    marginLeft: "auto"
                   }}
                 >
                   Download Attendance Sheet as Excel
@@ -573,7 +647,7 @@ const AdminPage = () => {
                     <th>Team No</th> 
                     <th>Team/Student Name</th>
                     <th>College Name</th>
-                    <th>Members/Reg No</th>
+                    <th>Members/Reg No (Mobile No)</th> {/* Updated header */}
                     <th>Payment Status</th>
                     <th>Overall Status</th>
                   </tr>
@@ -586,16 +660,17 @@ const AdminPage = () => {
                         <td>{entry.teamNo || '-'}</td>
                         <td>
                           {entry.type === "solo" ? entry.name : entry.teamName}
+                          {entry.isOnlyForSelectedEvent && <span style={{fontSize: '0.8em', color: 'green', marginLeft: '5px'}}>(Only this event)</span>} {/* Indicator */}
                         </td>
                         <td>{entry.collegeName}</td>
                         <td>
                           {entry.type === "solo" ? (
-                            `${entry.name} (${entry.regNo})` 
+                            `${entry.name} (${entry.regNo}) (Mobile: ${entry.mobile || 'N/A'})` 
                           ) : (
                             <ul>
                               {entry.members.map((member) => (
                                 <li key={member._id}>
-                                  {member.name} ({member.regNo}) - Status: {member.status}
+                                  {member.name} ({member.regNo}) (Mobile: {member.mobile || 'N/A'}) - Status: {member.status}
                                 </li>
                               ))}
                             </ul>
@@ -622,7 +697,7 @@ const AdminPage = () => {
                   ) : (
                     <tr>
                       <td colSpan="7" style={{ textAlign: "center" }}>
-                        No participants found for this event.
+                        No participants found for this event with the selected status.
                       </td>
                     </tr>
                   )}
@@ -641,4 +716,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage;
+export default AdminPage; 
