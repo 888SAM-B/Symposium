@@ -18,7 +18,7 @@ const RegisterSymposium = () => {
   const [events, setEvents] = useState({
     "Paper Presentation": [],
     "Poster Presentation": [],
-    "Story Telling": [],
+    "Data Vision": [],
     "Quiz": [],
     "Prompt Builder": [],
     "Social Engineering App": [],
@@ -37,7 +37,7 @@ const RegisterSymposium = () => {
   const [eventToAddMorning, setEventToAddMorning] = useState("");
   const [eventToAddAfternoon, setEventToAddAfternoon] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
-  const morningEvents = ["Paper Presentation", "Story Telling", "Quiz"];
+  const morningEvents = ["Paper Presentation", "Data Vision", "Quiz"];
   const afternoonEvents = ["Prompt Builder", "Social Engineering App", "API Fusion", "Poster Presentation"];
   // Note: allEventNames is not strictly needed for rendering but useful for initial setup/filtering
  const [transactionId,setTransactionId]=useState("") 
@@ -70,10 +70,7 @@ const RegisterSymposium = () => {
 
   const handleSubmit = async () => {
     console.log(uploadedImage)
-    if (hasDuplicateRegNo()) {
-      alert("Duplicate E-mails are not allowed!");
-      return;
-    }
+   
 
     // Ensure all members are assigned to at least one event if any events are selected
     if (selectedMorningEvents.length > 0 || selectedAfternoonEvents.length > 0) {
@@ -163,7 +160,7 @@ const RegisterSymposium = () => {
     setCollegeName("");
     setDept("");
     setEvents({
-      "Paper Presentation": [], "Story Telling": [], "Quiz": [],
+      "Paper Presentation": [], "Data Vision": [], "Quiz": [],
       "Prompt Builder": [], "Social Engineering App": [], "Poster Presentation": [], "API Fusion": [],
     });
     setSelectedMorningEvents([]);
@@ -377,11 +374,7 @@ const RegisterSymposium = () => {
                   setLoading(true)
                   const regNos = members.map((m) => m.regNo.trim());
                   const uniqueRegNos = new Set(regNos);
-                  if (uniqueRegNos.size !== regNos.length) {
-                    alert("Duplicate E-mails Numbers are not allowed!");
-                    setLoading(false)
-                    return;
-                  }
+                  
 
                   try {
                     const response = await fetch(
@@ -395,15 +388,7 @@ const RegisterSymposium = () => {
 
                     const data = await response.json();
 
-                    if (data.exists && data.exists.length > 0) {
-                      alert(
-                        `These E-mails Numbers already exist: ${data.exists.join(
-                          ", "
-                        )}`
-                      );
-                      setLoading(false)
-                      return;
-                    }
+                    
 
                     setStep(3);
                   } catch (error) {
